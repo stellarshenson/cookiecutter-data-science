@@ -66,17 +66,10 @@ endif
 create_environment:
 ifeq (True,$(HAS_CONDA))
 	@echo ">>> Detected conda, creating conda environment."
-ifeq (3,$(findstring 3,$(PYTHON_INTERPRETER)))
 	conda create -y --name $(PROJECT_NAME) python=$(PYTHON3_VERSION)
-	conda install -y --force-reinstall -y -q --name $(PROJECT_NAME) -c conda-forge ipykernel
 	conda run -n $(PROJECT_NAME) --no-capture-output pip install -r requirements.txt
-
-else
-	conda create -y --name $(PROJECT_NAME) python=$(PYTHON2_VERSION)
-	conda install -y --force-reinstall -y -q --name $(PROJECT_NAME) -c conda-forge ipykernel
-	conda run -n $(PROJECT_NAME) --no-capture-output pip install -r requirements.txt
-
-endif
+	@echo ">>> creating jupyterlab kernel dedicated to environment $(PROJECT_NAME)"
+	$(PYTHON_INTERPRETER) -m ipykernel install --user --name $(PROJECT_NAME) --display-name "Python ($(PROJECT_NAME))"
 	@echo ">>> New conda env created. Activate with:\nconda activate $(PROJECT_NAME)"
 else
 	$(PYTHON_INTERPRETER) -m pip install -q virtualenv virtualenvwrapper
@@ -91,6 +84,8 @@ remove_environment:
 ifeq (True,$(HAS_CONDA))
 	@echo ">>> Detected conda, removing conda environment."
 	conda env remove -y -n $(PROJECT_NAME)
+	@echo ">>> Removing jupyterlab kernel for $(PROJECT_NAME)"
+	@echo "y" | jupyter-kernelspec remove $(PROJECT_NAME) 
 endif
 
 
