@@ -90,7 +90,7 @@ endif
 remove_environment:
 ifeq (True,$(HAS_CONDA))
 	@echo ">>> Detected conda, removing conda environment."
-	conda env remove -n $(PROJECT_NAME)
+	conda env remove -y -n $(PROJECT_NAME)
 endif
 
 
