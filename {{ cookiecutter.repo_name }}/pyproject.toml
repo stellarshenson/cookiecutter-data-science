@@ -12,9 +12,10 @@ description="{{ cookiecutter.description }}"
 authors = [
     {name = "{{ cookiecutter.author_name }}"},
 ]
+license = {text = "{% if cookiecutter.open_source_license == 'MIT' %}MIT{% elif cookiecutter.open_source_license == 'BSD-3-Clause' %}BSD-3{% endif %}"}
 
 requires-python = ">=3.11"
-license = {text = "{% if cookiecutter.open_source_license == 'MIT' %}MIT{% elif cookiecutter.open_source_license == 'BSD-3-Clause' %}BSD-3{% endif %}"}
+dependencies = []
 
 [tool.setuptools]
 include-package-data = true # default value
