@@ -35,7 +35,7 @@ Project Organization
     ├── src                <- Source code for use in this project.
     │   └── {{ cookiecutter.module_name }}  <- root of the module
     │       │
-    │       ├── __init__.py    <- Makes {{ cookiecutter.library_name }} a Python module
+    │       ├── __init__.py    <- Makes {{ cookiecutter.module_name }} a Python module
     │       │
     │       ├── data           <- Scripts to download or generate data
     │       │   └── make_dataset.py
