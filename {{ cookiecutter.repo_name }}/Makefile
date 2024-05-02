@@ -39,7 +39,7 @@ clean:
 	find . -type d -name "__pycache__" -delete
 	find . -type d -name "*.egg-info_" -delete
 	@echo 'uninstalling local library'
-	@if [ -d './dist' ]; then pip uninstall -y `find './dist' -name '*.whl'`; else echo 'pip: nothing to uninstall'; fi
+	@pip uninstall $(MODULE_NAME)
 	rm -rf build dist
 
 ## Lint using flake8
