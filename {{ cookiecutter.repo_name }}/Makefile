@@ -122,9 +122,15 @@ save_environment:
 	@echo "saved" `cat requirements.txt | awk 'END{print NR}'` "packages" 
 
 
-## Enable src modules folder
+## Install src modules folder and its dependencies
 install:
 	@pip install --editable .
+	@echo "you can now import '$(MODULE_NAME)' module in your notebooks and scripts"
+
+
+## Install src modules without dependencies
+install_no_dependencies:
+	@pip install --no-dependencies --editable .
 	@echo "you can now import '$(MODULE_NAME)' module in your notebooks and scripts"
 
 
@@ -132,7 +138,7 @@ install:
 install_all:
 	# install requirements
 	@pip install -r requirements.txt
-	@echo "project dependencies have been installed"
+	@echo "project deployment dependencies have been installed"
 	@pip install --editable .
 	@echo "you can now import '$(MODULE_NAME)' module in your notebooks and scripts"
 
