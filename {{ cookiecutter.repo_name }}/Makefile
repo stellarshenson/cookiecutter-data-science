@@ -31,7 +31,7 @@ requirements: test_environment
 
 ## Make Dataset
 data: requirements
-	$(PYTHON_INTERPRETER) src/{{ cookiecutter.library_name }}/data/make_dataset.py data/raw data/processed
+	$(PYTHON_INTERPRETER) src/{{ cookiecutter.module_name }}/data/make_dataset.py data/raw data/processed
 
 ## Delete all compiled Python files
 clean:
