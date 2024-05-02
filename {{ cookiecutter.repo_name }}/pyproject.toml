@@ -6,7 +6,7 @@ requires = [
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "{{ cookiecutter.library_name }}"
+name = "{{ cookiecutter.module_name }}"
 version = "0.1"
 description="{{ cookiecutter.description }}"
 authors = [
