@@ -33,7 +33,7 @@ Project Organization
     │
     ├── setup.py           <- makes project pip installable (pip install -e .) so src can be imported
     ├── src                <- Source code for use in this project.
-    │   └── {{ cookiecutter.library_name }}  <- root of the module
+    │   └── {{ cookiecutter.module_name }}  <- root of the module
     │       │
     │       ├── __init__.py    <- Makes {{ cookiecutter.library_name }} a Python module
     │       │
