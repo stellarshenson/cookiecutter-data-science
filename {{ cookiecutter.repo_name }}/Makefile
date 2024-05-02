@@ -39,7 +39,7 @@ clean:
 	find . -type d -name "__pycache__" -delete
 	find . -type d -name "*.egg-info_" -delete
 	@echo 'uninstalling local library'
-	@pip uninstall $(MODULE_NAME)
+	@pip uninstall -y $(MODULE_NAME)
 	rm -rf build dist
 
 ## Lint using flake8
@@ -124,12 +124,12 @@ save_environment:
 
 ## Enable src modules folder
 install:
-	@pip install --no-dependencies --editable .
+	@pip install --editable .
 	@echo "you can now import '$(MODULE_NAME)' module in your notebooks and scripts"
 
 
 ## Install project and dependencies in the current environment
-install_environment:
+install_all:
 	# install requirements
 	@pip install -r requirements.txt
 	@echo "project dependencies have been installed"
