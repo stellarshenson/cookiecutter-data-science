@@ -8,6 +8,7 @@ PROJECT_DIR := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 BUCKET = {{ cookiecutter.s3_bucket }}
 PROFILE = {{ cookiecutter.aws_profile }}
 PROJECT_NAME = {{ cookiecutter.repo_name }}
+MODULE_NAME = {{ cookiecutter.module_name }}
 PYTHON_INTERPRETER = {{ cookiecutter.python_interpreter }}
 
 ifeq (,$(shell which conda))
@@ -17,7 +18,6 @@ HAS_CONDA=True
 endif
 
 PYTHON3_VERSION=3.11
-PYTHON2_VERSION=2.7
 
 
 #################################################################################
@@ -62,6 +62,7 @@ else
 	aws s3 sync s3://$(BUCKET)/data/ data/ --profile $(PROFILE)
 endif
 
+
 ## Set up python interpreter environment
 create_environment:
 ifeq (True,$(HAS_CONDA))
@@ -87,7 +88,6 @@ ifeq (True,$(HAS_CONDA))
 	@echo ">>> Removing jupyterlab kernel for $(PROJECT_NAME)"
 	@echo "y" | jupyter-kernelspec remove $(PROJECT_NAME) 
 endif
-
 
 ## Test python environment is setup correctly
 test_environment:
@@ -121,21 +121,21 @@ save_environment:
 		| sed 's/^ *- //g' > requirements.txt
 	@echo "saved" `cat requirements.txt | awk 'END{print NR}'` "packages" 
 
-## upgrades environment
-upgrade_environment:
-	@touch requirements.keep
-	@echo 'pruning packages list using keep list'
-	@grep -viG -f requirements.keep requirements.txt > requirements.pruned
-	@cat requirements.pruned | sed 's/==/>=/g' > requirements.upgrade
-	@echo 'upgrading packages'
-	@pip install -r requirements.upgrade --upgrade | tee requirements.upgrade.log
-	@rm requirements.upgrade requirements.pruned
-	@echo 'done'
 
-## enable src libs folder
+## Enable src modules folder
 install:
 	@pip install --no-dependencies --editable .
-	@echo 'you can now import package in your notebooks and scripts'
+	@echo "you can now import '$(MODULE_NAME)' module in your notebooks and scripts"
+
+
+## Install project and dependencies in the current environment
+install_environment:
+	# install requirements
+	@pip install -r requirements.txt
+	@echo "project dependencies have been installed"
+	@pip install --editable .
+	@echo "you can now import '$(MODULE_NAME)' module in your notebooks and scripts"
+
 
 ## Build package & install
 build:

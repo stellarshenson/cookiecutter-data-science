@@ -14,7 +14,7 @@ authors = [
 ]
 license = {text = "{% if cookiecutter.open_source_license == 'MIT' %}MIT{% elif cookiecutter.open_source_license == 'BSD-3-Clause' %}BSD-3{% endif %}"}
 
-requires-python = ">=3.11"
+requires-python = ">=3.10"
 dependencies = []
 
 [tool.setuptools]
