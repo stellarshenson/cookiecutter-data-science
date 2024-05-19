@@ -3,7 +3,7 @@ dependencies:
 
   - pip:
     # local package
-    -e .
+    - -e .
 
     # external requirements
     - click

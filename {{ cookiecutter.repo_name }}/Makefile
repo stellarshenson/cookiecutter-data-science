@@ -68,7 +68,7 @@ create_environment:
 ifeq (True,$(HAS_CONDA))
 	@echo ">>> Detected conda, creating conda environment."
 	conda create -y --name $(PROJECT_NAME) python=$(PYTHON3_VERSION) ipykernel
-    conda env update -n $(PROJECT_NAME) --no-capture-output -f ./environment.yml
+	conda env update -n $(PROJECT_NAME) --no-capture-output -f ./environment.yml
 	@echo ">>> New conda env created. Activate with:\nconda activate $(PROJECT_NAME)"
 else
 	$(PYTHON_INTERPRETER) -m pip install -q virtualenv virtualenvwrapper
@@ -135,7 +135,6 @@ install_all:
 	# install requirements
 	@conda env update -f ./environment.yml
 	@echo "project deployment dependencies have been installed"
-	@pip install --editable .
 	@echo "you can now import '$(MODULE_NAME)' module in your notebooks and scripts"
 
 
