@@ -1,0 +1,13 @@
+dependencies:
+  - pip
+
+  - pip:
+    # local package
+    -e .
+
+    # external requirements
+    - click
+    - coverage
+    - python-dotenv
+  
+# EOF
