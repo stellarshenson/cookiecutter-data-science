@@ -35,12 +35,14 @@ data: requirements
 
 ## Delete all compiled Python files
 clean:
-	find . -type f -name "*.py[co]" -delete
-	find . -type d -name "__pycache__" -delete
-	find . -type d -name "*.egg-info_" -delete
+	@echo "removing cache and compiled files"
+	@find . -type f -name "*.py[co]" -delete
+	@find . -type d -name "__pycache__" -delete
+	@rm -rf `find . -type d -name "*.egg-info"`
+	@echo "removing dist and build directory"
+	@rm -rf build dist
 	@echo 'uninstalling local library'
 	@pip uninstall -y $(MODULE_NAME)
-	rm -rf build dist
 
 ## Lint using flake8
 lint:
