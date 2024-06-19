@@ -49,9 +49,9 @@ lint:
 	flake8 src
 
 ## Run python tests
-test:
-    @echo "executing python tests"
-    pytest -s
+test: install
+	@echo "executing python tests"
+	pytest -s
 
 ## Upload Data to S3
 sync_data_to_s3:
@@ -146,7 +146,7 @@ install_all:
 
 
 ## Build package & install
-build:
+build: test
 	python -m build --wheel
 	@echo "installing project library: $(find ./dist -name '*.whl')"
 	@pip install `find ./dist -name '*.whl'`
