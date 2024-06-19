@@ -48,6 +48,11 @@ clean:
 lint:
 	flake8 src
 
+## Run python tests
+test:
+    @echo "executing python tests"
+    pytest -s
+
 ## Upload Data to S3
 sync_data_to_s3:
 ifeq (default,$(PROFILE))

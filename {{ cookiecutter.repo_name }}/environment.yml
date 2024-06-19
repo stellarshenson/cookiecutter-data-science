@@ -9,5 +9,6 @@ dependencies:
     - click
     - coverage
     - python-dotenv
+    - pytest
   
 # EOF
