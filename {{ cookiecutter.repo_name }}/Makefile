@@ -51,7 +51,7 @@ lint:
 ## Run python tests
 test: install
 	@echo "executing python tests"
-	pytest -s
+	pytest -v
 
 ## Upload Data to S3
 sync_data_to_s3:
