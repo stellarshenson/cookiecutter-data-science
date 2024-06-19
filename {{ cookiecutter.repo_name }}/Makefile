@@ -49,7 +49,7 @@ lint:
 	flake8 src
 
 ## Run python tests
-test: install
+test:
 	@echo "executing python tests"
 	pytest -v
 
