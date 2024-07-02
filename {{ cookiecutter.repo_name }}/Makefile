@@ -39,6 +39,8 @@ clean:
 	@find . -type f -name "*.py[co]" -delete
 	@find . -type d -name "__pycache__" -delete
 	@rm -rf `find . -type d -name "*.egg-info"`
+	@rm -rf `find . -type d -name ".ipynb_checkpoints"`
+	@rm -rf `find . -type d -name ".pytest_cache"`
 	@echo "removing dist and build directory"
 	@rm -rf build dist
 	@echo 'uninstalling local library'
