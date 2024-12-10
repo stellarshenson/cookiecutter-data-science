@@ -12,12 +12,20 @@ MODULE_NAME = {{ cookiecutter.module_name }}
 PYTHON_INTERPRETER = {{ cookiecutter.python_interpreter }}
 CONDA_FLAGS= --no-capture-output
 
-
+# checks if conda is present
 ifeq (,$(shell which conda))
 HAS_CONDA=False
 else
 HAS_CONDA=True
 endif
+
+# checks if environment was installed
+ifeq (,$(shell conda env list | grep $(PROJECT_NAME)))
+HAS_CONDA_ENV=False
+else
+HAS_CONDA_ENV=True
+endif
+
 
 PYTHON3_VERSION=3.11
 
@@ -94,8 +102,10 @@ clean:
 	@find . -type d -name '.pytest_cache' -exec rm -r {} +
 	@echo ">>> removing dist and build directory"
 	@rm -rf build dist
-	@echo '>>> uninstalling local library'
-	@conda run --name ${PROJECT_NAME} ${CONDA_FLAGS} pip uninstall -y $(MODULE_NAME) || true
+ifeq (True,$(HAS_CONDA_ENV))
+        @echo '>>> uninstalling local library'
+        @conda run --name ${PROJECT_NAME} ${CONDA_FLAGS} pip uninstall -y $(MODULE_NAME) || true
+endif
 
 
 ## Install src modules without dependencies
