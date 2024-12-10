@@ -74,8 +74,6 @@ remove_environment:
 ifeq (True,$(HAS_CONDA))
 	@echo ">>> Detected conda, removing conda environment."
 	conda env remove -y -n $(PROJECT_NAME)
-	@echo ">>> Removing jupyterlab kernel for $(PROJECT_NAME)"
-	@echo "y" | jupyter-kernelspec remove $(PROJECT_NAME) 
 endif
 
 ## Test python environment is setup correctly
