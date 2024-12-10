@@ -10,6 +10,8 @@ PROFILE = {{ cookiecutter.aws_profile }}
 PROJECT_NAME = {{ cookiecutter.repo_name }}
 MODULE_NAME = {{ cookiecutter.module_name }}
 PYTHON_INTERPRETER = {{ cookiecutter.python_interpreter }}
+CONDA_FLAGS= --no-capture-output
+
 
 ifeq (,$(shell which conda))
 HAS_CONDA=False
@@ -33,27 +35,6 @@ requirements: test_environment
 data: requirements
 	$(PYTHON_INTERPRETER) src/{{ cookiecutter.module_name }}/data/make_dataset.py data/raw data/processed
 
-## Delete all compiled Python files
-clean:
-	@echo "removing cache and compiled files"
-	@find . -type f -name "*.py[co]" -delete
-	@find . -type d -name "__pycache__" -delete
-	@rm -rf `find . -type d -name "*.egg-info"`
-	@rm -rf `find . -type d -name ".ipynb_checkpoints"`
-	@rm -rf `find . -type d -name ".pytest_cache"`
-	@echo "removing dist and build directory"
-	@rm -rf build dist
-	@echo 'uninstalling local library'
-	@pip uninstall -y $(MODULE_NAME)
-
-## Lint using flake8
-lint:
-	flake8 src
-
-## Run python tests
-test:
-	@echo "executing python tests"
-	pytest -v
 
 ## Upload Data to S3
 sync_data_to_s3:
@@ -72,20 +53,20 @@ else
 endif
 
 
-## Set up python interpreter environment
+# Set up python interpreter environment
 create_environment:
 ifeq (True,$(HAS_CONDA))
-	@echo ">>> Detected conda, creating conda environment."
-	conda create -y --name $(PROJECT_NAME) python=$(PYTHON3_VERSION) ipykernel
-	@echo ">>> Installing environment packages from environment.yml
-	conda env update -n $(PROJECT_NAME) -f ./environment.yml
-	@echo ">>> New conda env created. Activate with:\nconda activate $(PROJECT_NAME)"
-else
-	$(PYTHON_INTERPRETER) -m pip install -q virtualenv virtualenvwrapper
-	@echo ">>> Installing virtualenvwrapper if not already installed.\nMake sure the following lines are in shell startup file\n\
-	export WORKON_HOME=$$HOME/.virtualenvs\nexport PROJECT_HOME=$$HOME/Devel\nsource /usr/local/bin/virtualenvwrapper.sh\n"
-	@bash -c "source `which virtualenvwrapper.sh`;mkvirtualenv $(PROJECT_NAME) --python=$(PYTHON_INTERPRETER)"
-	@echo ">>> New virtualenv created. Activate with:\nworkon $(PROJECT_NAME)"
+	@echo ">>> Detected conda. Checking if environment $(PROJECT_NAME) exists."
+	@if conda info --envs | grep -q "^$(PROJECT_NAME) "; then \
+		echo ">>> Conda environment $(PROJECT_NAME) already exists. Skipping creation."; \
+	else \
+		echo ">>> Creating new conda environment $(PROJECT_NAME)."; \
+		conda create -y --name $(PROJECT_NAME) python=$(PYTHON3_VERSION); \
+		conda env update --name ${PROJECT_NAME} -f environment.yml; \
+ 		echo ">>> Creating JupyterLab kernel dedicated to environment $(PROJECT_NAME)."; \
+	        conda run --name ${PROJECT_NAME} ${CONDA_FLAGS} pip install -U ipykernel; \
+ 		echo ">>> New conda env created. Activate with:\nconda activate $(PROJECT_NAME)"; \
+	fi
 endif
 
 ## Remove previously created environment
@@ -93,6 +74,8 @@ remove_environment:
 ifeq (True,$(HAS_CONDA))
 	@echo ">>> Detected conda, removing conda environment."
 	conda env remove -y -n $(PROJECT_NAME)
+	@echo ">>> Removing jupyterlab kernel for $(PROJECT_NAME)"
+	@echo "y" | jupyter-kernelspec remove $(PROJECT_NAME) 
 endif
 
 ## Test python environment is setup correctly
@@ -103,56 +86,41 @@ test_environment:
 # PROJECT RULES                                                                 #
 #################################################################################
 
-## print project libraries used by the scripts 
-list_requirements:
-	# get list of immediate requirements
-	@pipreqs --mode no-pin --print | tr -cd '[:alnum:].[:space:]._-' | uniq > pipreqs.tmp
-	# add pipreqs to the list (to make it possible to run virtual env)
-	@echo 'pipreqs' >> pipreqs.tmp
-	# list all pip packages along their version
-	@pip list --format=freeze > pipfreeze.tmp
-	# join the reqs and the pip list
-	@awk -F"==" 'FNR==NR {dict[$$1]=$$1; next} {if (dict[$$1] != "") print $$0}' pipreqs.tmp pipfreeze.tmp
-	@rm pipfreeze.tmp pipreqs.tmp
-
-## saves conda environment to environment.yml
-save_environment:
-	# saving environment to environment.yml ...
-	@conda env -n $(PROJECT_NAME) export > environment.yml
-	# updating the requirements.txt file ...
-	@cat environment.yml \
-		| awk '/pip:/,EOF' \
-		| grep --invert-match 'pip:' \
-		| grep --invert-match 'prefix:' \
-		| sed 's/^ *- //g' > requirements.txt
-	@echo "saved" `cat requirements.txt | awk 'END{print NR}'` "packages" 
-
-
-## Install src modules folder and its dependencies
-install:
-	@pip install --editable .
-	@echo "you can now import '$(MODULE_NAME)' module in your notebooks and scripts"
+## Delete all compiled Python files
+clean:
+	@echo ">>> removing cache and compiled files"
+	@find . -type f -name "*.py[co]" -delete
+	@find . -type d -name '__pycache__' -exec rm -r {} +
+	@find . -type d -name '*.egg-info'  -exec rm -r {} +
+	@find . -type d -name '.ipynb_checkpoints' -exec rm -r {} +
+	@find . -type d -name '.pytest_cache' -exec rm -r {} +
+	@echo ">>> removing dist and build directory"
+	@rm -rf build dist
+	@echo '>>> uninstalling local library'
+	@conda run --name ${PROJECT_NAME} ${CONDA_FLAGS} pip uninstall -y $(MODULE_NAME) || true
 
 
 ## Install src modules without dependencies
-install_no_dependencies:
-	@pip install --no-dependencies --editable .
-	@echo "you can now import '$(MODULE_NAME)' module in your notebooks and scripts"
-
-
-## Install project and dependencies in the current environment
-install_all:
-	# install requirements
-	@conda env update -f ./environment.yml
-	@echo "project deployment dependencies have been installed"
-	@echo "you can now import '$(MODULE_NAME)' module in your notebooks and scripts"
-
+install: clean create_environment
+	@echo ">>> installing ${MODULE_NAME} in the ${PROJECT_NAME} environment"
+	@conda run --name ${PROJECT_NAME} ${CONDA_FLAGS} pip install --editable .
+	@echo ">>> fixing issues with jupyterlab 'jump to definition' by installing package in (base)"
+	@conda run --name base pip install --no-dependencies --editable .
+	@echo ">>> you can now import '$(MODULE_NAME)' module in your notebooks and scripts"
 
 ## Build package & install
-build: test
-	python -m build --wheel
-	@echo "installing project library: $(find ./dist -name '*.whl')"
-	@pip install `find ./dist -name '*.whl'`
+build: install test pyproject.toml
+	@echo ">>> building ${MODULE_NAME}" 
+	@conda run --name ${PROJECT_NAME} ${CONDA_FLAGS} python -m build --wheel
+
+## Lint using flake8
+lint:
+	flake8 src
+
+## Run python tests
+test:
+	@echo ">>> executing python tests"
+	pytest -v
 
 #################################################################################
 # Self Documenting Commands                                                     #
