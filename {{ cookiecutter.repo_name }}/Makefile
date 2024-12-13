@@ -13,6 +13,7 @@ PYTHON_INTERPRETER = {{ cookiecutter.python_interpreter }}
 CONDA_FLAGS= --no-capture-output
 CONDA_ENV_NAME = $(PROJECT_NAME)
 
+
 # checks if conda is present
 ifeq (,$(shell which conda))
 HAS_CONDA=False
@@ -65,24 +66,24 @@ endif
 # Set up python interpreter environment
 create_environment:
 ifeq (True,$(HAS_CONDA))
-        @echo ">>> Detected conda. Checking if environment ${CONDA_ENV_NAME} exists."
-        @if conda info --envs | grep -q "^${CONDA_ENV_NAME}"; then \
-                echo ">>> Conda environment ${CONDA_ENV_NAME} already exists. Skipping creation."; \
-        else \
-                echo ">>> Creating new conda environment ${CONDA_ENV_NAME}."; \
-                conda create -y --name ${CONDA_ENV_NAME} python=${PYTHON3_VERSION}; \
-                conda env update --name ${CONDA_ENV_NAME} -f environment.yml; \
-                echo ">>> Creating JupyterLab kernel dedicated to environment ${CONDA_ENV_NAME}"; \
-                conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} pip install -U ipykernel; \
-                echo ">>> New conda env created. Activate with:\nconda activate ${CONDA_ENV_NAME}"; \
-        fi
+	@echo ">>> Detected conda. Checking if environment ${CONDA_ENV_NAME} exists."
+	@if conda info --envs | grep -q "^${CONDA_ENV_NAME}"; then \
+		echo ">>> Conda environment ${CONDA_ENV_NAME} already exists. Skipping creation."; \
+	else \
+		echo ">>> Creating new conda environment ${CONDA_ENV_NAME}."; \
+		conda create -y --name ${CONDA_ENV_NAME} python=${PYTHON3_VERSION}; \
+		conda env update --name ${CONDA_ENV_NAME} -f environment.yml; \
+		echo ">>> Creating JupyterLab kernel dedicated to environment ${CONDA_ENV_NAME}"; \
+		conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} pip install -U ipykernel; \
+		echo ">>> New conda env created. Activate with:\nconda activate ${CONDA_ENV_NAME}"; \
+	fi
 endif
 
 ## Remove previously created environment
 remove_environment:
 ifeq (True,$(HAS_CONDA))
-        @echo ">>> Detected conda, removing ${CONDA_ENV_NAME} conda environment."
-        conda env remove -y -n ${CONDA_ENV_NAME}
+	@echo ">>> Detected conda, removing ${CONDA_ENV_NAME} conda environment."
+	conda env remove -y -n ${CONDA_ENV_NAME}
 endif
 
 
@@ -105,8 +106,8 @@ clean:
 	@echo ">>> removing dist and build directory"
 	@rm -rf build dist
 ifeq (True,$(HAS_CONDA_ENV))
-        @echo '>>> uninstalling local library'
-        @conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} pip uninstall -y $(MODULE_NAME) || true
+	@echo '>>> uninstalling local library'
+	@conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} pip uninstall -y $(MODULE_NAME) || true
 endif
 
 
