@@ -11,6 +11,7 @@ PROJECT_NAME = {{ cookiecutter.repo_name }}
 MODULE_NAME = {{ cookiecutter.module_name }}
 PYTHON_INTERPRETER = {{ cookiecutter.python_interpreter }}
 CONDA_FLAGS= --no-capture-output
+CONDA_ENV_NAME = $(PROJECT_NAME)
 
 # checks if conda is present
 ifeq (,$(shell which conda))
@@ -64,25 +65,26 @@ endif
 # Set up python interpreter environment
 create_environment:
 ifeq (True,$(HAS_CONDA))
-	@echo ">>> Detected conda. Checking if environment $(PROJECT_NAME) exists."
-	@if conda info --envs | grep -q "^$(PROJECT_NAME) "; then \
-		echo ">>> Conda environment $(PROJECT_NAME) already exists. Skipping creation."; \
-	else \
-		echo ">>> Creating new conda environment $(PROJECT_NAME)."; \
-		conda create -y --name $(PROJECT_NAME) python=$(PYTHON3_VERSION); \
-		conda env update --name ${PROJECT_NAME} -f environment.yml; \
- 		echo ">>> Creating JupyterLab kernel dedicated to environment $(PROJECT_NAME)."; \
-	        conda run --name ${PROJECT_NAME} ${CONDA_FLAGS} pip install -U ipykernel; \
- 		echo ">>> New conda env created. Activate with:\nconda activate $(PROJECT_NAME)"; \
-	fi
+        @echo ">>> Detected conda. Checking if environment ${CONDA_ENV_NAME} exists."
+        @if conda info --envs | grep -q "^${CONDA_ENV_NAME}"; then \
+                echo ">>> Conda environment ${CONDA_ENV_NAME} already exists. Skipping creation."; \
+        else \
+                echo ">>> Creating new conda environment ${CONDA_ENV_NAME}."; \
+                conda create -y --name ${CONDA_ENV_NAME} python=${PYTHON3_VERSION}; \
+                conda env update --name ${CONDA_ENV_NAME} -f environment.yml; \
+                echo ">>> Creating JupyterLab kernel dedicated to environment ${CONDA_ENV_NAME}"; \
+                conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} pip install -U ipykernel; \
+                echo ">>> New conda env created. Activate with:\nconda activate ${CONDA_ENV_NAME}"; \
+        fi
 endif
 
 ## Remove previously created environment
 remove_environment:
 ifeq (True,$(HAS_CONDA))
-	@echo ">>> Detected conda, removing conda environment."
-	conda env remove -y -n $(PROJECT_NAME)
+        @echo ">>> Detected conda, removing ${CONDA_ENV_NAME} conda environment."
+        conda env remove -y -n ${CONDA_ENV_NAME}
 endif
+
 
 ## Test python environment is setup correctly
 test_environment:
@@ -104,14 +106,14 @@ clean:
 	@rm -rf build dist
 ifeq (True,$(HAS_CONDA_ENV))
         @echo '>>> uninstalling local library'
-        @conda run --name ${PROJECT_NAME} ${CONDA_FLAGS} pip uninstall -y $(MODULE_NAME) || true
+        @conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} pip uninstall -y $(MODULE_NAME) || true
 endif
 
 
 ## Install src modules without dependencies
 install: clean create_environment
-	@echo ">>> installing ${MODULE_NAME} in the ${PROJECT_NAME} environment"
-	@conda run --name ${PROJECT_NAME} ${CONDA_FLAGS} pip install --editable .
+	@echo ">>> installing ${MODULE_NAME} in the ${CONDA_ENV_NAME} environment"
+	@conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} pip install --editable .
 	@echo ">>> fixing issues with jupyterlab 'jump to definition' by installing package in (base)"
 	@conda run --name base pip install --no-dependencies --editable .
 	@echo ">>> you can now import '$(MODULE_NAME)' module in your notebooks and scripts"
@@ -119,7 +121,7 @@ install: clean create_environment
 ## Build package & install
 build: install test pyproject.toml
 	@echo ">>> building ${MODULE_NAME}" 
-	@conda run --name ${PROJECT_NAME} ${CONDA_FLAGS} python -m build --wheel
+	@conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} python -m build --wheel
 
 ## Lint using flake8
 lint:
