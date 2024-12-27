@@ -130,8 +130,13 @@ lint:
 
 ## Run python tests
 test:
-	@echo ">>> executing python tests"
-	@conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} pytest -v
+	@echo ">>> checking for tests"
+	@if conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} pytest --collect-only > /dev/null 2>&1; then \
+		echo ">>> executing python tests"; \
+		conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} pytest -v; \
+	else \
+		echo ">>> WARNING: no tests present"; \
+	fi
 
 #################################################################################
 # Self Documenting Commands                                                     #
