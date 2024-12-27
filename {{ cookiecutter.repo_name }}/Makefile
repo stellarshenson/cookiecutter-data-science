@@ -126,12 +126,12 @@ build: install test pyproject.toml
 
 ## Lint using flake8
 lint:
-	flake8 src
+	@conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} flake8 src
 
 ## Run python tests
 test:
 	@echo ">>> executing python tests"
-	pytest -v
+	@conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} pytest -v
 
 #################################################################################
 # Self Documenting Commands                                                     #
