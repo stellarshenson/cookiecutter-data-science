@@ -8,6 +8,7 @@ dependencies:
     # external requirements
     - click
     - coverage
+    - build
     - python-dotenv
     - pytest
   
