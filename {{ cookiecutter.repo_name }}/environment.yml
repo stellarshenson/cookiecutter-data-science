@@ -11,5 +11,6 @@ dependencies:
     - build
     - python-dotenv
     - pytest
+    - toml
   
 # EOF
