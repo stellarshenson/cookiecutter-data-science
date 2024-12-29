@@ -113,7 +113,7 @@ endif
 
 ## Install src modules without dependencies
 install: clean create_environment
-	@echo ">>> installing ${MODULE_NAME} in the ${CONDA_ENV_NAME} environment"
+	@echo ">>> installing ${MODULE_NAME} in the ${CONDA_ENV_NAME} environment [EDITABLE]"
 	@conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} pip install --editable .
 	@echo ">>> fixing issues with jupyterlab 'jump to definition' by installing package in (base)"
 	@conda run --name base pip install --no-dependencies --editable .
