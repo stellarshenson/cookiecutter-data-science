@@ -120,7 +120,7 @@ install: clean create_environment
 	@echo ">>> you can now import '$(MODULE_NAME)' module in your notebooks and scripts"
 
 ## Build package & install
-build: install test increment_version_number pyproject.toml
+build: increment_version_number install test pyproject.toml
 	@echo ">>> building ${MODULE_NAME}" 
 	@conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} python -m build --wheel
 
