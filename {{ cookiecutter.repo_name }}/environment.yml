@@ -2,9 +2,6 @@ dependencies:
   - pip
 
   - pip:
-    # local package
-    - -e .
-
     # external requirements
     - click
     - coverage
@@ -13,4 +10,7 @@ dependencies:
     - pytest
     - toml
   
+    # local package
+    - -e .
+
 # EOF
