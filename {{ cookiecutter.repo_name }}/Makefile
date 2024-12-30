@@ -12,7 +12,7 @@ MODULE_NAME = {{ cookiecutter.module_name }}
 PYTHON_INTERPRETER = {{ cookiecutter.python_interpreter }}
 CONDA_FLAGS= --no-capture-output
 CONDA_ENV_NAME = $(PROJECT_NAME)
-
+PYTHON3_VERSION=3.11
 
 # checks if conda is present
 ifeq (,$(shell which conda))
@@ -27,9 +27,6 @@ HAS_CONDA_ENV=False
 else
 HAS_CONDA_ENV=True
 endif
-
-
-PYTHON3_VERSION=3.11
 
 
 #################################################################################
