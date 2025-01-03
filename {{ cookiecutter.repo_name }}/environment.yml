@@ -4,10 +4,9 @@ dependencies:
   - pip:
     # external requirements
     - click
-    - coverage
     - build
-    - python-dotenv
     - pytest
+    - pytest-cov
     - toml
   
     # local package

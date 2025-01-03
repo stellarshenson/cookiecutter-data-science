@@ -137,7 +137,7 @@ test:
 	@conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} pytest --collect-only > /dev/null 2>&1; RESULT="$$?"; \
 	if [ "$$RESULT" != "5" ]; then \
 		echo ">>> executing python tests"; \
-		conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} pytest -v; \
+		conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} pytest -v --cov=.; \
 	else \
 		echo ">>> WARNING: no tests present"; \
 	fi
