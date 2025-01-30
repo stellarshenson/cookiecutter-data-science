@@ -117,12 +117,12 @@ install: clean create_environment
 	@echo ">>> you can now import '$(MODULE_NAME)' module in your notebooks and scripts"
 
 ## Build package & install
-build: increment_version_number install test pyproject.toml
+build: increment_build_number install test pyproject.toml
 	@echo ">>> building ${MODULE_NAME}" 
 	@conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} python -m build --wheel
 
-# Increment version number
-increment_version_number:
+# Increment build number
+increment_build_number:
 	@echo ">> increment version number"
 	@conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} python -c "import toml; data=toml.load('pyproject.toml'); ver=data['project']['version'].split('.'); ver[-1]=str(int(ver[-1])+1); data['project']['version']='.'.join(ver); f=open('pyproject.toml','w'); toml.dump(data,f); f.close(); print('New version:',data['project']['version'])"
 
