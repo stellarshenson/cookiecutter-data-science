@@ -59,7 +59,6 @@ else
 	aws s3 sync s3://$(BUCKET)/data/ data/ --profile $(PROFILE)
 endif
 
-
 # Set up python interpreter environment
 create_environment:
 ifeq (True,$(HAS_CONDA))
@@ -67,22 +66,23 @@ ifeq (True,$(HAS_CONDA))
 	@if conda info --envs | grep -q "^${CONDA_ENV_NAME}"; then \
 		echo ">>> Conda environment ${CONDA_ENV_NAME} already exists. Skipping creation."; \
 	else \
-		echo ">>> Creating new conda environment ${CONDA_ENV_NAME}."; \
+		echo ">>> Creating new conda environment \033[94m${CONDA_ENV_NAME}\033[0m"; \
 		conda create -y --name ${CONDA_ENV_NAME} python=${PYTHON3_VERSION}; \
 		conda env update --name ${CONDA_ENV_NAME} -f environment.yml; \
-		echo ">>> Creating JupyterLab kernel dedicated to environment ${CONDA_ENV_NAME}"; \
-		conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} pip install -U ipykernel; \
-		echo ">>> New conda env created. Activate with:\nconda activate ${CONDA_ENV_NAME}"; \
+ 		echo ">>> Creating JupyterLab kernel dedicated to environment ${CONDA_ENV_NAME}"; \
+	        conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} pip install -U ipykernel; \
+ 		echo ">>> New conda env created successfully. Activate with: \033[94mconda activate ${CONDA_ENV_NAME}\033[0m"; \
+	        conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} nbdime config-git --enable --global; \
+ 		echo ">>> Environment ${CONDA_ENV_NAME} was configured to integrate git with jupyter notebooks"; \
 	fi
 endif
 
 ## Remove previously created environment
 remove_environment:
 ifeq (True,$(HAS_CONDA))
-	@echo ">>> Detected conda, removing ${CONDA_ENV_NAME} conda environment."
-	conda env remove -y -n ${CONDA_ENV_NAME}
+	@echo ">>> Detected conda, removing \033[94m${CONDA_ENV_NAME}\033[0m conda environment."
+	conda deactivate && conda env remove -y -n ${CONDA_ENV_NAME}
 endif
-
 
 ## Test python environment is setup correctly
 test_environment:
@@ -107,14 +107,13 @@ ifeq (True,$(HAS_CONDA_ENV))
 	@conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} pip uninstall -y $(MODULE_NAME) || true
 endif
 
-
 ## Install src modules without dependencies
 install: clean create_environment
 	@echo ">>> installing ${MODULE_NAME} in the ${CONDA_ENV_NAME} environment [\033[092mEDITABLE\033[0m]"
 	@conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} pip install --editable .
 	@echo ">>> fixing issues with jupyterlab 'jump to definition' by installing package in (base)"
 	@conda run --name base pip install --no-dependencies --editable .
-	@echo ">>> you can now import '$(MODULE_NAME)' module in your notebooks and scripts"
+	@echo ">>> you can now import \033[94m$(MODULE_NAME)\033[0m module in your notebooks and scripts\n"
 
 ## Build package & install
 build: increment_build_number install test pyproject.toml
