@@ -2,12 +2,14 @@ dependencies:
   - pip
 
   - pip:
-    # external requirements
-    - click
-    - build
-    - pytest
-    - pytest-cov
-    - toml
+    ## development environment external requirements,
+    ## those dependencies are considered for rinning development environment
+    - click  # to simplify working with argument parsin in scripts
+    - build  # to allow build WHL pachages
+    - nbdime # to allow GIT to work with jupyter notebooks
+    - pytest # for running python test
+    - pytest-cov # for running python test coverage report
+    - toml   # for working with .toml files
   
     # local package
     - -e .
