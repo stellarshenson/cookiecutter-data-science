@@ -62,25 +62,25 @@ endif
 # Set up python interpreter environment
 create_environment:
 ifeq (True,$(HAS_CONDA))
-	@echo ">>> Detected conda. Checking if environment ${CONDA_ENV_NAME} exists."
+	@echo "\033[36m>>>\033[0m detected conda. Checking if environment ${CONDA_ENV_NAME} exists."
 	@if conda info --envs | grep -q "^${CONDA_ENV_NAME}"; then \
-		echo ">>> Conda environment ${CONDA_ENV_NAME} already exists. Skipping creation."; \
+		echo "\033[36m>>>\033[0m conda environment ${CONDA_ENV_NAME} already exists. Skipping creation."; \
 	else \
-		echo ">>> Creating new conda environment \033[94m${CONDA_ENV_NAME}\033[0m"; \
+		echo "\033[36m>>>\033[0m creating new conda environment \033[94m${CONDA_ENV_NAME}\033[0m"; \
 		conda create -y --name ${CONDA_ENV_NAME} python=${PYTHON3_VERSION}; \
 		conda env update --name ${CONDA_ENV_NAME} -f environment.yml; \
- 		echo ">>> Creating JupyterLab kernel dedicated to environment ${CONDA_ENV_NAME}"; \
+ 		echo "\033[36m>>>\033[0m creating JupyterLab kernel dedicated to environment ${CONDA_ENV_NAME}"; \
 	        conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} pip install -U ipykernel; \
- 		echo ">>> New conda env created successfully. Activate with: \033[94mconda activate ${CONDA_ENV_NAME}\033[0m"; \
+ 		echo "\033[36m>>>\033[0m new conda env created successfully. Activate with: \033[94mconda activate ${CONDA_ENV_NAME}\033[0m"; \
 	        conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} nbdime config-git --enable --global; \
- 		echo ">>> Environment ${CONDA_ENV_NAME} was configured to integrate git with jupyter notebooks"; \
+ 		echo "\033[36m>>>\033[0m environment ${CONDA_ENV_NAME} was configured to integrate git with jupyter notebooks"; \
 	fi
 endif
 
 ## Remove previously created environment
 remove_environment:
 ifeq (True,$(HAS_CONDA))
-	@echo ">>> Detected conda, removing \033[94m${CONDA_ENV_NAME}\033[0m conda environment."
+	@echo "\033[36m>>>\033[0m detected conda, removing \033[94m${CONDA_ENV_NAME}\033[0m conda environment."
 	conda run --name base conda env remove -y -n ${CONDA_ENV_NAME}
 endif
 
@@ -94,35 +94,35 @@ test_environment:
 
 ## Delete all compiled Python files
 clean:
-	@echo ">>> removing cache and compiled files"
+	@echo "\033[36m>>>\033[0m removing cache and compiled files"
 	@find . -type f -name "*.py[co]" -delete
 	@find . -type d -name '__pycache__' -exec rm -r {} +
 	@find . -type d -name '*.egg-info'  -exec rm -r {} +
 	@find . -type d -name '.ipynb_checkpoints' -exec rm -r {} +
 	@find . -type d -name '.pytest_cache' -exec rm -r {} +
-	@echo ">>> removing dist and build directory"
+	@echo "\033[36m>>>\033[0m removing dist and build directory"
 	@rm -rf build dist
 ifeq (True,$(HAS_CONDA_ENV))
-	@echo '>>> uninstalling local library'
+	@echo '\033[36m>>>\033[0m uninstalling local library'
 	@conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} pip uninstall -y $(MODULE_NAME) || true
 endif
 
 ## Install src modules without dependencies
 install: clean create_environment
-	@echo ">>> installing ${MODULE_NAME} in the ${CONDA_ENV_NAME} environment [\033[092mEDITABLE\033[0m]"
+	@echo "\033[36m>>>\033[0m installing ${MODULE_NAME} in the ${CONDA_ENV_NAME} environment [\033[092mEDITABLE\033[0m]"
 	@conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} pip install --editable .
-	@echo ">>> fixing issues with jupyterlab 'jump to definition' by installing package in (base)"
+	@echo "\033[36m>>>\033[0m fixing issues with jupyterlab 'jump to definition' by installing package in (base)"
 	@conda run --name base pip install --no-dependencies --editable .
-	@echo ">>> you can now import \033[94m$(MODULE_NAME)\033[0m module in your notebooks and scripts\n"
+	@echo "\033[36m>>>\033[0m you can now import \033[94m$(MODULE_NAME)\033[0m module in your notebooks and scripts\n"
 
 ## Build package & install
 build: increment_build_number install test pyproject.toml
-	@echo ">>> building ${MODULE_NAME}" 
+	@echo "\033[36m>>>\033[0m building ${MODULE_NAME}" 
 	@conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} python -m build --wheel
 
 # Increment build number
 increment_build_number:
-	@echo ">> increment version number"
+	@echo "\033[36m>>>\033[0m incrementing version number"
 	@conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} python -c "import toml; data=toml.load('pyproject.toml'); ver=data['project']['version'].split('.'); ver[-1]=str(int(ver[-1])+1); data['project']['version']='.'.join(ver); f=open('pyproject.toml','w'); toml.dump(data,f); f.close(); print('New version:',data['project']['version'])"
 
 
@@ -132,13 +132,13 @@ lint:
 
 ## Run python tests
 test:
-	@echo ">>> checking for tests"
+	@echo "\033[36m>>>\033[0m checking for tests"
 	@conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} pytest --collect-only > /dev/null 2>&1; RESULT="$$?"; \
 	if [ "$$RESULT" != "5" ]; then \
-		echo ">>> executing python tests"; \
+		echo "\033[36m>>>\033[0m executing python tests"; \
 		conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} pytest -v --cov; \
 	else \
-		echo ">>> WARNING: no tests present"; \
+		echo "\033[36m>>>\033[0m WARNING: no tests present"; \
 	fi
 
 #################################################################################
