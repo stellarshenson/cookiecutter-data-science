@@ -81,7 +81,7 @@ endif
 remove_environment:
 ifeq (True,$(HAS_CONDA))
 	@echo ">>> Detected conda, removing \033[94m${CONDA_ENV_NAME}\033[0m conda environment."
-	conda deactivate && conda env remove -y -n ${CONDA_ENV_NAME}
+	conda run --name base conda env remove -y -n ${CONDA_ENV_NAME}
 endif
 
 ## Test python environment is setup correctly
