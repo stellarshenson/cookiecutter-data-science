@@ -138,7 +138,7 @@ test:
 		echo "\033[36m>>>\033[0m executing python tests"; \
 		conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} pytest -v --cov; \
 	else \
-		echo "\033[36m>>>\033[0m WARNING: no tests present"; \
+		echo "\033[36m>>>\033[0m \033[33mWARNING: no tests present\033[0m"; \
 	fi
 
 #################################################################################
