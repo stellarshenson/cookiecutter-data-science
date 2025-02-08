@@ -103,7 +103,7 @@ clean:
 	@echo "\033[36m>>>\033[0m removing dist and build directory"
 	@rm -rf build dist
 ifeq (True,$(HAS_CONDA_ENV))
-	@echo '\033[36m>>>\033[0m uninstalling local library'
+	@echo "\033[36m>>>\033[0m uninstalling local library"
 	@conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} pip uninstall -y $(MODULE_NAME) || true
 endif
 
