@@ -1,4 +1,4 @@
-.PHONY: clean data lint requirements sync_data_to_s3 sync_data_from_s3 test
+.PHONY: clean data lint requirements build sync_data_to_s3 sync_data_from_s3 sync test
 
 #################################################################################
 # GLOBALS                                                                       #
@@ -9,14 +9,21 @@ BUCKET = {{ cookiecutter.s3_bucket }}
 PROFILE = {{ cookiecutter.aws_profile }}
 PROJECT_NAME = {{ cookiecutter.repo_name }}
 MODULE_NAME = {{ cookiecutter.module_name }}
-PYTHON_INTERPRETER = {{ cookiecutter.python_interpreter }}
 CONDA_FLAGS= --no-capture-output
 CONDA_ENV_NAME = $(PROJECT_NAME)
-PYTHON3_VERSION=3.11
+PYTHON_INTERPRETER = {{ cookiecutter.python_interpreter }}
+PYTHON3_VERSION= {{ cookiecutter.python_version }}
 
 #################################################################################
 # TESTS                                                                         #
 #################################################################################
+
+# styles and colors
+MSG_PREFIX = \033[1m\033[36m>>>\033[0m
+WARN_STYLE = \033[33m
+ENV_STYLE = \033[94m
+OK_STYLE = \033[92m
+NO_STYLE = \033[0m
 
 # checks if conda is present
 ifeq (,$(shell which conda))
@@ -39,13 +46,13 @@ endif
 
 ## Install Python Dependencies
 requirements: test_environment
-	@echo "\033[36m>>>\033[0m installing requirements for  \033[94m${CONDA_ENV_NAME}\033[0m environment"
+	@echo "${MSG_PREFIX} installing requirements for  ${ENV_STYLE}${CONDA_ENV_NAME}${NO_STYLE} environment"
 	conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} $(PYTHON_INTERPRETER) -m pip install -U pip setuptools wheel
 	conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} $(PYTHON_INTERPRETER) -m pip install -r requirements.txt
 
 ## Make Dataset
 data: requirements
-	@echo "\033[36m>>>\033[0m generating dataset"
+	@echo "${MSG_PREFIX} generating dataset"
 	conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} $(PYTHON_INTERPRETER) src/${MODULE_NAME}/data/make_dataset.py data/raw data/processed
 
 ## Upload Data to S3
@@ -64,34 +71,48 @@ else
 	aws s3 sync s3://$(BUCKET)/data/ data/ --profile $(PROFILE)
 endif
 
+## Upload runtime data to s3
+sync: 
+	@echo "${MSG_PREFIX} sync artifacts and models to s3"
+ifeq (default,$(PROFILE))
+	aws s3 rm s3://$(BUCKET)/artifacts/ --recursive --include='*'
+	aws s3 sync models/ s3://$(BUCKET)/models/
+	aws s3 sync artifacts s3://$(BUCKET)/artifacts/
+else
+	aws s3 rm s3://$(BUCKET)/artifacts/ --recursive --include='*' --profile $(PROFILE)
+	aws s3 sync models/ s3://$(BUCKET)/models/ --profile $(PROFILE)
+	aws s3 sync artifacts s3://$(BUCKET)/artifacts/ --profile $(PROFILE)
+endif
+
+
 # Set up python interpreter environment
 create_environment:
 ifeq (True,$(HAS_CONDA))
-	@echo "\033[36m>>>\033[0m detected conda. Checking if environment ${CONDA_ENV_NAME} exists."
+	@echo "${MSG_PREFIX} detected conda. Checking if environment ${CONDA_ENV_NAME} exists."
 	@if conda info --envs | grep -q "^${CONDA_ENV_NAME}"; then \
-		echo "\033[36m>>>\033[0m conda environment ${CONDA_ENV_NAME} already exists. Skipping creation."; \
+		echo "${MSG_PREFIX} conda environment ${CONDA_ENV_NAME} already exists. Skipping creation."; \
 	else \
-		echo "\033[36m>>>\033[0m creating new conda environment \033[94m${CONDA_ENV_NAME}\033[0m"; \
+		echo "${MSG_PREFIX} creating new conda environment ${ENV_STYLE}${CONDA_ENV_NAME}${NO_STYLE}"; \
 		conda create -y --name ${CONDA_ENV_NAME} python=${PYTHON3_VERSION}; \
 		conda env update --name ${CONDA_ENV_NAME} -f environment.yml; \
- 		echo "\033[36m>>>\033[0m creating JupyterLab kernel dedicated to environment ${CONDA_ENV_NAME}"; \
+ 		echo "${MSG_PREFIX} creating JupyterLab kernel dedicated to environment ${CONDA_ENV_NAME}"; \
 	        conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} pip install -U ipykernel; \
- 		echo "\033[36m>>>\033[0m new conda env created successfully. Activate with: \033[94mconda activate ${CONDA_ENV_NAME}\033[0m"; \
+ 		echo "${MSG_PREFIX} new conda env created successfully. Activate with: ${ENV_STYLE}conda activate ${CONDA_ENV_NAME}${NO_STYLE}"; \
 	        conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} nbdime config-git --enable --global; \
- 		echo "\033[36m>>>\033[0m environment ${CONDA_ENV_NAME} was configured to integrate git with jupyter notebooks"; \
+ 		echo "${MSG_PREFIX} environment ${CONDA_ENV_NAME} was configured to integrate git with jupyter notebooks"; \
 	fi
 endif
 
 ## Remove previously created environment
 remove_environment:
 ifeq (True,$(HAS_CONDA))
-	@echo "\033[36m>>>\033[0m detected conda, removing \033[94m${CONDA_ENV_NAME}\033[0m conda environment."
+	@echo "${MSG_PREFIX} detected conda, removing ${ENV_STYLE}${CONDA_ENV_NAME}${NO_STYLE} conda environment."
 	conda run --name base conda env remove -y -n ${CONDA_ENV_NAME}
 endif
 
 ## Test python environment is setup correctly
 test_environment:
-	@echo "\033[36m>>>\033[0m testing environment \033[94m${CONDA_ENV_NAME}\033[0m if ready"
+	@echo "${MSG_PREFIX} testing environment ${ENV_STYLE}${CONDA_ENV_NAME}${NO_STYLE} if ready"
 	conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} $(PYTHON_INTERPRETER) test_environment.py
 
 #################################################################################
@@ -100,50 +121,51 @@ test_environment:
 
 ## Delete all compiled Python files
 clean:
-	@echo "\033[36m>>>\033[0m removing cache and compiled files"
+	@echo "${MSG_PREFIX} removing cache and compiled files"
 	@find . -type f -name "*.py[co]" -delete
 	@find . -type d -name '__pycache__' -exec rm -r {} +
 	@find . -type d -name '*.egg-info'  -exec rm -r {} +
 	@find . -type d -name '.ipynb_checkpoints' -exec rm -r {} +
 	@find . -type d -name '.pytest_cache' -exec rm -r {} +
-	@echo "\033[36m>>>\033[0m removing dist and build directory"
+	@echo "${MSG_PREFIX} removing dist and build directory"
 	@rm -rf build dist
 ifeq (True,$(HAS_CONDA_ENV))
-	@echo "\033[36m>>>\033[0m uninstalling local library"
+	@echo "${MSG_PREFIX} uninstalling local library"
 	@conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} pip uninstall -y $(MODULE_NAME) || true
 endif
 
 ## Install src modules without dependencies
 install: clean create_environment
-	@echo "\033[36m>>>\033[0m installing ${MODULE_NAME} in the ${CONDA_ENV_NAME} environment [\033[092mEDITABLE\033[0m]"
+	@echo "${MSG_PREFIX} installing ${MODULE_NAME} in the ${CONDA_ENV_NAME} environment ${OK_STYLE}EDITABLE${NO_STYLE}"
 	@conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} pip install --editable .
-	@echo "\033[36m>>>\033[0m fixing issues with jupyterlab 'jump to definition' by installing package in (base)"
+	@echo "${MSG_PREFIX} fixing issues with jupyterlab 'jump to definition' by installing package in (base)"
 	@conda run --name base pip install --no-dependencies --editable .
-	@echo "\033[36m>>>\033[0m you can now import \033[94m$(MODULE_NAME)\033[0m module in your notebooks and scripts\n"
+	@echo "${MSG_PREFIX} you can now import ${ENV_STYLE}$(MODULE_NAME)${NO_STYLE} module in your notebooks and scripts\n"
 
 ## Build package & install
 build: increment_build_number install test pyproject.toml
-	@echo "\033[36m>>>\033[0m building ${MODULE_NAME}" 
+	@echo "${MSG_PREFIX} building ${MODULE_NAME}" 
 	@conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} ${PYTHON_INTERPRETER} -m build --wheel
 
 # Increment build number
 increment_build_number:
-	@echo "\033[36m>>>\033[0m incrementing version number"
+	@echo "${MSG_PREFIX} incrementing build number"
 	@conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} ${PYTHON_INTERPRETER} -c "import toml; data=toml.load('pyproject.toml'); ver=data['project']['version'].split('.'); ver[-1]=str(int(ver[-1])+1); data['project']['version']='.'.join(ver); f=open('pyproject.toml','w'); toml.dump(data,f); f.close(); print('New version:',data['project']['version'])"
 
 ## Lint using flake8
 lint:
+	@echo "${MSG_PREFIX} linting the sourcecode"
 	@conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} flake8 src
 
 ## Run python tests
 test:
-	@echo "\033[36m>>>\033[0m checking for tests"
+	@echo "${MSG_PREFIX} checking for tests"
 	@conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} pytest --collect-only > /dev/null 2>&1; RESULT="$$?"; \
 	if [ "$$RESULT" != "5" ]; then \
-		echo "\033[36m>>>\033[0m executing python tests"; \
+		echo "${MSG_PREFIX} executing python tests"; \
 		conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} pytest -v --cov; \
 	else \
-		echo "\033[36m>>>\033[0m \033[33mWARNING: no tests present\033[0m"; \
+		echo "${MSG_PREFIX} ${WARN_STYLE}WARNING: no tests present${NO_STYLE}"; \
 	fi
 
 #################################################################################
