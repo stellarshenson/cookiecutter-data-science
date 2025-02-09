@@ -14,6 +14,10 @@ CONDA_FLAGS= --no-capture-output
 CONDA_ENV_NAME = $(PROJECT_NAME)
 PYTHON3_VERSION=3.11
 
+#################################################################################
+# TESTS                                                                         #
+#################################################################################
+
 # checks if conda is present
 ifeq (,$(shell which conda))
 HAS_CONDA=False
@@ -35,13 +39,14 @@ endif
 
 ## Install Python Dependencies
 requirements: test_environment
-	$(PYTHON_INTERPRETER) -m pip install -U pip setuptools wheel
-	$(PYTHON_INTERPRETER) -m pip install -r requirements.txt
+	@echo "\033[36m>>>\033[0m installing requirements for  \033[94m${CONDA_ENV_NAME}\033[0m environment"
+	conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} $(PYTHON_INTERPRETER) -m pip install -U pip setuptools wheel
+	conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} $(PYTHON_INTERPRETER) -m pip install -r requirements.txt
 
 ## Make Dataset
 data: requirements
-	$(PYTHON_INTERPRETER) src/{{ cookiecutter.module_name }}/data/make_dataset.py data/raw data/processed
-
+	@echo "\033[36m>>>\033[0m generating dataset"
+	conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} $(PYTHON_INTERPRETER) src/${MODULE_NAME}/data/make_dataset.py data/raw data/processed
 
 ## Upload Data to S3
 sync_data_to_s3:
@@ -86,7 +91,8 @@ endif
 
 ## Test python environment is setup correctly
 test_environment:
-	$(PYTHON_INTERPRETER) test_environment.py
+	@echo "\033[36m>>>\033[0m testing environment \033[94m${CONDA_ENV_NAME}\033[0m if ready"
+	conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} $(PYTHON_INTERPRETER) test_environment.py
 
 #################################################################################
 # PROJECT RULES                                                                 #
@@ -118,13 +124,12 @@ install: clean create_environment
 ## Build package & install
 build: increment_build_number install test pyproject.toml
 	@echo "\033[36m>>>\033[0m building ${MODULE_NAME}" 
-	@conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} python -m build --wheel
+	@conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} ${PYTHON_INTERPRETER} -m build --wheel
 
 # Increment build number
 increment_build_number:
 	@echo "\033[36m>>>\033[0m incrementing version number"
-	@conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} python -c "import toml; data=toml.load('pyproject.toml'); ver=data['project']['version'].split('.'); ver[-1]=str(int(ver[-1])+1); data['project']['version']='.'.join(ver); f=open('pyproject.toml','w'); toml.dump(data,f); f.close(); print('New version:',data['project']['version'])"
-
+	@conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} ${PYTHON_INTERPRETER} -c "import toml; data=toml.load('pyproject.toml'); ver=data['project']['version'].split('.'); ver[-1]=str(int(ver[-1])+1); data['project']['version']='.'.join(ver); f=open('pyproject.toml','w'); toml.dump(data,f); f.close(); print('New version:',data['project']['version'])"
 
 ## Lint using flake8
 lint:
@@ -206,3 +211,4 @@ help:
 
 
 # EOF
+
