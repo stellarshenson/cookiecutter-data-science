@@ -28,6 +28,9 @@ ENV_STYLE = \033[94m
 OK_STYLE = \033[92m
 NO_STYLE = \033[0m
 
+# additional settings
+CLEAN_REMOVES_LIBRARY = False
+
 # checks if conda is present
 ifeq (,$(shell which conda))
 HAS_CONDA=False
@@ -141,8 +144,8 @@ clean: check_conda
 	@find . -type d -name '.pytest_cache' -exec rm -r {} +
 	@echo "${MSG_PREFIX} removing dist and build directory"
 	@rm -rf build dist
-ifeq (True,$(HAS_CONDA_ENV))
-	@echo "${MSG_PREFIX} uninstalling local library"
+ifeq (True,$(CLEAN_REMOVES_LIBRARY))
+	@echo "${MSG_PREFIX} uninstalling ${MODULE_NAME} library"
 	@conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} pip uninstall -y $(MODULE_NAME) || true
 endif
 
