@@ -115,7 +115,7 @@ endif
 
 # check conda
 check_conda:
-ifeq (True,$(HAS_CONDA))
+ifeq (False,$(HAS_CONDA))
 	@echo "${ERR_PREFIX} ${ERR_STYLE}ERROR: conda not installed${NO_STYLE}"
 	@echo "${ERR_PREFIX} ${ERR_STYLE}install anaconda or miniforge from https://github.com/conda-forge/miniforge${NO_STYLE}"
 	@exit 1
