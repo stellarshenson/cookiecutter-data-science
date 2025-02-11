@@ -20,6 +20,7 @@ PYTHON3_VERSION= {{ cookiecutter.python_version }}
 
 # styles and colors
 MSG_PREFIX = \033[1m\033[36m>>>\033[0m
+WARN_PREFIX = \033[33m>>>\033[0m
 WARN_STYLE = \033[33m
 ENV_STYLE = \033[94m
 OK_STYLE = \033[92m
@@ -165,7 +166,7 @@ test:
 		echo "${MSG_PREFIX} executing python tests"; \
 		conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} pytest -v --cov; \
 	else \
-		echo "${MSG_PREFIX} ${WARN_STYLE}WARNING: no tests present${NO_STYLE}"; \
+		echo "${WARN_PREFIX} ${WARN_STYLE}WARNING: no tests present${NO_STYLE}"; \
 	fi
 
 #################################################################################
