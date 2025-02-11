@@ -21,7 +21,9 @@ PYTHON3_VERSION= {{ cookiecutter.python_version }}
 # styles and colors
 MSG_PREFIX = \033[1m\033[36m>>>\033[0m
 WARN_PREFIX = \033[33m>>>\033[0m
+ERR_PREFIX = \033[31m>>>\033[0m
 WARN_STYLE = \033[33m
+ERR_STYLE = \033[31m
 ENV_STYLE = \033[94m
 OK_STYLE = \033[92m
 NO_STYLE = \033[0m
@@ -46,13 +48,13 @@ endif
 #################################################################################
 
 ## Install Python Dependencies
-requirements: test_environment
+requirements: test_environment check_conda
 	@echo "${MSG_PREFIX} installing requirements for  ${ENV_STYLE}${CONDA_ENV_NAME}${NO_STYLE} environment"
 	conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} $(PYTHON_INTERPRETER) -m pip install -U pip setuptools wheel
 	conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} $(PYTHON_INTERPRETER) -m pip install -r requirements.txt
 
 ## Make Dataset
-data: requirements
+data: requirements check_conda
 	@echo "${MSG_PREFIX} generating dataset"
 	conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} $(PYTHON_INTERPRETER) src/${MODULE_NAME}/data/make_dataset.py data/raw data/processed
 
@@ -87,7 +89,7 @@ endif
 
 
 # Set up python interpreter environment
-create_environment:
+create_environment: check_conda
 ifeq (True,$(HAS_CONDA))
 	@echo "${MSG_PREFIX} detected conda. Checking if environment ${CONDA_ENV_NAME} exists."
 	@if conda info --envs | grep -q "^${CONDA_ENV_NAME}"; then \
@@ -105,14 +107,23 @@ ifeq (True,$(HAS_CONDA))
 endif
 
 ## Remove previously created environment
-remove_environment:
+remove_environment: check_conda
 ifeq (True,$(HAS_CONDA))
 	@echo "${MSG_PREFIX} detected conda, removing ${ENV_STYLE}${CONDA_ENV_NAME}${NO_STYLE} conda environment."
 	conda run --name base conda env remove -y -n ${CONDA_ENV_NAME}
 endif
 
+# check conda
+check_conda:
+ifeq (True,$(HAS_CONDA))
+	@echo "${ERR_PREFIX} ${ERR_STYLE}ERROR: conda not installed${NO_STYLE}"
+	@echo "${ERR_PREFIX} ${ERR_STYLE}install anaconda or miniforge from https://github.com/conda-forge/miniforge${NO_STYLE}"
+	@exit 1
+endif
+
+
 ## Test python environment is setup correctly
-test_environment:
+test_environment: check_conda
 	@echo "${MSG_PREFIX} testing environment ${ENV_STYLE}${CONDA_ENV_NAME}${NO_STYLE} if ready"
 	conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} $(PYTHON_INTERPRETER) test_environment.py
 
@@ -121,7 +132,7 @@ test_environment:
 #################################################################################
 
 ## Delete all compiled Python files
-clean:
+clean: check_conda
 	@echo "${MSG_PREFIX} removing cache and compiled files"
 	@find . -type f -name "*.py[co]" -delete
 	@find . -type d -name '__pycache__' -exec rm -r {} +
@@ -136,7 +147,7 @@ ifeq (True,$(HAS_CONDA_ENV))
 endif
 
 ## Install src modules without dependencies
-install: clean create_environment
+install: clean create_environment check_conda
 	@echo "${MSG_PREFIX} installing ${MODULE_NAME} in the ${CONDA_ENV_NAME} environment ${OK_STYLE}EDITABLE${NO_STYLE}"
 	@conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} pip install --editable .
 	@echo "${MSG_PREFIX} fixing issues with jupyterlab 'jump to definition' by installing package in (base)"
@@ -144,22 +155,22 @@ install: clean create_environment
 	@echo "${MSG_PREFIX} you can now import ${ENV_STYLE}$(MODULE_NAME)${NO_STYLE} module in your notebooks and scripts\n"
 
 ## Build package & install
-build: increment_build_number install test pyproject.toml
+build: increment_build_number install test pyproject.toml check_conda
 	@echo "${MSG_PREFIX} building ${MODULE_NAME}" 
 	@conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} ${PYTHON_INTERPRETER} -m build --wheel
 
 # Increment build number
-increment_build_number:
+increment_build_number: check_conda
 	@echo "${MSG_PREFIX} incrementing build number"
 	@conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} ${PYTHON_INTERPRETER} -c "import toml; data=toml.load('pyproject.toml'); ver=data['project']['version'].split('.'); ver[-1]=str(int(ver[-1])+1); data['project']['version']='.'.join(ver); f=open('pyproject.toml','w'); toml.dump(data,f); f.close(); print('New version:',data['project']['version'])"
 
 ## Lint using flake8
-lint:
+lint: check_conda
 	@echo "${MSG_PREFIX} linting the sourcecode"
 	@conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} flake8 src
 
 ## Run python tests
-test:
+test: check_conda
 	@echo "${MSG_PREFIX} checking for tests"
 	@conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} pytest --collect-only > /dev/null 2>&1; RESULT="$$?"; \
 	if [ "$$RESULT" != "5" ]; then \
