@@ -24,7 +24,7 @@ WARN_PREFIX = \033[33m>>>\033[0m
 ERR_PREFIX = \033[31m>>>\033[0m
 WARN_STYLE = \033[33m
 ERR_STYLE = \033[31m
-ENV_STYLE = \033[94m
+HIGHLIGHT_STYLE = \033[1m\033[94m
 OK_STYLE = \033[92m
 NO_STYLE = \033[0m
 
@@ -52,7 +52,7 @@ endif
 
 ## Install Python Dependencies
 requirements: test_environment check_conda
-	@echo "${MSG_PREFIX} installing requirements for  ${ENV_STYLE}${CONDA_ENV_NAME}${NO_STYLE} environment"
+	@echo "${MSG_PREFIX} installing requirements for  ${HIGHLIGHT_STYLE}${CONDA_ENV_NAME}${NO_STYLE} environment"
 	conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} $(PYTHON_INTERPRETER) -m pip install -U pip setuptools wheel
 	conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} $(PYTHON_INTERPRETER) -m pip install -r requirements.txt
 
@@ -98,12 +98,12 @@ ifeq (True,$(HAS_CONDA))
 	@if conda info --envs | grep -q "^${CONDA_ENV_NAME}"; then \
 		echo "${MSG_PREFIX} conda environment ${CONDA_ENV_NAME} already exists. Skipping creation."; \
 	else \
-		echo "${MSG_PREFIX} creating new conda environment ${ENV_STYLE}${CONDA_ENV_NAME}${NO_STYLE}"; \
+		echo "${MSG_PREFIX} creating new conda environment ${HIGHLIGHT_STYLE}${CONDA_ENV_NAME}${NO_STYLE}"; \
 		conda create -y --name ${CONDA_ENV_NAME} python=${PYTHON3_VERSION}; \
 		conda env update --name ${CONDA_ENV_NAME} -f environment.yml; \
  		echo "${MSG_PREFIX} creating JupyterLab kernel dedicated to environment ${CONDA_ENV_NAME}"; \
 	        conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} pip install -U ipykernel; \
- 		echo "${MSG_PREFIX} new conda env created successfully. Activate with: ${ENV_STYLE}conda activate ${CONDA_ENV_NAME}${NO_STYLE}"; \
+ 		echo "${MSG_PREFIX} new conda env created successfully. Activate with: ${HIGHLIGHT_STYLE}conda activate ${CONDA_ENV_NAME}${NO_STYLE}"; \
 	        conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} nbdime config-git --enable --global; \
  		echo "${MSG_PREFIX} environment ${CONDA_ENV_NAME} was configured to integrate git with jupyter notebooks"; \
 	fi
@@ -112,7 +112,7 @@ endif
 ## Remove previously created environment
 remove_environment: check_conda
 ifeq (True,$(HAS_CONDA))
-	@echo "${MSG_PREFIX} detected conda, removing ${ENV_STYLE}${CONDA_ENV_NAME}${NO_STYLE} conda environment."
+	@echo "${MSG_PREFIX} detected conda, removing ${HIGHLIGHT_STYLE}${CONDA_ENV_NAME}${NO_STYLE} conda environment."
 	conda run --name base conda env remove -y -n ${CONDA_ENV_NAME}
 endif
 
@@ -127,7 +127,7 @@ endif
 
 ## Test python environment is setup correctly
 test_environment: check_conda
-	@echo "${MSG_PREFIX} testing environment ${ENV_STYLE}${CONDA_ENV_NAME}${NO_STYLE} if ready"
+	@echo "${MSG_PREFIX} testing environment ${HIGHLIGHT_STYLE}${CONDA_ENV_NAME}${NO_STYLE} if ready"
 	conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} $(PYTHON_INTERPRETER) test_environment.py
 
 #################################################################################
@@ -155,7 +155,7 @@ install: clean create_environment check_conda
 	@conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} pip install --editable .
 	@echo "${MSG_PREFIX} fixing issues with jupyterlab 'jump to definition' by installing package in (base)"
 	@conda run --name base pip install --no-dependencies --editable .
-	@echo "${MSG_PREFIX} you can now import ${ENV_STYLE}$(MODULE_NAME)${NO_STYLE} module in your notebooks and scripts\n"
+	@echo "${MSG_PREFIX} you can now import ${HIGHLIGHT_STYLE}$(MODULE_NAME)${NO_STYLE} module in your notebooks and scripts\n"
 
 ## Build package & install
 build: increment_build_number install test pyproject.toml check_conda
