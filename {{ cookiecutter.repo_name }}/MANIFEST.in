@@ -1,0 +1,6 @@
+include Makefile
+include test/*.parquet
+recursive-include test *.parquet
+recursive-include test *.keras
+recursive-include test *.joblib
+
