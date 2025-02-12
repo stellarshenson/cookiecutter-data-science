@@ -150,7 +150,7 @@ ifeq (True,$(CLEAN_REMOVES_LIBRARY))
 endif
 
 ## Install src modules without dependencies
-install: clean create_environment check_conda
+install: check_conda clean create_environment
 	@echo "${MSG_PREFIX} installing ${MODULE_NAME} in the ${CONDA_ENV_NAME} environment ${OK_STYLE}EDITABLE${NO_STYLE}"
 	@conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} pip install --editable .
 	@echo "${MSG_PREFIX} fixing issues with jupyterlab 'jump to definition' by installing package in (base)"
@@ -158,7 +158,7 @@ install: clean create_environment check_conda
 	@echo "${MSG_PREFIX} you can now import ${HIGHLIGHT_STYLE}$(MODULE_NAME)${NO_STYLE} module in your notebooks and scripts\n"
 
 ## Build package & install
-build: increment_build_number install test pyproject.toml check_conda
+build: check_conda pyproject.toml install test increment_build_number
 	@echo "${MSG_PREFIX} building ${MODULE_NAME}" 
 	@conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} ${PYTHON_INTERPRETER} -m build --wheel
 
