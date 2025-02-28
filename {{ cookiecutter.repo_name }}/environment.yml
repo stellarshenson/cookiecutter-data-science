@@ -4,7 +4,6 @@ dependencies:
   - pip:
     ## development environment external requirements,
     ## those dependencies are considered for rinning development environment
-    - autoreload # for autoreloading python modules
     - click  # to simplify working with argument parsin in scripts
     - build  # to allow build WHL pachages
     - ipykernel # to make conda env appear as kernel
