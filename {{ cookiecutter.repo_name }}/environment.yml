@@ -6,6 +6,7 @@ dependencies:
     ## those dependencies are considered for rinning development environment
     - click  # to simplify working with argument parsin in scripts
     - build  # to allow build WHL pachages
+    - ipykernel # to make conda env appear as kernel
     - nbdime # to allow GIT to work with jupyter notebooks, integrate with git using `nbdime config-git --enable --global`
     - pytest # for running python test
     - pytest-cov # for running python test coverage report

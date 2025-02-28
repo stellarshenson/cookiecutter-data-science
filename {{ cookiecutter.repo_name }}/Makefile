@@ -101,8 +101,6 @@ ifeq (True,$(HAS_CONDA))
 		echo "${MSG_PREFIX} creating new conda environment ${HIGHLIGHT_STYLE}${CONDA_ENV_NAME}${NO_STYLE}"; \
 		conda create -y --name ${CONDA_ENV_NAME} python=${PYTHON3_VERSION}; \
 		conda env update --name ${CONDA_ENV_NAME} -f environment.yml; \
- 		echo "${MSG_PREFIX} creating JupyterLab kernel dedicated to environment ${CONDA_ENV_NAME}"; \
-	        conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} pip install -U ipykernel; \
  		echo "${MSG_PREFIX} new conda env created successfully. Activate with: ${HIGHLIGHT_STYLE}conda activate ${CONDA_ENV_NAME}${NO_STYLE}"; \
 	        conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} nbdime config-git --enable --global; \
  		echo "${MSG_PREFIX} environment ${CONDA_ENV_NAME} was configured to integrate git with jupyter notebooks"; \
