@@ -153,7 +153,7 @@ install: check_conda clean create_environment
 	@conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} pip install --editable .
 	@echo "${MSG_PREFIX} fixing issues with jupyterlab 'jump to definition' by installing package in (base)"
 	@conda run --name base pip install --no-dependencies --editable .
-@echo "${MSG_PREFIX} you can now import ${HIGHLIGHT_STYLE}$(MODULE_NAME)${NO_STYLE} module in your notebooks and scripts\n"
+	@echo "${MSG_PREFIX} you can now import ${HIGHLIGHT_STYLE}$(MODULE_NAME)${NO_STYLE} module in your notebooks and scripts\n"
 
 ## Build package & install
 build: check_conda pyproject.toml install test increment_build_number
