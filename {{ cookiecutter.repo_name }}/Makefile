@@ -158,7 +158,7 @@ install: check_conda clean create_environment
 ## Build package & install
 build: check_conda pyproject.toml install test increment_build_number
 	@echo "${MSG_PREFIX} building ${MODULE_NAME}" 
-	@conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} ${PYTHON_INTERPRETER} -m build 
+	@conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} ${PYTHON_INTERPRETER} -m build --wheel
 
 # Increment build number
 increment_build_number: check_conda
