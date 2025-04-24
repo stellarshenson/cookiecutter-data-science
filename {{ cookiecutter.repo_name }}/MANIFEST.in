@@ -1,6 +1,8 @@
+# include build system
 include Makefile
-include test/*.parquet
-recursive-include test *.parquet
-recursive-include test *.keras
-recursive-include test *.joblib
+include environment.yml
+
+# include all from test directory
+graft test
+
 
