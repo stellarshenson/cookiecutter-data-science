@@ -91,7 +91,7 @@ else
 endif
 
 
-# Set up python interpreter environment
+## Set up conda environment
 create_environment: check_conda
 ifeq (True,$(HAS_CONDA))
 	@echo "${MSG_PREFIX} detected conda. Checking if environment ${CONDA_ENV_NAME} exists."
