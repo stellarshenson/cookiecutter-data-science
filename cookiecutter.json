@@ -1,6 +1,6 @@
 {
     "project_name": "project_name",
-    "environment_name": "{{ cookiecutter.project_name.lower().replace(' ', '_') }}",
+    "env_name": "{{ cookiecutter.project_name.lower().replace(' ', '_') }}",
     "repo_name": "{{ cookiecutter.project_name.lower().replace(' ', '_') }}",
     "module_name": "{{ 'lib_' + cookiecutter.repo_name.replace('-', '_') }}",
     "author_name": "Your name (or your organization/company/team)",

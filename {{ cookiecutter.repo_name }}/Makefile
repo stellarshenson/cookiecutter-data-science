@@ -10,7 +10,7 @@ PROFILE = {{ cookiecutter.aws_profile }}
 PROJECT_NAME = {{ cookiecutter.repo_name }}
 MODULE_NAME = {{ cookiecutter.module_name }}
 CONDA_FLAGS= --no-capture-output
-CONDA_ENV_NAME = {{ environment_name }}
+CONDA_ENV_NAME = {{ env_name }}
 PYTHON_INTERPRETER = {{ cookiecutter.python_interpreter }}
 PYTHON3_VERSION= {{ cookiecutter.python_version }}
 
