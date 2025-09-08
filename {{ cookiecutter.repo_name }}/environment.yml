@@ -1,4 +1,5 @@
 dependencies:
+  - python={{ cookiecutter.python_version }}
   - pip
 
   - pip:
