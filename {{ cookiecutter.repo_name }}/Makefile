@@ -10,9 +10,7 @@ PROFILE = {{ cookiecutter.aws_profile }}
 PROJECT_NAME = {{ cookiecutter.repo_name }}
 MODULE_NAME = {{ cookiecutter.module_name }}
 CONDA_FLAGS= --no-capture-output
-CONDA_ENV_NAME = {{ cookiecutter.env_name }}
-PYTHON_INTERPRETER = {{ cookiecutter.python_interpreter }}
-PYTHON3_VERSION= {{ cookiecutter.python_version }}
+CONDA_ENV_NAME = $(shell grep '^name:' environment.yml | sed 's/name: *//')
 
 #################################################################################
 # TESTS                                                                         #
@@ -53,13 +51,13 @@ endif
 ## Install Python Dependencies
 requirements: test_environment check_conda
 	@echo "${MSG_PREFIX} installing requirements for  ${HIGHLIGHT_STYLE}${CONDA_ENV_NAME}${NO_STYLE} environment"
-	conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} $(PYTHON_INTERPRETER) -m pip install -U pip setuptools wheel
-	conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} $(PYTHON_INTERPRETER) -m pip install -r requirements.txt
+	conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} python -m pip install -U pip setuptools wheel
+	conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} python -m pip install -r requirements.txt
 
 ## Make Dataset
 data: requirements check_conda
 	@echo "${MSG_PREFIX} generating dataset"
-	conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} $(PYTHON_INTERPRETER) src/${MODULE_NAME}/data/make_dataset.py data/raw data/processed
+	conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} python src/${MODULE_NAME}/data/make_dataset.py data/raw data/processed
 
 ## Upload Data to S3
 sync_data_to_s3:
@@ -99,8 +97,7 @@ ifeq (True,$(HAS_CONDA))
 		echo "${MSG_PREFIX} conda environment ${CONDA_ENV_NAME} already exists. Skipping creation."; \
 	else \
 		echo "${MSG_PREFIX} creating new conda environment ${HIGHLIGHT_STYLE}${CONDA_ENV_NAME}${NO_STYLE}"; \
-		conda create -y --name ${CONDA_ENV_NAME} python=${PYTHON3_VERSION}; \
-		conda env update --name ${CONDA_ENV_NAME} -f environment.yml; \
+		conda env create -f environment.yml; \
  		echo "${MSG_PREFIX} new conda env created successfully. Activate with: ${HIGHLIGHT_STYLE}conda activate ${CONDA_ENV_NAME}${NO_STYLE}"; \
 	        conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} nbdime config-git --enable --global; \
  		echo "${MSG_PREFIX} environment ${CONDA_ENV_NAME} was configured to integrate git with jupyter notebooks"; \
@@ -126,7 +123,7 @@ endif
 ## Test python environment is setup correctly
 test_environment: check_conda
 	@echo "${MSG_PREFIX} testing environment ${HIGHLIGHT_STYLE}${CONDA_ENV_NAME}${NO_STYLE} if ready"
-	conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} $(PYTHON_INTERPRETER) test_environment.py
+	conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} python test_environment.py
 
 #################################################################################
 # PROJECT RULES                                                                 #
@@ -158,12 +155,12 @@ install: check_conda clean create_environment
 ## Build package & install
 build: check_conda pyproject.toml install test increment_build_number
 	@echo "${MSG_PREFIX} building ${MODULE_NAME}" 
-	@conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} ${PYTHON_INTERPRETER} -m build --wheel
+	@conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} python -m build --wheel
 
 # Increment build number
 increment_build_number: check_conda
 	@echo "${MSG_PREFIX} incrementing build number"
-	@conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} ${PYTHON_INTERPRETER} -c "import toml; data=toml.load('pyproject.toml'); ver=data['project']['version'].split('.'); ver[-1]=str(int(ver[-1])+1); data['project']['version']='.'.join(ver); f=open('pyproject.toml','w'); toml.dump(data,f); f.close(); print('New version:',data['project']['version'])"
+	@conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} python -c "import toml; data=toml.load('pyproject.toml'); ver=data['project']['version'].split('.'); ver[-1]=str(int(ver[-1])+1); data['project']['version']='.'.join(ver); f=open('pyproject.toml','w'); toml.dump(data,f); f.close(); print('New version:',data['project']['version'])"
 
 ## Lint using flake8
 lint: check_conda
