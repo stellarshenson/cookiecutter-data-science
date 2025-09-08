@@ -13,7 +13,6 @@ dependencies:
     - pytest-cov # for running python test coverage report
     - toml   # for working with .toml files
   
-    # local package
-    - -e .
+    # - -e . # local project, but it is preferred to install with pip `pip install --editable .`
 
 # EOF
