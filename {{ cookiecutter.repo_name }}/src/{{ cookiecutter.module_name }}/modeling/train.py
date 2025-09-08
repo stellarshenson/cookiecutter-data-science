@@ -4,7 +4,7 @@ from loguru import logger
 from tqdm import tqdm
 import typer
 
-from test.config import MODELS_DIR, PROCESSED_DATA_DIR
+from {{ cookiecutter.module_name }}.config import MODELS_DIR, PROCESSED_DATA_DIR
 
 app = typer.Typer()
 
