@@ -10,7 +10,7 @@ PROFILE = {{ cookiecutter.aws_profile }}
 PROJECT_NAME = {{ cookiecutter.repo_name }}
 MODULE_NAME = {{ cookiecutter.module_name }}
 CONDA_FLAGS= --no-capture-output
-CONDA_ENV_NAME = $(shell grep '^name:' environment.yml | sed 's/name: *//')
+CONDA_ENV_NAME = $(shell sed -n 's/^name:[ \t]*\([^# \t]*\).*/\1/p' environment.yml)
 
 #################################################################################
 # TESTS                                                                         #

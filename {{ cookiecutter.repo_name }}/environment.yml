@@ -1,16 +1,12 @@
-# name of the environment
-name:  {{ cookiecutter.env_name }}
-dependencies:
-  # set python version
-  - python={{ cookiecutter.python_version }}
-  
-  # install package manager
-  - pip
+name:  {{ cookiecutter.env_name }} # name of the environment
 
-  - pip:
-    
-    ## environment dependencies for development
-    ## keep runtime dependencies in pyproject.toml
+## environment dependencies for development
+## keep runtime dependencies in pyproject.toml
+dependencies:
+  - python={{ cookiecutter.python_version }} # set python version
+  - pip # install package manager
+
+  - pip:    
     - build  # to allow build WHL pachages
     - ipykernel # to load env as kernel
     - IPython  # to load proper ipython extensions, 9.0 is broken
