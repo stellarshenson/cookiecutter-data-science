@@ -1,4 +1,4 @@
-.PHONY: clean data lint requirements build sync_data_to_s3 sync_data_from_s3 sync test
+.PHONY: clean data lint requirements build sync_data_up sync_data_down sync test
 
 #################################################################################
 # GLOBALS                                                                       #
