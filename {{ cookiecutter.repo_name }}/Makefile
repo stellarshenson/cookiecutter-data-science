@@ -60,7 +60,7 @@ data: requirements check_conda
 	conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} python src/${MODULE_NAME}/data/make_dataset.py data/raw data/processed
 
 ## Upload Data to S3
-sync_data_to_s3:
+sync_data_up:
 ifeq (default,$(PROFILE))
 	aws s3 sync data/ s3://$(BUCKET)/data/
 else
@@ -68,7 +68,7 @@ else
 endif
 
 ## Download Data from S3
-sync_data_from_s3:
+sync_data_down:
 ifeq (default,$(PROFILE))
 	aws s3 sync s3://$(BUCKET)/data/ data/
 else
