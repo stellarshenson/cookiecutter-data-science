@@ -1,13 +1,12 @@
-{{cookiecutter.project_name}}
-==============================
-
+# {{cookiecutter.project_name}}
 {{cookiecutter.description}}
 
-Project Organization
-------------
+# Project Organization
 
+
+```
     ├── LICENSE
-    ├── Makefile           <- Makefile with commands like `make data` or `make train`
+    ├── Makefile           <- Makefile with commands like `make install`,  `make data` or `make train`
     ├── README.md          <- The top-level README for developers using this project.
     ├── data
     │   ├── external       <- Data from third party sources.
@@ -30,31 +29,29 @@ Project Organization
     ├── reports            <- Generated analysis as HTML, PDF, LaTeX, etc.
     │   └── figures        <- Generated graphics and figures to be used in reporting
     │
-    ├── requirements.txt   <- The requirements file for reproducing the analysis environment, e.g.
-    │                         generated with `pip freeze > requirements.txt`
+    ├── environment.yml    <- conda environment setup with development-time packages to install
     │
-    ├── setup.py           <- makes project pip installable (pip install -e .) so src can be imported
+    ├── pyproject.toml     <- python module configuration and dependencies
+    │
     ├── src                <- Source code for use in this project.
-    │   └── {{ cookiecutter.module_name }}  <- root of the module
+    │   └── {{cookiecutter.module_name}}    <- Python module
+    │       ├── __init__.py    <- Makes the Python module
     │       │
-    │       ├── __init__.py    <- Makes {{ cookiecutter.module_name }} a Python module
+    │       ├── config .py     <- Configuration script loaded automatically           
     │       │
-    │       ├── data           <- Scripts to download or generate data
-    │       │   └── make_dataset.py
+    │       ├── dataset.py     <- Scripts to download or generate data           
     │       │
-    │       ├── features       <- Scripts to turn raw data into features for modeling
-    │       │   └── build_features.py
+    │       ├── features.py       <- Scripts to turn raw data into features for modeling
     │       │
-    │       ├── models         <- Scripts to train models and then use trained models to make
+    │       ├── modeling         <- Scripts to train models and then use trained models to make
     │       │   │                 predictions
-    │       │   ├── predict_model.py
-    │       │   └── train_model.py
+    │       │   ├── predict.py
+    │       │   └── train.py
     │       │
-    │       └── visualization  <- Scripts to create exploratory and results oriented visualizations
-    │           └── visualize.py
+    │       └── plots.py       <- Scripts to create exploratory and results oriented visualizations
     │
-    └── tox.ini            <- tox file with settings for running tox; see tox.readthedocs.io
-
+    └── test                   <- tests source code
+```
 
 --------
 
