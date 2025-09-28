@@ -33,8 +33,7 @@
     │
     ├── pyproject.toml     <- python module configuration and dependencies
     │
-    ├── src                <- Source code for use in this project.
-    │   └── {{cookiecutter.module_name}}    <- Python module
+    ├── {{cookiecutter.module_name}}    <- python module source code
     │       ├── __init__.py    <- Makes the Python module
     │       │
     │       ├── config .py     <- Configuration script loaded automatically           

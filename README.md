@@ -73,8 +73,7 @@ The directory structure of your new project looks like this:
 │                         generated with `pip freeze > requirements.txt`
 │
 ├── setup.py           <- makes project pip installable (pip install -e .) so src can be imported
-├── src                <- Source code for use in this project.
-│   └── module_name    <- Python module
+├── module_name        <- python module source code
 │       ├── __init__.py    <- Makes the Python module
 │       │
 │       ├── config .py     <- Configuration script loaded automatically           

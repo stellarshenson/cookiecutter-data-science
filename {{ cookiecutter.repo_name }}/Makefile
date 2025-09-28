@@ -57,7 +57,7 @@ requirements: test_environment check_conda
 ## Make Dataset
 data: requirements check_conda
 	@echo "${MSG_PREFIX} generating dataset"
-	conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} python src/${MODULE_NAME}/data/make_dataset.py data/raw data/processed
+	conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} python ${MODULE_NAME}/dataset.py "data/raw/processed"
 
 ## Upload Data to S3
 sync_data_up:
@@ -165,7 +165,7 @@ increment_build_number: check_conda
 ## Lint using flake8
 lint: check_conda
 	@echo "${MSG_PREFIX} linting the sourcecode"
-	@conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} flake8 src
+	@conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} flake8 {{ cookiecutter.module_name }} 
 
 ## Run python tests
 test: check_conda
