@@ -25,9 +25,6 @@ dependencies = [
 [tool.setuptools]
 include-package-data = true # default value
 
-[tool.setuptools.package-data]
-{{ cookiecutter.module_name }} = [ "**/*",]
-
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["{{ cookiecutter.module_name }}*"]
