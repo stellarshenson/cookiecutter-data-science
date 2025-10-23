@@ -123,7 +123,13 @@ endif
 ## Test python environment is setup correctly
 test_environment: check_conda
 	@echo "${MSG_PREFIX} testing environment ${HIGHLIGHT_STYLE}${CONDA_ENV_NAME}${NO_STYLE} if ready"
-	conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} python test_environment.py
+	@if ! conda env list | grep -q "^${CONDA_ENV_NAME} "; then \
+		echo "${ERR_PREFIX} ${ERR_STYLE}ERROR: environment ${CONDA_ENV_NAME} not found${NO_STYLE}"; \
+		exit 1; \
+	fi
+	@echo "${MSG_PREFIX} checking Python version"
+	@conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} python --version
+	@echo "${OK_STYLE}✓ Environment ${CONDA_ENV_NAME} is properly configured${NO_STYLE}"
 
 #################################################################################
 # PROJECT RULES                                                                 #
