@@ -31,6 +31,6 @@ include-package-data = true # default value
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["{{ cookiecutter.module_name }}*"]
-exclude = ["{{ cookiecutter.module_name }}.test*"]
+exclude = ["{{ cookiecutter.module_name }}.tests*"]
 
 # EOF
