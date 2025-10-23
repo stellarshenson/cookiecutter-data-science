@@ -171,7 +171,7 @@ increment_build_number: check_conda
 ## Lint using flake8
 lint: check_conda
 	@echo "${MSG_PREFIX} linting the sourcecode"
-	@conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} flake8 {{ cookiecutter.module_name }} 
+	@conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} flake8 ${MODULE_NAME} 
 
 ## Run python tests
 test: check_conda
