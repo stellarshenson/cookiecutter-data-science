@@ -2,6 +2,7 @@
 
 _A logical, reasonably standardized, but flexible project structure for doing and sharing data science work._
 
+[![Donate PayPal](https://img.shields.io/badge/Donate-PayPal-blue?style=flat)](https://www.paypal.com/donate/?hosted_button_id=B4KPBJDLLXTSA)
 
 #### [Project homepage](http://drivendata.github.io/cookiecutter-data-science/)
 
