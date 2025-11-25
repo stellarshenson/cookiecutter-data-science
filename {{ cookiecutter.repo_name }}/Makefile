@@ -11,10 +11,10 @@ PROJECT_NAME = {{ cookiecutter.repo_name }}
 MODULE_NAME = {{ cookiecutter.module_name }}
 CONDA_FLAGS = --no-capture-output
 
-# environment location: local (.venv) or global (conda envs)
+# environment location: local (<env_name>.venv) or global (conda envs)
 ENV_LOCATION = {{ cookiecutter.env_location }}
 CONDA_ENV_NAME = $(shell sed -n '/^name:/{ s/^name:[ \t]*//; s/[ \t]*\#.*//; s/[ \t]*$$//p; }' environment.yml)
-CONDA_ENV_PATH = $(PROJECT_DIR)/.venv
+CONDA_ENV_PATH = $(PROJECT_DIR)/$(CONDA_ENV_NAME).venv
 
 # set conda env selector based on location
 ifeq ($(ENV_LOCATION),local)
@@ -112,17 +112,15 @@ endif
 create_environment: check_conda
 ifeq (True,$(HAS_CONDA))
 ifeq ($(ENV_LOCATION),local)
-	@echo "${MSG_PREFIX} detected conda. Checking if local environment exists at .venv"
+	@echo "${MSG_PREFIX} detected conda. Checking if local environment exists at ${CONDA_ENV_NAME}.venv"
 	@if [ -d "$(CONDA_ENV_PATH)/conda-meta" ]; then \
-		echo "${MSG_PREFIX} local conda environment already exists at .venv. Skipping creation."; \
+		echo "${MSG_PREFIX} local conda environment already exists at ${CONDA_ENV_NAME}.venv. Skipping creation."; \
 	else \
-		echo "${MSG_PREFIX} creating new local conda environment at ${HIGHLIGHT_STYLE}.venv${NO_STYLE}"; \
+		echo "${MSG_PREFIX} creating new local conda environment at ${HIGHLIGHT_STYLE}${CONDA_ENV_NAME}.venv${NO_STYLE}"; \
 		conda env create -p $(CONDA_ENV_PATH) -f environment.yml; \
 		echo "${MSG_PREFIX} new conda env created successfully. Activate with: ${HIGHLIGHT_STYLE}conda activate $(CONDA_ENV_PATH)${NO_STYLE}"; \
 		conda run -p $(CONDA_ENV_PATH) ${CONDA_FLAGS} nbdime config-git --enable --global; \
 		echo "${MSG_PREFIX} environment was configured to integrate git with jupyter notebooks"; \
-		conda run -p $(CONDA_ENV_PATH) ${CONDA_FLAGS} python -m ipykernel install --sys-prefix --name python3 --display-name "Python [proj:$(PROJECT_NAME)]"; \
-		echo "${MSG_PREFIX} set Jupyter kernel display name to ${HIGHLIGHT_STYLE}Python [proj:$(PROJECT_NAME)]${NO_STYLE}"; \
 	fi
 else
 	@echo "${MSG_PREFIX} detected conda. Checking if environment ${CONDA_ENV_NAME} exists."
@@ -142,7 +140,7 @@ endif
 remove_environment: check_conda
 ifeq (True,$(HAS_CONDA))
 ifeq ($(ENV_LOCATION),local)
-	@echo "${MSG_PREFIX} detected conda, removing local environment at ${HIGHLIGHT_STYLE}.venv${NO_STYLE}"
+	@echo "${MSG_PREFIX} detected conda, removing local environment at ${HIGHLIGHT_STYLE}${CONDA_ENV_NAME}.venv${NO_STYLE}"
 	conda run --name base conda env remove -y -p $(CONDA_ENV_PATH)
 else
 	@echo "${MSG_PREFIX} detected conda, removing ${HIGHLIGHT_STYLE}${CONDA_ENV_NAME}${NO_STYLE} conda environment."
@@ -162,14 +160,14 @@ endif
 ## Test python environment is setup correctly
 test_environment: check_conda
 ifeq ($(ENV_LOCATION),local)
-	@echo "${MSG_PREFIX} testing local environment at ${HIGHLIGHT_STYLE}.venv${NO_STYLE} if ready"
+	@echo "${MSG_PREFIX} testing local environment at ${HIGHLIGHT_STYLE}${CONDA_ENV_NAME}.venv${NO_STYLE} if ready"
 	@if [ ! -d "$(CONDA_ENV_PATH)/conda-meta" ]; then \
-		echo "${ERR_PREFIX} ${ERR_STYLE}ERROR: local environment not found at .venv${NO_STYLE}"; \
+		echo "${ERR_PREFIX} ${ERR_STYLE}ERROR: local environment not found at ${CONDA_ENV_NAME}.venv${NO_STYLE}"; \
 		exit 1; \
 	fi
 	@echo "${MSG_PREFIX} checking Python version"
 	@conda run -p $(CONDA_ENV_PATH) ${CONDA_FLAGS} python --version
-	@echo "${OK_STYLE}✓ Local environment .venv is properly configured${NO_STYLE}"
+	@echo "${OK_STYLE}✓ Local environment ${CONDA_ENV_NAME}.venv is properly configured${NO_STYLE}"
 else
 	@echo "${MSG_PREFIX} testing environment ${HIGHLIGHT_STYLE}${CONDA_ENV_NAME}${NO_STYLE} if ready"
 	@if ! conda env list | grep -q "^${CONDA_ENV_NAME} "; then \
