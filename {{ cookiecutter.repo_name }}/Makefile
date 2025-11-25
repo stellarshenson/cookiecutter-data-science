@@ -9,8 +9,19 @@ BUCKET = {{ cookiecutter.s3_bucket }}
 PROFILE = {{ cookiecutter.aws_profile }}
 PROJECT_NAME = {{ cookiecutter.repo_name }}
 MODULE_NAME = {{ cookiecutter.module_name }}
-CONDA_FLAGS= --no-capture-output
+CONDA_FLAGS = --no-capture-output
+
+# environment location: local (.venv) or global (conda envs)
+ENV_LOCATION = {{ cookiecutter.env_location }}
 CONDA_ENV_NAME = $(shell sed -n '/^name:/{ s/^name:[ \t]*//; s/[ \t]*\#.*//; s/[ \t]*$$//p; }' environment.yml)
+CONDA_ENV_PATH = $(PROJECT_DIR)/.venv
+
+# set conda env selector based on location
+ifeq ($(ENV_LOCATION),local)
+CONDA_ENV_SELECTOR = -p $(CONDA_ENV_PATH)
+else
+CONDA_ENV_SELECTOR = --name $(CONDA_ENV_NAME)
+endif
 
 #################################################################################
 # TESTS                                                                         #
@@ -37,10 +48,18 @@ HAS_CONDA=True
 endif
 
 # checks if environment was installed
+ifeq ($(ENV_LOCATION),local)
+ifeq (,$(wildcard $(CONDA_ENV_PATH)/conda-meta))
+HAS_CONDA_ENV=False
+else
+HAS_CONDA_ENV=True
+endif
+else
 ifeq (,$(shell conda env list | grep $(PROJECT_NAME)))
 HAS_CONDA_ENV=False
 else
 HAS_CONDA_ENV=True
+endif
 endif
 
 
@@ -51,13 +70,13 @@ endif
 ## Install Python Dependencies
 requirements: test_environment check_conda
 	@echo "${MSG_PREFIX} installing requirements for  ${HIGHLIGHT_STYLE}${CONDA_ENV_NAME}${NO_STYLE} environment"
-	conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} python -m pip install -U pip setuptools wheel
-	conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} python -m pip install -r requirements.txt
+	conda run ${CONDA_ENV_SELECTOR} ${CONDA_FLAGS} python -m pip install -U pip setuptools wheel
+	conda run ${CONDA_ENV_SELECTOR} ${CONDA_FLAGS} python -m pip install -r requirements.txt
 
 ## Make Dataset
 data: requirements check_conda
 	@echo "${MSG_PREFIX} generating dataset"
-	conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} python ${MODULE_NAME}/dataset.py "data/raw/processed"
+	conda run ${CONDA_ENV_SELECTOR} ${CONDA_FLAGS} python ${MODULE_NAME}/dataset.py "data/raw/processed"
 
 ## Upload Data to S3
 sync_data_up:
@@ -92,23 +111,41 @@ endif
 ## Set up conda environment
 create_environment: check_conda
 ifeq (True,$(HAS_CONDA))
+ifeq ($(ENV_LOCATION),local)
+	@echo "${MSG_PREFIX} detected conda. Checking if local environment exists at .venv"
+	@if [ -d "$(CONDA_ENV_PATH)/conda-meta" ]; then \
+		echo "${MSG_PREFIX} local conda environment already exists at .venv. Skipping creation."; \
+	else \
+		echo "${MSG_PREFIX} creating new local conda environment at ${HIGHLIGHT_STYLE}.venv${NO_STYLE}"; \
+		conda env create -p $(CONDA_ENV_PATH) -f environment.yml; \
+		echo "${MSG_PREFIX} new conda env created successfully. Activate with: ${HIGHLIGHT_STYLE}conda activate $(CONDA_ENV_PATH)${NO_STYLE}"; \
+		conda run -p $(CONDA_ENV_PATH) ${CONDA_FLAGS} nbdime config-git --enable --global; \
+		echo "${MSG_PREFIX} environment was configured to integrate git with jupyter notebooks"; \
+	fi
+else
 	@echo "${MSG_PREFIX} detected conda. Checking if environment ${CONDA_ENV_NAME} exists."
 	@if conda info --envs | grep -q "^${CONDA_ENV_NAME}"; then \
 		echo "${MSG_PREFIX} conda environment ${CONDA_ENV_NAME} already exists. Skipping creation."; \
 	else \
 		echo "${MSG_PREFIX} creating new conda environment ${HIGHLIGHT_STYLE}${CONDA_ENV_NAME}${NO_STYLE}"; \
 		conda env create -f environment.yml; \
- 		echo "${MSG_PREFIX} new conda env created successfully. Activate with: ${HIGHLIGHT_STYLE}conda activate ${CONDA_ENV_NAME}${NO_STYLE}"; \
-	        conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} nbdime config-git --enable --global; \
- 		echo "${MSG_PREFIX} environment ${CONDA_ENV_NAME} was configured to integrate git with jupyter notebooks"; \
+		echo "${MSG_PREFIX} new conda env created successfully. Activate with: ${HIGHLIGHT_STYLE}conda activate ${CONDA_ENV_NAME}${NO_STYLE}"; \
+		conda run ${CONDA_ENV_SELECTOR} ${CONDA_FLAGS} nbdime config-git --enable --global; \
+		echo "${MSG_PREFIX} environment ${CONDA_ENV_NAME} was configured to integrate git with jupyter notebooks"; \
 	fi
+endif
 endif
 
 ## Remove previously created environment
 remove_environment: check_conda
 ifeq (True,$(HAS_CONDA))
+ifeq ($(ENV_LOCATION),local)
+	@echo "${MSG_PREFIX} detected conda, removing local environment at ${HIGHLIGHT_STYLE}.venv${NO_STYLE}"
+	conda run --name base conda env remove -y -p $(CONDA_ENV_PATH)
+else
 	@echo "${MSG_PREFIX} detected conda, removing ${HIGHLIGHT_STYLE}${CONDA_ENV_NAME}${NO_STYLE} conda environment."
 	conda run --name base conda env remove -y -n ${CONDA_ENV_NAME}
+endif
 endif
 
 # check conda
@@ -122,14 +159,25 @@ endif
 
 ## Test python environment is setup correctly
 test_environment: check_conda
+ifeq ($(ENV_LOCATION),local)
+	@echo "${MSG_PREFIX} testing local environment at ${HIGHLIGHT_STYLE}.venv${NO_STYLE} if ready"
+	@if [ ! -d "$(CONDA_ENV_PATH)/conda-meta" ]; then \
+		echo "${ERR_PREFIX} ${ERR_STYLE}ERROR: local environment not found at .venv${NO_STYLE}"; \
+		exit 1; \
+	fi
+	@echo "${MSG_PREFIX} checking Python version"
+	@conda run -p $(CONDA_ENV_PATH) ${CONDA_FLAGS} python --version
+	@echo "${OK_STYLE}✓ Local environment .venv is properly configured${NO_STYLE}"
+else
 	@echo "${MSG_PREFIX} testing environment ${HIGHLIGHT_STYLE}${CONDA_ENV_NAME}${NO_STYLE} if ready"
 	@if ! conda env list | grep -q "^${CONDA_ENV_NAME} "; then \
 		echo "${ERR_PREFIX} ${ERR_STYLE}ERROR: environment ${CONDA_ENV_NAME} not found${NO_STYLE}"; \
 		exit 1; \
 	fi
 	@echo "${MSG_PREFIX} checking Python version"
-	@conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} python --version
+	@conda run ${CONDA_ENV_SELECTOR} ${CONDA_FLAGS} python --version
 	@echo "${OK_STYLE}✓ Environment ${CONDA_ENV_NAME} is properly configured${NO_STYLE}"
+endif
 
 #################################################################################
 # PROJECT RULES                                                                 #
@@ -147,13 +195,13 @@ clean: check_conda
 	@rm -rf build dist
 ifeq (True,$(CLEAN_REMOVES_LIBRARY))
 	@echo "${MSG_PREFIX} uninstalling ${MODULE_NAME} library"
-	@conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} pip uninstall -y $(MODULE_NAME) || true
+	@conda run ${CONDA_ENV_SELECTOR} ${CONDA_FLAGS} pip uninstall -y $(MODULE_NAME) || true
 endif
 
 ## Install src modules without dependencies
 install: check_conda clean create_environment
 	@echo "${MSG_PREFIX} installing ${MODULE_NAME} in the ${CONDA_ENV_NAME} environment ${OK_STYLE}EDITABLE${NO_STYLE}"
-	@conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} pip install --editable .
+	@conda run ${CONDA_ENV_SELECTOR} ${CONDA_FLAGS} pip install --editable .
 	@echo "${MSG_PREFIX} fixing issues with jupyterlab 'jump to definition' by installing package in (base)"
 	@conda run --name base pip install --no-dependencies --editable .
 	@echo "${MSG_PREFIX} you can now import ${HIGHLIGHT_STYLE}$(MODULE_NAME)${NO_STYLE} module in your notebooks and scripts\n"
@@ -161,25 +209,25 @@ install: check_conda clean create_environment
 ## Build package & install
 build: check_conda pyproject.toml install test increment_build_number
 	@echo "${MSG_PREFIX} building ${MODULE_NAME}" 
-	@conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} python -m build --wheel
+	@conda run ${CONDA_ENV_SELECTOR} ${CONDA_FLAGS} python -m build --wheel
 
 # Increment build number
 increment_build_number: check_conda
 	@echo "${MSG_PREFIX} incrementing build number"
-	@conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} python -c "import toml; data=toml.load('pyproject.toml'); ver=data['project']['version'].split('.'); ver[-1]=str(int(ver[-1])+1); data['project']['version']='.'.join(ver); f=open('pyproject.toml','w'); toml.dump(data,f); f.close(); print('New version:',data['project']['version'])"
+	@conda run ${CONDA_ENV_SELECTOR} ${CONDA_FLAGS} python -c "import toml; data=toml.load('pyproject.toml'); ver=data['project']['version'].split('.'); ver[-1]=str(int(ver[-1])+1); data['project']['version']='.'.join(ver); f=open('pyproject.toml','w'); toml.dump(data,f); f.close(); print('New version:',data['project']['version'])"
 
 ## Lint using flake8
 lint: check_conda
 	@echo "${MSG_PREFIX} linting the sourcecode"
-	@conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} flake8 ${MODULE_NAME} 
+	@conda run ${CONDA_ENV_SELECTOR} ${CONDA_FLAGS} flake8 ${MODULE_NAME} 
 
 ## Run python tests
 test: check_conda
 	@echo "${MSG_PREFIX} checking for tests"
-	@conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} pytest --collect-only ./${MODULE_NAME}/tests > /dev/null 2>&1; RESULT="$$?"; \
+	@conda run ${CONDA_ENV_SELECTOR} ${CONDA_FLAGS} pytest --collect-only ./${MODULE_NAME}/tests > /dev/null 2>&1; RESULT="$$?"; \
 	if [ "$$RESULT" != "5" ]; then \
 		echo "${MSG_PREFIX} executing python tests"; \
-		conda run --name ${CONDA_ENV_NAME} ${CONDA_FLAGS} pytest --cov -v ./${MODULE_NAME}/tests; \
+		conda run ${CONDA_ENV_SELECTOR} ${CONDA_FLAGS} pytest --cov -v ./${MODULE_NAME}/tests; \
 	else \
 		echo "${WARN_PREFIX} ${WARN_STYLE}WARNING: no tests present${NO_STYLE}"; \
 	fi
