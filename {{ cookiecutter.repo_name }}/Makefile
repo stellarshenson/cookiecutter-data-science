@@ -121,7 +121,7 @@ ifeq ($(ENV_LOCATION),local)
 		echo "${MSG_PREFIX} new conda env created successfully. Activate with: ${HIGHLIGHT_STYLE}conda activate $(CONDA_ENV_PATH)${NO_STYLE}"; \
 		conda run -p $(CONDA_ENV_PATH) ${CONDA_FLAGS} nbdime config-git --enable --global; \
 		echo "${MSG_PREFIX} environment was configured to integrate git with jupyter notebooks"; \
-		sed -i 's/"display_name":.*/"display_name": "Python [proj:$(PROJECT_NAME)]",/' $(CONDA_ENV_PATH)/share/jupyter/kernels/python3/kernel.json; \
+		conda run -p $(CONDA_ENV_PATH) ${CONDA_FLAGS} python -m ipykernel install --sys-prefix --name python3 --display-name "Python [proj:$(PROJECT_NAME)]"; \
 		echo "${MSG_PREFIX} set Jupyter kernel display name to ${HIGHLIGHT_STYLE}Python [proj:$(PROJECT_NAME)]${NO_STYLE}"; \
 	fi
 else
