@@ -204,8 +204,6 @@ endif
 install: check_conda clean create_environment
 	@echo "${MSG_PREFIX} installing ${MODULE_NAME} in the ${CONDA_ENV_NAME} environment ${OK_STYLE}EDITABLE${NO_STYLE}"
 	@conda run ${CONDA_ENV_SELECTOR} ${CONDA_FLAGS} pip install --editable .
-	@echo "${MSG_PREFIX} fixing issues with jupyterlab 'jump to definition' by installing package in (base)"
-	@conda run --name base pip install --no-dependencies --editable .
 	@echo "${MSG_PREFIX} you can now import ${HIGHLIGHT_STYLE}$(MODULE_NAME)${NO_STYLE} module in your notebooks and scripts\n"
 
 ## Build package & install
