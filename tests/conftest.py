@@ -49,6 +49,11 @@ def config_generator(fast=False):
             config["env_location"] == "global"
         ):
             return False
+        # environment.yml only valid for conda
+        if (config["environment_manager"] != "conda") and (
+            config["dependency_file"] == "environment.yml"
+        ):
+            return False
         return True
 
     # remove invalid configs

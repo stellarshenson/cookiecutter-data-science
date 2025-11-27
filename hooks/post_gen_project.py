@@ -155,9 +155,10 @@ Path("environment.yml").unlink(missing_ok=True)
 # {% endif %}
 
 # Dependency file handling - see docs/docs/env-management.md for the full matrix
-# - requirements.txt: keep requirements.txt and requirements-dev.txt, delete others
-# - pyproject.toml: keep pyproject.toml (with dev deps), delete requirements files
-# {% if cookiecutter.dependency_file == "pyproject.toml" %}
+# - requirements.txt: keep requirements.txt and requirements-dev.txt
+# - pyproject.toml: keep pyproject.toml (with prod+dev deps), delete requirements files
+# - environment.yml: keep environment.yml (dev deps) + pyproject.toml (prod deps), delete requirements files
+# {% if cookiecutter.dependency_file == "pyproject.toml" or cookiecutter.dependency_file == "environment.yml" %}
 Path("requirements.txt").unlink(missing_ok=True)
 Path("requirements-dev.txt").unlink(missing_ok=True)
 # {% elif cookiecutter.dependency_file == "requirements.txt" and cookiecutter.environment_manager == "none" %}
