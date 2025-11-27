@@ -182,11 +182,11 @@ packages_to_install += basic
 # {% endif %}
 
 # {% if cookiecutter.linting_and_formatting == "ruff" %}
-packages_to_install += ruff
+# ruff is in dev dependencies, not project dependencies
 # Remove setup.cfg
 Path("setup.cfg").unlink()
 # {% elif cookiecutter.linting_and_formatting == "flake8+black+isort" %}
-packages_to_install += flake8_black_isort
+# flake8, black, isort are in dev dependencies, not project dependencies
 # {% endif %}
 # track packages that are not available through conda
 pip_only_packages = [
@@ -198,7 +198,7 @@ pip_only_packages = [
 tests_path = Path("tests")
 
 # {% if cookiecutter.testing_framework == "pytest" %}
-packages_to_install += ["pytest"]
+# pytest is in dev dependencies, not project dependencies
 # {% endif %}
 
 # ipykernel is installed during create_environment, not as a project dependency
@@ -221,8 +221,7 @@ for tests_template in tests_path.iterdir():
 # or none if none selected
 docs_path = Path("docs")
 # {% if cookiecutter.docs != "none" %}
-packages_to_install += ["{{ cookiecutter.docs }}"]
-pip_only_packages += ["{{ cookiecutter.docs }}"]
+# docs package (mkdocs) is in dev dependencies, not project dependencies
 docs_subpath = docs_path / "{{ cookiecutter.docs }}"
 for obj in docs_subpath.iterdir():
     shutil.move(str(obj), str(docs_path))

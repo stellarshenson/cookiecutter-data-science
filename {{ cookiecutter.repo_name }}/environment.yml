@@ -16,6 +16,9 @@ dependencies:
 {% endif %}
     - IPython         # ipython extensions
     - nbdime          # git-jupyter integration
+{% if cookiecutter.docs != 'none' %}
+    - {{ cookiecutter.docs }}        # documentation
+{% endif %}
 {% if cookiecutter.testing_framework == 'pytest' %}
     - pytest          # testing framework
     - pytest-cov      # test coverage reports

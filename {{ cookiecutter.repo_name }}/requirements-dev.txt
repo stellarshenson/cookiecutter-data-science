@@ -2,6 +2,9 @@
 # Install with: pip install -r requirements-dev.txt
 
 build
+{% if cookiecutter.docs != 'none' -%}
+{{ cookiecutter.docs }}
+{% endif -%}
 {% if cookiecutter.jupyter_kernel_support == 'Yes' -%}
 ipykernel
 {% endif -%}

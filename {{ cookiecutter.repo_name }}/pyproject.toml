@@ -38,6 +38,9 @@ dev = [
     "ipython",
     "nbdime",
     "pip",
+{%- if cookiecutter.docs != 'none' %}
+    "{{ cookiecutter.docs }}",
+{%- endif %}
 {%- if cookiecutter.testing_framework == 'pytest' %}
     "pytest",
     "pytest-cov",
