@@ -1,4 +1,4 @@
-.PHONY: clean data lint format requirements build sync_data_up sync_data_down test
+.PHONY: clean data lint format requirements upgrade build sync_data_up sync_data_down test
 
 #################################################################################
 # GLOBALS                                                                       #
@@ -107,6 +107,40 @@ requirements:
 	uv pip install --python $(PROJECT_DIR)/.venv -r requirements.txt
 {%- elif cookiecutter.dependency_file == 'pyproject.toml' %}
 	uv sync --python $(PROJECT_DIR)/.venv --extra dev
+{%- endif %}
+{%- endif %}
+{%- endif %}
+
+{%- if cookiecutter.dependency_file != 'none' %}
+## Upgrade Python dependencies to latest versions
+.PHONY: upgrade
+{%- if cookiecutter.environment_manager == 'conda' %}
+upgrade: test_environment
+	@echo "$(MSG_PREFIX) upgrading packages in $(HIGHLIGHT_STYLE)$(CONDA_ENV_NAME)$(NO_STYLE) environment"
+	conda run $(CONDA_ENV_SELECTOR) $(CONDA_FLAGS) conda update --all -y
+	conda run $(CONDA_ENV_SELECTOR) $(CONDA_FLAGS) python -m pip install -U pip setuptools wheel
+{%- if cookiecutter.dependency_file == 'environment.yml' %}
+	conda env update $(CONDA_ENV_SELECTOR) -f environment.yml --prune
+{%- elif cookiecutter.dependency_file == 'pyproject.toml' %}
+	conda run $(CONDA_ENV_SELECTOR) $(CONDA_FLAGS) pip install --upgrade -e .
+{%- endif %}
+{%- elif cookiecutter.environment_manager == 'virtualenv' %}
+upgrade:
+	@echo "$(MSG_PREFIX) upgrading packages"
+	$(PYTHON_INTERPRETER) -m pip install -U pip
+{%- if cookiecutter.dependency_file == 'requirements.txt' %}
+	$(PYTHON_INTERPRETER) -m pip install --upgrade -r requirements.txt
+	$(PYTHON_INTERPRETER) -m pip install --upgrade -r requirements-dev.txt
+{%- elif cookiecutter.dependency_file == 'pyproject.toml' %}
+	$(PYTHON_INTERPRETER) -m pip install --upgrade -e ".[dev]"
+{%- endif %}
+{%- elif cookiecutter.environment_manager == 'uv' %}
+upgrade:
+	@echo "$(MSG_PREFIX) upgrading packages with uv"
+{%- if cookiecutter.dependency_file == 'requirements.txt' %}
+	uv pip install --python $(PROJECT_DIR)/.venv --upgrade -r requirements.txt
+{%- elif cookiecutter.dependency_file == 'pyproject.toml' %}
+	uv sync --python $(PROJECT_DIR)/.venv --extra dev --upgrade
 {%- endif %}
 {%- endif %}
 {%- endif %}
