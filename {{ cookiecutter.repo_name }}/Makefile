@@ -104,9 +104,9 @@ requirements:
 requirements:
 	@echo "$(MSG_PREFIX) installing requirements with uv"
 {%- if cookiecutter.dependency_file == 'requirements.txt' %}
-	@uv pip install -q -r requirements.txt
+	uv pip install --python $(PROJECT_DIR)/.venv -r requirements.txt
 {%- elif cookiecutter.dependency_file == 'pyproject.toml' %}
-	@uv sync -q
+	uv sync --python $(PROJECT_DIR)/.venv
 {%- endif %}
 {%- endif %}
 {%- endif %}
@@ -314,39 +314,47 @@ endif
 
 ## Set up Python interpreter environment
 create_environment:
-	@echo "$(MSG_PREFIX) creating virtualenv environment"
-	@if command -v virtualenvwrapper.sh >/dev/null 2>&1; then \
-		echo "$(MSG_PREFIX) using virtualenvwrapper"; \
-		bash -c "source `which virtualenvwrapper.sh`; mkvirtualenv $(PROJECT_NAME) --python=$(PYTHON_INTERPRETER)"; \
-		echo "$(MSG_PREFIX) new virtualenv created. Activate with: $(HIGHLIGHT_STYLE)workon $(PROJECT_NAME)$(NO_STYLE)"; \
+	@if [ -d "$(PROJECT_DIR)/.venv" ]; then \
+		echo "$(MSG_PREFIX) virtual environment already exists at $(HIGHLIGHT_STYLE).venv$(NO_STYLE). Skipping creation."; \
 	else \
-		echo "$(MSG_PREFIX) using standard venv (virtualenvwrapper not found)"; \
-		$(PYTHON_INTERPRETER) -m venv .venv; \
-		echo "$(MSG_PREFIX) new virtual environment created at .venv/"; \
-		echo "$(MSG_PREFIX) Activate with:"; \
-		echo "$(MSG_PREFIX) Windows: $(HIGHLIGHT_STYLE).\\.venv\\Scripts\\activate$(NO_STYLE)"; \
-		echo "$(MSG_PREFIX) Unix/macOS: $(HIGHLIGHT_STYLE)source .venv/bin/activate$(NO_STYLE)"; \
-	fi
+		echo "$(MSG_PREFIX) creating virtualenv environment"; \
+		if command -v virtualenvwrapper.sh >/dev/null 2>&1; then \
+			echo "$(MSG_PREFIX) using virtualenvwrapper"; \
+			bash -c "source `which virtualenvwrapper.sh`; mkvirtualenv $(PROJECT_NAME) --python=$(PYTHON_INTERPRETER)"; \
+			echo "$(MSG_PREFIX) new virtualenv created. Activate with: $(HIGHLIGHT_STYLE)workon $(PROJECT_NAME)$(NO_STYLE)"; \
+		else \
+			echo "$(MSG_PREFIX) using standard venv (virtualenvwrapper not found)"; \
+			$(PYTHON_INTERPRETER) -m venv .venv; \
+			echo "$(MSG_PREFIX) new virtual environment created at .venv/"; \
+			echo "$(MSG_PREFIX) Activate with:"; \
+			echo "$(MSG_PREFIX) Windows: $(HIGHLIGHT_STYLE).\\.venv\\Scripts\\activate$(NO_STYLE)"; \
+			echo "$(MSG_PREFIX) Unix/macOS: $(HIGHLIGHT_STYLE)source .venv/bin/activate$(NO_STYLE)"; \
+		fi; \
 {%- if cookiecutter.jupyter_kernel_support == 'Yes' %}
-	@echo "$(MSG_PREFIX) installing ipykernel"
-	@$(PROJECT_DIR)/.venv/bin/pip install -q ipykernel
-	@if command -v nb_venv_kernels >/dev/null 2>&1; then \
-		echo "$(MSG_PREFIX) registering Jupyter kernel for $(HIGHLIGHT_STYLE).venv$(NO_STYLE)"; \
-		nb_venv_kernels register $(PROJECT_DIR)/.venv; \
-		echo "$(OK_STYLE)>>> Kernel registered successfully$(NO_STYLE)"; \
-	else \
-		echo "$(MSG_PREFIX) registering Jupyter kernel with ipykernel"; \
-		$(PROJECT_DIR)/.venv/bin/python -m ipykernel install --user --name=$(PROJECT_NAME); \
-		echo "$(OK_STYLE)>>> Kernel registered as $(PROJECT_NAME)$(NO_STYLE)"; \
-	fi
+		echo "$(MSG_PREFIX) installing ipykernel"; \
+		$(PROJECT_DIR)/.venv/bin/pip install -q ipykernel; \
+		if command -v nb_venv_kernels >/dev/null 2>&1; then \
+			echo "$(MSG_PREFIX) registering Jupyter kernel for $(HIGHLIGHT_STYLE).venv$(NO_STYLE)"; \
+			nb_venv_kernels register $(PROJECT_DIR)/.venv; \
+			echo "$(OK_STYLE)>>> Kernel registered successfully$(NO_STYLE)"; \
+		else \
+			echo "$(MSG_PREFIX) registering Jupyter kernel with ipykernel"; \
+			$(PROJECT_DIR)/.venv/bin/python -m ipykernel install --user --name=$(PROJECT_NAME); \
+			echo "$(OK_STYLE)>>> Kernel registered as $(PROJECT_NAME)$(NO_STYLE)"; \
+		fi; \
 {%- endif %}
+	fi
 
 ## Remove previously created environment
 remove_environment:
 	@echo "$(MSG_PREFIX) removing virtual environment at $(HIGHLIGHT_STYLE).venv$(NO_STYLE)"
 {%- if cookiecutter.jupyter_kernel_support == 'Yes' %}
 	@echo "$(MSG_PREFIX) unregistering Jupyter kernel $(HIGHLIGHT_STYLE)$(PROJECT_NAME)$(NO_STYLE)"
-	@-jupyter kernelspec uninstall -y $(PROJECT_NAME) 2>/dev/null || true
+	@if command -v nb_venv_kernels >/dev/null 2>&1; then \
+		nb_venv_kernels unregister $(PROJECT_DIR)/.venv 2>/dev/null || true; \
+	else \
+		jupyter kernelspec uninstall -y $(PROJECT_NAME) 2>/dev/null || true; \
+	fi
 	@-rm -rf ~/.local/share/jupyter/kernels/$(PROJECT_NAME) 2>/dev/null || true
 {%- endif %}
 	@rm -rf $(PROJECT_DIR)/.venv
@@ -375,33 +383,41 @@ increment_build_number:
 
 ## Set up Python interpreter environment
 create_environment:
-	@echo "$(MSG_PREFIX) creating uv virtual environment"
-	@uv venv -q --python $(PYTHON_VERSION)
-	@echo "$(MSG_PREFIX) installing pip for notebook compatibility"
-	@uv pip install -q pip
-	@echo "$(MSG_PREFIX) new uv virtual environment created. Activate with:"
-	@echo "$(MSG_PREFIX) Windows: $(HIGHLIGHT_STYLE).\\\.venv\\\Scripts\\\activate$(NO_STYLE)"
-	@echo "$(MSG_PREFIX) Unix/macOS: $(HIGHLIGHT_STYLE)source ./.venv/bin/activate$(NO_STYLE)"
-{%- if cookiecutter.jupyter_kernel_support == 'Yes' %}
-	@echo "$(MSG_PREFIX) installing ipykernel"
-	@uv pip install -q ipykernel
-	@if command -v nb_venv_kernels >/dev/null 2>&1; then \
-		echo "$(MSG_PREFIX) registering Jupyter kernel for $(HIGHLIGHT_STYLE).venv$(NO_STYLE)"; \
-		nb_venv_kernels register $(PROJECT_DIR)/.venv; \
-		echo "$(OK_STYLE)>>> Kernel registered successfully$(NO_STYLE)"; \
+	@if [ -d "$(PROJECT_DIR)/.venv" ]; then \
+		echo "$(MSG_PREFIX) virtual environment already exists at $(HIGHLIGHT_STYLE).venv$(NO_STYLE). Skipping creation."; \
 	else \
-		echo "$(MSG_PREFIX) registering Jupyter kernel with ipykernel"; \
-		$(PROJECT_DIR)/.venv/bin/python -m ipykernel install --user --name=$(PROJECT_NAME); \
-		echo "$(OK_STYLE)>>> Kernel registered as $(PROJECT_NAME)$(NO_STYLE)"; \
-	fi
+		echo "$(MSG_PREFIX) creating uv virtual environment"; \
+		uv venv -q --python $(PYTHON_VERSION); \
+		echo "$(MSG_PREFIX) installing pip for notebook compatibility"; \
+		uv pip install -q --python $(PROJECT_DIR)/.venv pip; \
+		echo "$(MSG_PREFIX) new uv virtual environment created. Activate with:"; \
+		echo "$(MSG_PREFIX) Windows: $(HIGHLIGHT_STYLE).\\\.venv\\\Scripts\\\activate$(NO_STYLE)"; \
+		echo "$(MSG_PREFIX) Unix/macOS: $(HIGHLIGHT_STYLE)source ./.venv/bin/activate$(NO_STYLE)"; \
+{%- if cookiecutter.jupyter_kernel_support == 'Yes' %}
+		echo "$(MSG_PREFIX) installing ipykernel"; \
+		uv pip install -q --python $(PROJECT_DIR)/.venv ipykernel; \
+		if command -v nb_venv_kernels >/dev/null 2>&1; then \
+			echo "$(MSG_PREFIX) registering Jupyter kernel for $(HIGHLIGHT_STYLE).venv$(NO_STYLE)"; \
+			nb_venv_kernels register $(PROJECT_DIR)/.venv; \
+			echo "$(OK_STYLE)>>> Kernel registered successfully$(NO_STYLE)"; \
+		else \
+			echo "$(MSG_PREFIX) registering Jupyter kernel with ipykernel"; \
+			$(PROJECT_DIR)/.venv/bin/python -m ipykernel install --user --name=$(PROJECT_NAME); \
+			echo "$(OK_STYLE)>>> Kernel registered as $(PROJECT_NAME)$(NO_STYLE)"; \
+		fi; \
 {%- endif %}
+	fi
 
 ## Remove previously created environment
 remove_environment:
 	@echo "$(MSG_PREFIX) removing uv virtual environment at $(HIGHLIGHT_STYLE).venv$(NO_STYLE)"
 {%- if cookiecutter.jupyter_kernel_support == 'Yes' %}
 	@echo "$(MSG_PREFIX) unregistering Jupyter kernel $(HIGHLIGHT_STYLE)$(PROJECT_NAME)$(NO_STYLE)"
-	@-jupyter kernelspec uninstall -y $(PROJECT_NAME) 2>/dev/null || true
+	@if command -v nb_venv_kernels >/dev/null 2>&1; then \
+		nb_venv_kernels unregister $(PROJECT_DIR)/.venv 2>/dev/null || true; \
+	else \
+		jupyter kernelspec uninstall -y $(PROJECT_NAME) 2>/dev/null || true; \
+	fi
 	@-rm -rf ~/.local/share/jupyter/kernels/$(PROJECT_NAME) 2>/dev/null || true
 {%- endif %}
 	@rm -rf $(PROJECT_DIR)/.venv
@@ -410,7 +426,7 @@ remove_environment:
 ## Install src modules (editable)
 install: create_environment requirements
 	@echo "$(MSG_PREFIX) installing $(MODULE_NAME) in editable mode"
-	@uv pip install -q -e .
+	@uv pip install -q --python $(PROJECT_DIR)/.venv -e .
 	@echo "$(OK_STYLE)>>> $(MODULE_NAME) installed$(NO_STYLE)"
 
 ## Build package

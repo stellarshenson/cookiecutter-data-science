@@ -16,7 +16,7 @@ CHECKOUT_BRANCH = "master"
 def _run_ccds(temp_dir: Path, project_name: str, env_manager: str, extra_args: dict = None):
     """Run ccds CLI with the GitHub repo."""
     args = [
-        sys.executable, "-m", "cookiecutter",
+        "ccds",
         GITHUB_REPO,
         "--checkout", CHECKOUT_BRANCH,
         "--no-input",
