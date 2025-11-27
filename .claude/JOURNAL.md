@@ -15,3 +15,6 @@ This journal tracks substantive work on documents, diagrams, and documentation c
 
 4. **Task - Add test teardown for environment cleanup**: Added Jupyter kernel cleanup to test harness scripts (conda_harness.sh, virtualenv_harness.sh, uv_harness.sh) to remove registered kernels from ~/.local/share/jupyter/kernels/ after tests complete<br>
    **Result**: Test harnesses now clean up both environments and Jupyter kernels. All 24 tests pass
+
+5. **Task - Fix CI workflow and linting**: Changed integration-tests.yml to install ccds from local checkout (`pip install -e .`) instead of PyPI (which was installing upstream without KeyAlreadyPresent fix). Also formatted test files with black to pass lint checks<br>
+   **Result**: CI workflow now uses fork code. Lint passes. All 24 tests pass

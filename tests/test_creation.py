@@ -93,7 +93,8 @@ def verify_folders(root, config):
     # Exclude .ipynb_checkpoints and __pycache__ directories
     excluded_dirs = {".ipynb_checkpoints", "__pycache__"}
     existing_dirs = [
-        d.resolve().relative_to(root) for d in root.glob("**")
+        d.resolve().relative_to(root)
+        for d in root.glob("**")
         if d.is_dir() and d.name not in excluded_dirs
     ]
 
