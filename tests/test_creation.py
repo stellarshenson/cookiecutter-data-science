@@ -5,6 +5,7 @@ from pathlib import Path
 from subprocess import PIPE, run
 
 from conftest import bake_project
+from env_matrix import get_absent_files, get_expected_files
 
 BASH_EXECUTABLE = os.getenv("BASH_EXECUTABLE", "bash")
 
@@ -102,104 +103,34 @@ def verify_folders(root, config):
 
 
 def verify_files(root, config):
-    """Test that expected files and only expected files exist."""
-    expected_files = [
-        "Makefile",
-        "README.md",
-        "pyproject.toml",
-        ".env",
-        ".gitignore",
-        "data/external/.gitkeep",
-        "data/interim/.gitkeep",
-        "data/processed/.gitkeep",
-        "data/raw/.gitkeep",
-        "docs/.gitkeep",
-        "notebooks/.gitkeep",
-        "references/.gitkeep",
-        "reports/.gitkeep",
-        "reports/figures/.gitkeep",
-        "models/.gitkeep",
-        f"{config['module_name']}/__init__.py",
-    ]
+    """Test that expected files and only expected files exist.
 
-    # conditional files
-    if not config["open_source_license"].startswith("No license"):
-        expected_files.append("LICENSE")
-
-    if config["linting_and_formatting"] == "flake8+black+isort":
-        expected_files.append("setup.cfg")
-
-    if config["include_code_scaffold"] == "Yes":
-        expected_files += [
-            f"{config['module_name']}/config.py",
-            f"{config['module_name']}/dataset.py",
-            f"{config['module_name']}/features.py",
-            f"{config['module_name']}/modeling/__init__.py",
-            f"{config['module_name']}/modeling/train.py",
-            f"{config['module_name']}/modeling/predict.py",
-            f"{config['module_name']}/plots.py",
-        ]
-
-    if config["docs"] == "mkdocs":
-        expected_files += [
-            "docs/mkdocs.yml",
-            "docs/README.md",
-            "docs/docs/index.md",
-            "docs/docs/getting-started.md",
-        ]
-
-    # Tests files when testing_framework != "none"
-    if config.get("testing_framework", "pytest") != "none":
-        expected_files.append("tests/test_data.py")
-
-    expected_files.append(config["dependency_file"])
-
-    # environment.yml only when dependency_file is environment.yml (conda-native dev deps)
-    if config["dependency_file"] == "environment.yml":
-        expected_files.append("environment.yml")
-
-    # requirements-dev.txt is used when dependency_file is requirements.txt
-    # (pyproject.toml uses [project.optional-dependencies.dev] instead)
-    # Not needed for 'none' environment manager
-    if (
-        config["dependency_file"] == "requirements.txt"
-        and config["environment_manager"] != "none"
-    ):
-        expected_files.append("requirements-dev.txt")
-
+    Uses the ENV_MATRIX from env_matrix.py for environment-specific file expectations.
+    See docs/docs/env-management.md for the full matrix documentation.
+    """
+    # Get expected files from the env_matrix
+    expected_files = get_expected_files(config)
     expected_files = [Path(f) for f in expected_files]
 
     existing_files = [f.relative_to(root) for f in root.glob("**/*") if f.is_file()]
 
-    assert sorted(existing_files) == sorted(set(expected_files))
+    assert sorted(existing_files) == sorted(set(expected_files)), (
+        f"File mismatch for {config['environment_manager']} + {config['dependency_file']}\n"
+        f"Missing: {set(expected_files) - set(existing_files)}\n"
+        f"Extra: {set(existing_files) - set(expected_files)}"
+    )
 
-    # Explicit checks for files that should NOT exist
-    # See docs/docs/env-management.md for the dependency matrix
-    # environment.yml only when dependency_file is environment.yml
-    if config["dependency_file"] != "environment.yml":
-        assert not (
-            root / "environment.yml"
-        ).exists(), (
-            "environment.yml should not exist unless dependency_file is environment.yml"
+    # Verify files that should NOT exist (from env_matrix)
+    absent_files = get_absent_files(config)
+    for absent_file in absent_files:
+        assert not (root / absent_file).exists(), (
+            f"{absent_file} should not exist for "
+            f"{config['environment_manager']} + {config['dependency_file']}"
         )
 
-    # requirements.txt only when dependency_file is requirements.txt
-    if config["dependency_file"] == "pyproject.toml":
-        assert not (
-            root / "requirements.txt"
-        ).exists(), "requirements.txt should not exist when using pyproject.toml"
-
-    # requirements-dev.txt only for requirements.txt dependency file (and not for 'none' env manager)
-    if (
-        config["dependency_file"] == "pyproject.toml"
-        or config["environment_manager"] == "none"
-    ):
-        assert not (
-            root / "requirements-dev.txt"
-        ).exists(), "requirements-dev.txt should not exist when using pyproject.toml or none env manager"
-
+    # Verify no unrendered Jinja templates
     for f in existing_files:
-        assert no_curlies(root / f)
+        assert no_curlies(root / f), f"Unrendered Jinja template in {f}"
 
 
 def verify_makefile_commands(root, config):
