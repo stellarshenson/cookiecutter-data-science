@@ -270,12 +270,16 @@ ifeq ($(ENV_LOCATION),local)
 		echo "$(MSG_PREFIX) local conda environment already exists at .venv/$(CONDA_ENV_NAME). Skipping creation."; \
 	else \
 		echo "$(MSG_PREFIX) creating new local conda environment at $(HIGHLIGHT_STYLE).venv/$(CONDA_ENV_NAME)$(NO_STYLE)"; \
+{%- if cookiecutter.dependency_file == 'environment.yml' %}
 		conda env create -p $(CONDA_ENV_PATH) -f environment.yml; \
+{%- else %}
+		conda create -p $(CONDA_ENV_PATH) python={{ cookiecutter.python_version_number }} pip -y -q; \
+{%- endif %}
 		echo "$(MSG_PREFIX) new conda env created successfully. Activate with: $(HIGHLIGHT_STYLE)conda activate $(CONDA_ENV_PATH)$(NO_STYLE)"; \
 		echo "$(MSG_PREFIX) installing dependencies"; \
 {%- if cookiecutter.dependency_file == 'requirements.txt' %}
 		conda run -p $(CONDA_ENV_PATH) $(CONDA_FLAGS) pip install -q -r requirements.txt -r requirements-dev.txt; \
-{%- else %}
+{%- elif cookiecutter.dependency_file == 'pyproject.toml' %}
 		conda run -p $(CONDA_ENV_PATH) $(CONDA_FLAGS) pip install -q -e ".[dev]"; \
 {%- endif %}
 		conda run -p $(CONDA_ENV_PATH) $(CONDA_FLAGS) nbdime config-git --enable --global; \
@@ -296,12 +300,16 @@ else
 		echo "$(MSG_PREFIX) conda environment $(CONDA_ENV_NAME) already exists. Skipping creation."; \
 	else \
 		echo "$(MSG_PREFIX) creating new conda environment $(HIGHLIGHT_STYLE)$(CONDA_ENV_NAME)$(NO_STYLE)"; \
+{%- if cookiecutter.dependency_file == 'environment.yml' %}
 		conda env create -f environment.yml; \
+{%- else %}
+		conda create -n $(CONDA_ENV_NAME) python={{ cookiecutter.python_version_number }} pip -y -q; \
+{%- endif %}
 		echo "$(MSG_PREFIX) new conda env created successfully. Activate with: $(HIGHLIGHT_STYLE)conda activate $(CONDA_ENV_NAME)$(NO_STYLE)"; \
 		echo "$(MSG_PREFIX) installing dependencies"; \
 {%- if cookiecutter.dependency_file == 'requirements.txt' %}
 		conda run $(CONDA_ENV_SELECTOR) $(CONDA_FLAGS) pip install -q -r requirements.txt -r requirements-dev.txt; \
-{%- else %}
+{%- elif cookiecutter.dependency_file == 'pyproject.toml' %}
 		conda run $(CONDA_ENV_SELECTOR) $(CONDA_FLAGS) pip install -q -e ".[dev]"; \
 {%- endif %}
 		conda run $(CONDA_ENV_SELECTOR) $(CONDA_FLAGS) nbdime config-git --enable --global; \

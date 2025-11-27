@@ -51,8 +51,8 @@ jobs:
           ls -la
           echo "=== pyproject.toml ==="
           cat pyproject.toml
-          echo "=== environment.yml (auto-created for conda) ==="
-          cat environment.yml
+          echo "=== Verify no environment.yml (conda + pyproject.toml) ==="
+          test ! -f environment.yml && echo "OK: environment.yml not present"
           echo "=== Makefile targets ==="
           make help
 

@@ -154,8 +154,8 @@ def verify_files(root, config):
 
     expected_files.append(config["dependency_file"])
 
-    # Conda always has environment.yml for dev dependencies
-    if config["environment_manager"] == "conda":
+    # environment.yml only when dependency_file is environment.yml (conda-native dev deps)
+    if config["dependency_file"] == "environment.yml":
         expected_files.append("environment.yml")
 
     # requirements-dev.txt is used when dependency_file is requirements.txt
@@ -175,11 +175,13 @@ def verify_files(root, config):
 
     # Explicit checks for files that should NOT exist
     # See docs/docs/env-management.md for the dependency matrix
-    # environment.yml only for conda
-    if config["environment_manager"] != "conda":
+    # environment.yml only when dependency_file is environment.yml
+    if config["dependency_file"] != "environment.yml":
         assert not (
             root / "environment.yml"
-        ).exists(), "environment.yml should not exist for non-conda environments"
+        ).exists(), (
+            "environment.yml should not exist unless dependency_file is environment.yml"
+        )
 
     # requirements.txt only when dependency_file is requirements.txt
     if config["dependency_file"] == "pyproject.toml":
