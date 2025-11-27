@@ -25,6 +25,11 @@ function finish {
         # Remove global environment
         conda env remove -n $ENV_NAME -y || true
     fi
+
+    # Remove Jupyter kernel if registered
+    if [ -d "$HOME/.local/share/jupyter/kernels/$ENV_NAME" ]; then
+        rm -rf "$HOME/.local/share/jupyter/kernels/$ENV_NAME"
+    fi
 }
 trap finish EXIT
 

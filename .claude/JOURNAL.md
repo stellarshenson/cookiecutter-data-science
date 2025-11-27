@@ -12,3 +12,6 @@ This journal tracks substantive work on documents, diagrams, and documentation c
 
 3. **Task - Add Jupyter kernel support**: Implemented `jupyter_kernel` cookiecutter option with auto-registration during `create_environment`. For conda: tries nb_venv_kernels -> nb_conda_kernels -> ipykernel install. For venv/uv: tries nb_venv_kernels -> ipykernel install<br>
    **Result**: Added to ccds.json, environment.yml, Makefile, post_gen_project.py, conftest.py, and integration-tests.yml. All 24 tests pass
+
+4. **Task - Add test teardown for environment cleanup**: Added Jupyter kernel cleanup to test harness scripts (conda_harness.sh, virtualenv_harness.sh, uv_harness.sh) to remove registered kernels from ~/.local/share/jupyter/kernels/ after tests complete<br>
+   **Result**: Test harnesses now clean up both environments and Jupyter kernels. All 24 tests pass

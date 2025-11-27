@@ -15,6 +15,11 @@ function finish {
     if [ -d ".venv" ]; then
         rm -rf .venv
     fi
+
+    # Remove Jupyter kernel if registered
+    if [ -d "$HOME/.local/share/jupyter/kernels/$PROJECT_NAME" ]; then
+        rm -rf "$HOME/.local/share/jupyter/kernels/$PROJECT_NAME"
+    fi
 }
 trap finish EXIT
 
