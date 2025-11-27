@@ -106,7 +106,7 @@ requirements:
 {%- if cookiecutter.dependency_file == 'requirements.txt' %}
 	uv pip install --python $(PROJECT_DIR)/.venv -r requirements.txt
 {%- elif cookiecutter.dependency_file == 'pyproject.toml' %}
-	uv sync --python $(PROJECT_DIR)/.venv
+	uv sync --python $(PROJECT_DIR)/.venv --extra dev
 {%- endif %}
 {%- endif %}
 {%- endif %}
