@@ -78,9 +78,14 @@ No post-scaffold configuration needed:
 
 ### 5. Development Dependencies Strategy
 
-Each environment manager has its own dev dependencies mechanism, installed automatically during `make create_environment`:
+Dev dependencies location is determined by **dependency file choice**, not environment manager. This simplifies the mental model:
 
-#### For conda and uv projects:
+| Dependency File | Dev Dependencies |
+|-----------------|------------------|
+| `pyproject.toml` | `[project.optional-dependencies.dev]` |
+| `requirements.txt` | `requirements-dev.txt` |
+
+#### When using pyproject.toml:
 Development tools are in `pyproject.toml` under `[project.optional-dependencies]`:
 ```toml
 [project.optional-dependencies]
@@ -93,12 +98,12 @@ dev = [
 ]
 ```
 
-- conda: `pip install -e ".[dev]"` (environment.yml is minimal - just python and pip)
+Installed with:
+- conda: `pip install -e ".[dev]"`
 - uv: `uv pip install -e ".[dev]"`
+- virtualenv: `pip install -e ".[dev]"`
 
-This keeps production dependencies clean while providing a single source of truth for dev tools.
-
-#### For virtualenv projects:
+#### When using requirements.txt:
 Development tools are in `requirements-dev.txt`:
 ```
 ipykernel
@@ -108,10 +113,12 @@ ruff
 ...
 ```
 
-Installed automatically with: `pip install -r requirements-dev.txt`
+Installed with:
+- conda: `pip install -r requirements-dev.txt`
+- uv: `uv pip install -r requirements-dev.txt`
+- virtualenv: `pip install -r requirements-dev.txt`
 
-#### For conda with requirements.txt:
-When using `requirements.txt` as dependency file, dev tools are in `requirements-dev.txt` (same as virtualenv).
+This keeps production dependencies clean while providing consistent behavior across all environment managers.
 
 ### 6. Local Environment by Default
 

@@ -66,3 +66,9 @@ This journal tracks substantive work on documents, diagrams, and documentation c
 
 21. **Task - Fix conda global env test failure**: Fixed conda_harness.sh test failure for global environments. Conda doesn't allow removing an active environment (`CondaEnvironmentError: Cannot remove current environment`). Added `conda deactivate` before `make remove_environment` in the harness<br>
    **Result**: All 20 tests pass including conda-global configurations
+
+22. **Task - Unify dev deps across all env managers**: Standardized dev dependency handling based on dependency_file (not environment_manager). requirements.txt uses requirements-dev.txt, pyproject.toml uses `[project.optional-dependencies.dev]`. Updated pyproject.toml template, Makefile (virtualenv and uv create_environment), post_gen_project.py file cleanup, and test expectations. Created ENV_MANAGEMENT.md reference document<br>
+   **Result**: All 20 tests pass. Consistent dev deps handling across conda/uv/virtualenv
+
+23. **Task - Enhance environment management**: Fixed create_environment to install both requirements.txt AND requirements-dev.txt when using requirements.txt. Added conditional env_location prompting (only shown for conda). Added explicit file existence tests. Moved documentation to docs/docs/ folder (stellars-philosophy.md, env-management.md). Updated mkdocs.yml nav and README link<br>
+   **Result**: All 20 tests pass. Documentation properly organized in docs folder

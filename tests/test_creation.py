@@ -158,12 +158,10 @@ def verify_files(root, config):
     if config["environment_manager"] == "conda":
         expected_files.append("environment.yml")
 
-    # Virtualenv uses requirements-dev.txt for dev dependencies
-    # Conda with requirements.txt also uses requirements-dev.txt
-    if config["environment_manager"] == "virtualenv" or (
-        config["environment_manager"] == "conda"
-        and config["dependency_file"] == "requirements.txt"
-    ):
+    # requirements-dev.txt is used when dependency_file is requirements.txt
+    # (pyproject.toml uses [project.optional-dependencies.dev] instead)
+    # Not needed for 'none' environment manager
+    if config["dependency_file"] == "requirements.txt" and config["environment_manager"] != "none":
         expected_files.append("requirements-dev.txt")
 
     expected_files = [Path(f) for f in expected_files]
@@ -171,6 +169,15 @@ def verify_files(root, config):
     existing_files = [f.relative_to(root) for f in root.glob("**/*") if f.is_file()]
 
     assert sorted(existing_files) == sorted(set(expected_files))
+
+    # Explicit checks for files that should NOT exist
+    # environment.yml only for conda
+    if config["environment_manager"] != "conda":
+        assert not (root / "environment.yml").exists(), "environment.yml should not exist for non-conda environments"
+
+    # requirements-dev.txt only for requirements.txt dependency file
+    if config["dependency_file"] == "pyproject.toml":
+        assert not (root / "requirements-dev.txt").exists(), "requirements-dev.txt should not exist when using pyproject.toml"
 
     for f in existing_files:
         assert no_curlies(root / f)

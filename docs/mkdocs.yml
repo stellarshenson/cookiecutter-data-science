@@ -22,6 +22,8 @@ nav:
   - Home: index.md
   - Why ccds?: why.md
   - Opinions: opinions.md
+  - Stellars' Philosophy: stellars-philosophy.md
+  - Environment Management: env-management.md
   - Using the template: using-the-template.md
   - All options: all-options.md
   - Contributing: contributing.md

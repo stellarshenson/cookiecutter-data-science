@@ -7,7 +7,7 @@ _A logical, reasonably standardized but flexible project structure for doing and
     <img src="https://img.shields.io/badge/CCDS-Project%20template-328F97?logo=cookiecutter" />
 </a>
 
-This is **Stellars' fork** of Cookiecutter Data Science with enhanced features for data science workflows. See the [Philosophy Document](STELLARS_CCDS_PHILOSOPHY.md) for design principles.
+This is **Stellars' fork** of Cookiecutter Data Science with enhanced features for data science workflows. See the [Philosophy Document](docs/docs/stellars-philosophy.md) for design principles.
 
 **Key enhancements over upstream:**
 - **uv default** - Modern, fast Python package manager as default

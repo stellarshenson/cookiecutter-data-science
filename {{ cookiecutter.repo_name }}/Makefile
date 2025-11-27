@@ -272,9 +272,9 @@ ifeq ($(ENV_LOCATION),local)
 		echo "$(MSG_PREFIX) creating new local conda environment at $(HIGHLIGHT_STYLE).venv/$(CONDA_ENV_NAME)$(NO_STYLE)"; \
 		conda env create -p $(CONDA_ENV_PATH) -f environment.yml; \
 		echo "$(MSG_PREFIX) new conda env created successfully. Activate with: $(HIGHLIGHT_STYLE)conda activate $(CONDA_ENV_PATH)$(NO_STYLE)"; \
-		echo "$(MSG_PREFIX) installing dev dependencies"; \
+		echo "$(MSG_PREFIX) installing dependencies"; \
 {%- if cookiecutter.dependency_file == 'requirements.txt' %}
-		conda run -p $(CONDA_ENV_PATH) $(CONDA_FLAGS) pip install -q -r requirements-dev.txt; \
+		conda run -p $(CONDA_ENV_PATH) $(CONDA_FLAGS) pip install -q -r requirements.txt -r requirements-dev.txt; \
 {%- else %}
 		conda run -p $(CONDA_ENV_PATH) $(CONDA_FLAGS) pip install -q -e ".[dev]"; \
 {%- endif %}
@@ -298,9 +298,9 @@ else
 		echo "$(MSG_PREFIX) creating new conda environment $(HIGHLIGHT_STYLE)$(CONDA_ENV_NAME)$(NO_STYLE)"; \
 		conda env create -f environment.yml; \
 		echo "$(MSG_PREFIX) new conda env created successfully. Activate with: $(HIGHLIGHT_STYLE)conda activate $(CONDA_ENV_NAME)$(NO_STYLE)"; \
-		echo "$(MSG_PREFIX) installing dev dependencies"; \
+		echo "$(MSG_PREFIX) installing dependencies"; \
 {%- if cookiecutter.dependency_file == 'requirements.txt' %}
-		conda run $(CONDA_ENV_SELECTOR) $(CONDA_FLAGS) pip install -q -r requirements-dev.txt; \
+		conda run $(CONDA_ENV_SELECTOR) $(CONDA_FLAGS) pip install -q -r requirements.txt -r requirements-dev.txt; \
 {%- else %}
 		conda run $(CONDA_ENV_SELECTOR) $(CONDA_FLAGS) pip install -q -e ".[dev]"; \
 {%- endif %}
@@ -380,8 +380,12 @@ create_environment:
 		echo "$(MSG_PREFIX) Activate with:"; \
 		echo "$(MSG_PREFIX) Windows: $(HIGHLIGHT_STYLE).\\.venv\\Scripts\\activate$(NO_STYLE)"; \
 		echo "$(MSG_PREFIX) Unix/macOS: $(HIGHLIGHT_STYLE)source .venv/bin/activate$(NO_STYLE)"; \
-		echo "$(MSG_PREFIX) installing dev dependencies"; \
-		$(PROJECT_DIR)/.venv/bin/pip install -q -r requirements-dev.txt; \
+		echo "$(MSG_PREFIX) installing dependencies"; \
+{%- if cookiecutter.dependency_file == 'pyproject.toml' %}
+		$(PROJECT_DIR)/.venv/bin/pip install -q -e ".[dev]"; \
+{%- else %}
+		$(PROJECT_DIR)/.venv/bin/pip install -q -r requirements.txt -r requirements-dev.txt; \
+{%- endif %}
 {%- if cookiecutter.jupyter_kernel_support == 'Yes' %}
 		if command -v nb_venv_kernels >/dev/null 2>&1; then \
 			echo "$(MSG_PREFIX) registering Jupyter kernel for $(HIGHLIGHT_STYLE).venv$(NO_STYLE)"; \
@@ -441,8 +445,12 @@ create_environment:
 		echo "$(MSG_PREFIX) new uv virtual environment created. Activate with:"; \
 		echo "$(MSG_PREFIX) Windows: $(HIGHLIGHT_STYLE).\\\.venv\\\Scripts\\\activate$(NO_STYLE)"; \
 		echo "$(MSG_PREFIX) Unix/macOS: $(HIGHLIGHT_STYLE)source ./.venv/bin/activate$(NO_STYLE)"; \
-		echo "$(MSG_PREFIX) installing dev dependencies"; \
+		echo "$(MSG_PREFIX) installing dependencies"; \
+{%- if cookiecutter.dependency_file == 'pyproject.toml' %}
 		uv pip install -q --python $(PROJECT_DIR)/.venv -e ".[dev]"; \
+{%- else %}
+		uv pip install -q --python $(PROJECT_DIR)/.venv -r requirements.txt -r requirements-dev.txt; \
+{%- endif %}
 {%- if cookiecutter.jupyter_kernel_support == 'Yes' %}
 		if command -v nb_venv_kernels >/dev/null 2>&1; then \
 			echo "$(MSG_PREFIX) registering Jupyter kernel for $(HIGHLIGHT_STYLE).venv$(NO_STYLE)"; \

@@ -27,7 +27,7 @@ dependencies = [
     "tqdm",
 ]
 {%- endif %}
-{%- if cookiecutter.environment_manager == 'uv' or (cookiecutter.environment_manager == 'conda' and cookiecutter.dependency_file != 'requirements.txt') %}
+{%- if cookiecutter.dependency_file == 'pyproject.toml' and cookiecutter.environment_manager != 'none' %}
 
 [project.optional-dependencies]
 dev = [
