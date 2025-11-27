@@ -373,6 +373,16 @@ install: create_environment requirements
 	$(PROJECT_DIR)/.venv/bin/pip install -e .
 	@echo "$(OK_STYLE)>>> $(MODULE_NAME) installed$(NO_STYLE)"
 
+## Build package
+build: install test increment_build_number
+	@echo "$(MSG_PREFIX) building $(MODULE_NAME)"
+	$(PROJECT_DIR)/.venv/bin/python -m build --wheel
+
+## Increment build number
+increment_build_number:
+	@echo "$(MSG_PREFIX) incrementing build number"
+	@$(PROJECT_DIR)/.venv/bin/python -c "import toml; data=toml.load('pyproject.toml'); ver=data['project']['version'].split('.'); ver[-1]=str(int(ver[-1])+1); data['project']['version']='.'.join(ver); f=open('pyproject.toml','w'); toml.dump(data,f); f.close(); print('New version:',data['project']['version'])"
+
 {% elif cookiecutter.environment_manager == 'uv' %}
 #################################################################################
 # UV ENVIRONMENT MANAGEMENT                                                     #
@@ -414,6 +424,16 @@ install: create_environment requirements
 	@echo "$(MSG_PREFIX) installing $(MODULE_NAME) in editable mode"
 	uv pip install -e .
 	@echo "$(OK_STYLE)>>> $(MODULE_NAME) installed$(NO_STYLE)"
+
+## Build package
+build: install test increment_build_number
+	@echo "$(MSG_PREFIX) building $(MODULE_NAME)"
+	$(PROJECT_DIR)/.venv/bin/python -m build --wheel
+
+## Increment build number
+increment_build_number:
+	@echo "$(MSG_PREFIX) incrementing build number"
+	@$(PROJECT_DIR)/.venv/bin/python -c "import toml; data=toml.load('pyproject.toml'); ver=data['project']['version'].split('.'); ver[-1]=str(int(ver[-1])+1); data['project']['version']='.'.join(ver); f=open('pyproject.toml','w'); toml.dump(data,f); f.close(); print('New version:',data['project']['version'])"
 
 {% endif %}
 
