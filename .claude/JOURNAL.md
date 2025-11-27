@@ -42,3 +42,6 @@ This journal tracks substantive work on documents, diagrams, and documentation c
 
 13. **Task - Implement dev dependencies per environment manager**: Added per-manager dev dependencies system. Conda uses environment.yml, uv uses pyproject.toml `[project.optional-dependencies.dev]`, virtualenv uses requirements-dev.txt. Dev dependencies installed automatically during `make create_environment`. Updated philosophy doc and README to reflect fork features and point to philosophy document<br>
    **Result**: Complete dev dependencies separation. All 20 tests pass. README and philosophy doc updated
+
+14. **Task - Documentation cleanup and lint fixes**: Moved STELLARS_CCDS_PHILOSOPHY.md to repo root. Updated naming from "Stellar's" to "Stellars'" throughout. Fixed black formatting in test_github_checkout.py. Updated README link to philosophy doc<br>
+   **Result**: All 20 tests pass. Lint passes. Documentation properly organized
