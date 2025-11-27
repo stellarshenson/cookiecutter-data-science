@@ -44,12 +44,7 @@ def config_generator(fast=False):
 
     def _is_valid(config):
         config = dict(config)
-        # conda is the only valid env manager for environment.yml
-        if (config["dependency_file"] == "environment.yml") and (
-            config["environment_manager"] != "conda"
-        ):
-            return False
-        # env_location only applies to conda
+        # env_location only applies to conda (global is invalid for non-conda)
         if (config["environment_manager"] != "conda") and (
             config["env_location"] == "global"
         ):
@@ -81,7 +76,7 @@ def config_generator(fast=False):
         "open_source_license",
         "docs",
         "testing_framework",
-        "jupyter_kernel",
+        "jupyter_kernel_support",
     ]
     multi_select_cyclers = {k: cycle(cookiecutter_json[k]) for k in cycle_fields}
 

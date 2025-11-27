@@ -18,3 +18,9 @@ This journal tracks substantive work on documents, diagrams, and documentation c
 
 5. **Task - Fix CI workflow and linting**: Changed integration-tests.yml to install ccds from local checkout (`pip install -e .`) instead of PyPI (which was installing upstream without KeyAlreadyPresent fix). Also formatted test files with black to pass lint checks<br>
    **Result**: CI workflow now uses fork code. Lint passes. All 24 tests pass
+
+6. **Task - Refactor ccds config defaults**: Changed default dependency_file to pyproject.toml (removed environment.yml from choices since it's auto-created for conda). Renamed `jupyter_kernel` to `jupyter_kernel_support`. Kept `env_location` as top-level field (global only applies to conda, enforced via test filtering). Simplified CI workflow to use defaults<br>
+   **Result**: All 20 tests pass. pyproject.toml is now default. jupyter_kernel_support renamed throughout
+
+7. **Task - Align with upstream CI/CD workflows**: Updated tests.yml to match upstream (use `make docs` instead of direct mkdocs command). Updated generate-termynal.py with correct prompt sequence matching fork options. Updated ccds-help.json with all new/changed fields (env_name, env_location, jupyter_kernel_support, custom_config)<br>
+   **Result**: tests.yml aligned with upstream. Docs scripts updated for termynal generation. All 20 tests pass

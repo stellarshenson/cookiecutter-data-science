@@ -52,7 +52,7 @@ tests_path = Path("tests")
 packages_to_install += ["pytest"]
 # {% endif %}
 
-# {% if cookiecutter.jupyter_kernel == "Yes" %}
+# {% if cookiecutter.jupyter_kernel_support == "Yes" %}
 packages_to_install += ["ipykernel"]
 # {% endif %}
 

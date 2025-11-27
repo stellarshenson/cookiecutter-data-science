@@ -246,7 +246,7 @@ ifeq ($(ENV_LOCATION),local)
 		echo "$(MSG_PREFIX) new conda env created successfully. Activate with: $(HIGHLIGHT_STYLE)conda activate $(CONDA_ENV_PATH)$(NO_STYLE)"; \
 		echo "$(MSG_PREFIX) run 'make requirements' to install dependencies"; \
 {%- endif %}
-{%- if cookiecutter.jupyter_kernel == 'Yes' %}
+{%- if cookiecutter.jupyter_kernel_support == 'Yes' %}
 		if command -v nb_venv_kernels >/dev/null 2>&1; then \
 			echo "$(MSG_PREFIX) registering Jupyter kernel for $(HIGHLIGHT_STYLE)$(CONDA_ENV_PATH)$(NO_STYLE)"; \
 			nb_venv_kernels register $(CONDA_ENV_PATH); \
@@ -276,7 +276,7 @@ else
 		echo "$(MSG_PREFIX) new conda env created successfully. Activate with: $(HIGHLIGHT_STYLE)conda activate $(CONDA_ENV_NAME)$(NO_STYLE)"; \
 		echo "$(MSG_PREFIX) run 'make requirements' to install dependencies"; \
 {%- endif %}
-{%- if cookiecutter.jupyter_kernel == 'Yes' %}
+{%- if cookiecutter.jupyter_kernel_support == 'Yes' %}
 		if python -c "import nb_conda_kernels" 2>/dev/null; then \
 			echo "$(MSG_PREFIX) nb_conda_kernels detected - kernel will be auto-discovered"; \
 		else \
@@ -343,7 +343,7 @@ create_environment:
 		echo "$(MSG_PREFIX) Windows: $(HIGHLIGHT_STYLE).\\.venv\\Scripts\\activate$(NO_STYLE)"; \
 		echo "$(MSG_PREFIX) Unix/macOS: $(HIGHLIGHT_STYLE)source .venv/bin/activate$(NO_STYLE)"; \
 	fi
-{% if cookiecutter.jupyter_kernel == 'Yes' %}
+{% if cookiecutter.jupyter_kernel_support == 'Yes' %}
 	@if command -v nb_venv_kernels >/dev/null 2>&1; then \
 		echo "$(MSG_PREFIX) registering Jupyter kernel for $(HIGHLIGHT_STYLE).venv$(NO_STYLE)"; \
 		nb_venv_kernels register $(PROJECT_DIR)/.venv; \
@@ -367,7 +367,7 @@ create_environment:
 	@echo "$(MSG_PREFIX) new uv virtual environment created. Activate with:"
 	@echo "$(MSG_PREFIX) Windows: $(HIGHLIGHT_STYLE).\\\.venv\\\Scripts\\\activate$(NO_STYLE)"
 	@echo "$(MSG_PREFIX) Unix/macOS: $(HIGHLIGHT_STYLE)source ./.venv/bin/activate$(NO_STYLE)"
-{% if cookiecutter.jupyter_kernel == 'Yes' %}
+{% if cookiecutter.jupyter_kernel_support == 'Yes' %}
 	@if command -v nb_venv_kernels >/dev/null 2>&1; then \
 		echo "$(MSG_PREFIX) registering Jupyter kernel for $(HIGHLIGHT_STYLE).venv$(NO_STYLE)"; \
 		nb_venv_kernels register $(PROJECT_DIR)/.venv; \

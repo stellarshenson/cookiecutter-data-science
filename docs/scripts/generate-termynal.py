@@ -46,21 +46,25 @@ def execute_command_and_get_output(command, input_script):
 ccds_script = [
     ("project_name", "My Analysis"),
     ("repo_name", "my_analysis"),
+    ("env_name", ""),
     ("module_name", ""),
     ("author_name", "Dat A. Scientist"),
     ("description", "This is my analysis of the data."),
     ("python_version_number", "3.12"),
-    ("Choose from", "3"),  # dataset_storage
+    ("Choose from", "3"),  # dataset_storage -> s3
     ("bucket", "s3://my-aws-bucket"),
     ("aws_profile", ""),
-    ("Choose from", "2"),  # environment_manager
-    ("Choose from", "1"),  # dependency_file
-    ("Choose from", "2"),  # pydata_packages
-    ("Choose from", "3"),  # testing_framework
-    ("Choose from", "1"),  # linting_and_formatting
-    ("Choose from", "2"),  # open_source_license
-    ("Choose from", "1"),  # docs
-    ("Choose from", "2"),  # include_code_scaffold
+    ("Choose from", "1"),  # environment_manager -> conda
+    ("Choose from", "1"),  # env_location -> local
+    ("Choose from", "1"),  # dependency_file -> pyproject.toml
+    ("Choose from", "2"),  # pydata_packages -> basic
+    ("Choose from", "1"),  # testing_framework -> pytest
+    ("Choose from", "1"),  # linting_and_formatting -> ruff
+    ("Choose from", "1"),  # open_source_license -> MIT
+    ("Choose from", "2"),  # docs -> none
+    ("Choose from", "1"),  # include_code_scaffold -> Yes
+    ("Choose from", "1"),  # jupyter_kernel_support -> Yes
+    ("custom_config", ""),
 ]
 
 

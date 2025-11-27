@@ -23,9 +23,8 @@
         "global"
     ],
     "dependency_file": [
-        "environment.yml",
-        "requirements.txt",
-        "pyproject.toml"
+        "pyproject.toml",
+        "requirements.txt"
     ],
     "pydata_packages": [
         "none",
@@ -43,6 +42,6 @@
     "open_source_license": ["MIT", "BSD-3-Clause", "No license file"],
     "docs": ["mkdocs", "none"],
     "include_code_scaffold": ["Yes", "No"],
-    "jupyter_kernel": ["Yes", "No"],
+    "jupyter_kernel_support": ["Yes", "No"],
     "custom_config": ""
 }

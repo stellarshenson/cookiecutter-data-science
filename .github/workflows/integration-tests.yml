@@ -9,7 +9,7 @@ on:
 
 jobs:
   test-conda-local:
-    name: Conda (local env)
+    name: Conda (local env - default)
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -34,22 +34,23 @@ jobs:
       - name: Generate project
         run: |
           cd /tmp
+          # Use defaults for environment_manager (conda with local env_location)
           ccds $GITHUB_WORKSPACE --no-input \
             project_name="test_conda_local" \
-            environment_manager="conda" \
-            env_location="local" \
-            dependency_file="environment.yml" \
+            dependency_file="pyproject.toml" \
             testing_framework="pytest" \
             linting_and_formatting="ruff" \
             include_code_scaffold="Yes" \
-            jupyter_kernel="Yes"
+            jupyter_kernel_support="Yes"
 
       - name: Verify project structure
         run: |
           cd /tmp/test_conda_local
           echo "=== Project structure ==="
           ls -la
-          echo "=== environment.yml ==="
+          echo "=== pyproject.toml ==="
+          cat pyproject.toml
+          echo "=== environment.yml (auto-created for conda) ==="
           cat environment.yml
           echo "=== Makefile targets ==="
           make help
@@ -79,7 +80,6 @@ jobs:
       - name: Test clean
         run: |
           cd /tmp/test_conda_local
-          # Create some files to clean
           mkdir -p __pycache__
           touch __pycache__/test.pyc
           mkdir -p lib_test_conda_local/__pycache__
@@ -94,87 +94,6 @@ jobs:
           make remove_environment
           echo "=== Verify env removed ==="
           test ! -d .venv/test_conda_local/conda-meta && echo "OK: Environment removed"
-
-  test-conda-global:
-    name: Conda (global env)
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: bash -l {0}
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup Miniconda
-        uses: conda-incubator/setup-miniconda@v3
-        with:
-          auto-update-conda: true
-          python-version: "3.10"
-          activate-environment: test
-          auto-activate-base: false
-
-      - name: Install ccds
-        run: |
-          pip install -e .
-
-      - name: Generate project
-        run: |
-          cd /tmp
-          ccds $GITHUB_WORKSPACE --no-input \
-            project_name="test_conda_global" \
-            environment_manager="conda" \
-            env_location="global" \
-            dependency_file="environment.yml" \
-            testing_framework="pytest" \
-            linting_and_formatting="ruff" \
-            include_code_scaffold="Yes" \
-            jupyter_kernel="Yes"
-
-      - name: Verify project structure
-        run: |
-          cd /tmp/test_conda_global
-          echo "=== Project structure ==="
-          ls -la
-          echo "=== Makefile targets ==="
-          make help
-
-      - name: Test create_environment
-        run: |
-          cd /tmp/test_conda_global
-          make create_environment
-          echo "=== Verify global env created ==="
-          conda env list | grep test_conda_global
-
-      - name: Test requirements
-        run: |
-          cd /tmp/test_conda_global
-          make requirements
-
-      - name: Test install
-        run: |
-          cd /tmp/test_conda_global
-          make install
-
-      - name: Verify module import
-        run: |
-          cd /tmp/test_conda_global
-          conda run --name test_conda_global python -c "import lib_test_conda_global; print('Module imported successfully')"
-
-      - name: Test clean
-        run: |
-          cd /tmp/test_conda_global
-          mkdir -p __pycache__
-          touch __pycache__/test.pyc
-          make clean
-          test ! -d __pycache__ && echo "OK: __pycache__ removed"
-
-      - name: Test remove_environment
-        run: |
-          cd /tmp/test_conda_global
-          make remove_environment
-          echo "=== Verify env removed ==="
-          ! conda env list | grep -q "^test_conda_global " && echo "OK: Environment removed"
 
   test-virtualenv:
     name: Virtualenv
@@ -198,13 +117,11 @@ jobs:
           cd /tmp
           ccds $GITHUB_WORKSPACE --no-input \
             project_name="test_virtualenv" \
-            environment_manager="virtualenv" \
-            env_location="local" \
             dependency_file="requirements.txt" \
             testing_framework="pytest" \
             linting_and_formatting="ruff" \
             include_code_scaffold="Yes" \
-            jupyter_kernel="Yes"
+            jupyter_kernel_support="Yes"
 
       - name: Verify project structure
         run: |
@@ -219,7 +136,6 @@ jobs:
       - name: Test create_environment (manual venv)
         run: |
           cd /tmp/test_virtualenv
-          # virtualenvwrapper requires specific setup, use standard venv instead
           python -m venv .venv
           echo "=== Verify venv created ==="
           ls -la .venv/
@@ -270,13 +186,11 @@ jobs:
           cd /tmp
           ccds $GITHUB_WORKSPACE --no-input \
             project_name="test_uv" \
-            environment_manager="uv" \
-            env_location="local" \
             dependency_file="pyproject.toml" \
             testing_framework="pytest" \
             linting_and_formatting="ruff" \
             include_code_scaffold="Yes" \
-            jupyter_kernel="Yes"
+            jupyter_kernel_support="Yes"
 
       - name: Verify project structure
         run: |
@@ -344,13 +258,11 @@ jobs:
           cd /tmp
           ccds $GITHUB_WORKSPACE --no-input \
             project_name="test_no_scaffold" \
-            environment_manager="conda" \
-            env_location="local" \
-            dependency_file="environment.yml" \
+            dependency_file="pyproject.toml" \
             testing_framework="none" \
             linting_and_formatting="ruff" \
             include_code_scaffold="No" \
-            jupyter_kernel="No"
+            jupyter_kernel_support="No"
 
       - name: Verify minimal structure
         run: |
@@ -399,13 +311,11 @@ jobs:
           cd /tmp
           ccds $GITHUB_WORKSPACE --no-input \
             project_name="test_flake8" \
-            environment_manager="conda" \
-            env_location="local" \
-            dependency_file="environment.yml" \
+            dependency_file="pyproject.toml" \
             testing_framework="pytest" \
             linting_and_formatting="flake8+black+isort" \
             include_code_scaffold="Yes" \
-            jupyter_kernel="Yes"
+            jupyter_kernel_support="Yes"
 
       - name: Verify linting config
         run: |

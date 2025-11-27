@@ -11,7 +11,7 @@ dependencies:
 
   - pip:
     - build           # wheel building
-{% if cookiecutter.jupyter_kernel == 'Yes' %}
+{% if cookiecutter.jupyter_kernel_support == 'Yes' %}
     - ipykernel       # Jupyter kernel support
 {% endif %}
     - IPython         # ipython extensions
