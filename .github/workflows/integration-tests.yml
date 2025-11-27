@@ -37,6 +37,7 @@ jobs:
           ccds $GITHUB_WORKSPACE --no-input \
             project_name="test_conda_local" \
             environment_manager="conda" \
+            python_version_number="3.10" \
             dependency_file="pyproject.toml" \
             testing_framework="pytest" \
             linting_and_formatting="ruff" \
@@ -118,6 +119,7 @@ jobs:
           ccds $GITHUB_WORKSPACE --no-input \
             project_name="test_virtualenv" \
             environment_manager="virtualenv" \
+            python_version_number="3.10" \
             dependency_file="requirements.txt" \
             testing_framework="pytest" \
             linting_and_formatting="ruff" \
@@ -188,6 +190,7 @@ jobs:
           ccds $GITHUB_WORKSPACE --no-input \
             project_name="test_uv" \
             environment_manager="uv" \
+            python_version_number="3.10" \
             dependency_file="pyproject.toml" \
             testing_framework="pytest" \
             linting_and_formatting="ruff" \
@@ -261,6 +264,7 @@ jobs:
           ccds $GITHUB_WORKSPACE --no-input \
             project_name="test_no_scaffold" \
             environment_manager="conda" \
+            python_version_number="3.10" \
             dependency_file="pyproject.toml" \
             testing_framework="none" \
             linting_and_formatting="ruff" \
@@ -315,6 +319,7 @@ jobs:
           ccds $GITHUB_WORKSPACE --no-input \
             project_name="test_flake8" \
             environment_manager="conda" \
+            python_version_number="3.10" \
             dependency_file="pyproject.toml" \
             testing_framework="pytest" \
             linting_and_formatting="flake8+black+isort" \

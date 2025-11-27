@@ -236,11 +236,14 @@ for docs_template in docs_path.iterdir():
 #
 #  POST-GENERATION FUNCTIONS
 #
-# For environment.yml, we keep our pre-configured template
-# Only generate dependency files for requirements.txt and pyproject.toml
-# {% if cookiecutter.dependency_file != "environment.yml" %}
-# Delete environment.yml since we're using a different dependency file
+# For conda environments, keep environment.yml for dev dependencies (ipykernel, pytest, etc.)
+# This keeps module dependencies in pyproject.toml clean
+# For non-conda environments, delete environment.yml since it's not used
+# {% if cookiecutter.environment_manager != "conda" %}
 Path("environment.yml").unlink(missing_ok=True)
+# {% endif %}
+
+# {% if cookiecutter.dependency_file != "environment.yml" %}
 write_dependencies(
     "{{ cookiecutter.dependency_file }}",
     packages_to_install,

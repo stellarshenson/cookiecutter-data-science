@@ -154,6 +154,10 @@ def verify_files(root, config):
 
     expected_files.append(config["dependency_file"])
 
+    # Conda always has environment.yml for dev dependencies
+    if config["environment_manager"] == "conda":
+        expected_files.append("environment.yml")
+
     expected_files = [Path(f) for f in expected_files]
 
     existing_files = [f.relative_to(root) for f in root.glob("**/*") if f.is_file()]

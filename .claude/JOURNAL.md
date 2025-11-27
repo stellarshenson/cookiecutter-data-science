@@ -30,3 +30,12 @@ This journal tracks substantive work on documents, diagrams, and documentation c
 
 9. **Task - Clean up dependencies and add missing targets**: Removed pip, ipykernel, jupyterlab, notebook from pyproject.toml dependencies (these are env tools not project deps). ipykernel now installed during create_environment. Added install/remove_environment targets for uv/virtualenv. remove_environment also unregisters Jupyter kernel. Made Python 3.12 default. Updated integration tests to explicitly set environment_manager<br>
    **Result**: Dependencies are now minimal. All environment managers have parity for install/remove targets. All 20 tests pass
+
+10. **Task - Fix CI Python version mismatch**: CI uses Python 3.10 but project defaults to 3.12. Added python_version_number="3.10" to all 5 CI test jobs. Fixed YAML syntax errors from broken sed command (missing backslash continuations)<br>
+   **Result**: integration-tests.yml fixed. All 20 local tests pass
+
+11. **Task - Separate dev vs production dependencies**: Kept environment.yml for all conda projects (regardless of dependency_file) to hold dev dependencies (ipykernel, pytest, nbdime, etc.). This keeps pyproject.toml clean with only module dependencies. environment.yml is deleted for non-conda managers. Fixed Jinja whitespace issues causing Makefile syntax errors. Silenced verbose uv output. Added test expectation for environment.yml in conda projects<br>
+   **Result**: Dev/prod dependency separation complete. All 20 tests pass
+
+12. **Task - Add GitHub checkout tests**: Created tests/test_github_checkout.py with automated tests for using ccds with GitHub repo and --checkout master for conda, uv, and virtualenv environment managers. Tests verify project structure, lib_ prefix, and Makefile syntax<br>
+   **Result**: New test file added for validating GitHub checkout workflow
