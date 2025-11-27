@@ -222,10 +222,10 @@ lint: check_conda
 ## Run python tests
 test: check_conda
 	@echo "${MSG_PREFIX} checking for tests"
-	@conda run ${CONDA_ENV_SELECTOR} ${CONDA_FLAGS} pytest --collect-only ./${MODULE_NAME}/tests > /dev/null 2>&1; RESULT="$$?"; \
+	@conda run ${CONDA_ENV_SELECTOR} ${CONDA_FLAGS} pytest --collect-only ./tests > /dev/null 2>&1; RESULT="$$?"; \
 	if [ "$$RESULT" != "5" ]; then \
 		echo "${MSG_PREFIX} executing python tests"; \
-		conda run ${CONDA_ENV_SELECTOR} ${CONDA_FLAGS} pytest --cov -v ./${MODULE_NAME}/tests; \
+		conda run ${CONDA_ENV_SELECTOR} ${CONDA_FLAGS} pytest --cov -v ./tests; \
 	else \
 		echo "${WARN_PREFIX} ${WARN_STYLE}WARNING: no tests present${NO_STYLE}"; \
 	fi
