@@ -351,9 +351,9 @@ remove_environment:
 {%- if cookiecutter.jupyter_kernel_support == 'Yes' %}
 	@echo "$(MSG_PREFIX) unregistering Jupyter kernel $(HIGHLIGHT_STYLE)$(PROJECT_NAME)$(NO_STYLE)"
 	@if command -v nb_venv_kernels >/dev/null 2>&1; then \
-		nb_venv_kernels unregister $(PROJECT_DIR)/.venv 2>/dev/null || true; \
+		nb_venv_kernels unregister $(PROJECT_DIR)/.venv >/dev/null 2>&1 || true; \
 	else \
-		jupyter kernelspec uninstall -y $(PROJECT_NAME) 2>/dev/null || true; \
+		jupyter kernelspec uninstall -y $(PROJECT_NAME) >/dev/null 2>&1 || true; \
 	fi
 	@-rm -rf ~/.local/share/jupyter/kernels/$(PROJECT_NAME) 2>/dev/null || true
 {%- endif %}
@@ -412,9 +412,9 @@ remove_environment:
 {%- if cookiecutter.jupyter_kernel_support == 'Yes' %}
 	@echo "$(MSG_PREFIX) unregistering Jupyter kernel $(HIGHLIGHT_STYLE)$(PROJECT_NAME)$(NO_STYLE)"
 	@if command -v nb_venv_kernels >/dev/null 2>&1; then \
-		nb_venv_kernels unregister $(PROJECT_DIR)/.venv 2>/dev/null || true; \
+		nb_venv_kernels unregister $(PROJECT_DIR)/.venv >/dev/null 2>&1 || true; \
 	else \
-		jupyter kernelspec uninstall -y $(PROJECT_NAME) 2>/dev/null || true; \
+		jupyter kernelspec uninstall -y $(PROJECT_NAME) >/dev/null 2>&1 || true; \
 	fi
 	@-rm -rf ~/.local/share/jupyter/kernels/$(PROJECT_NAME) 2>/dev/null || true
 {%- endif %}
