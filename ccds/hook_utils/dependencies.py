@@ -1,7 +1,6 @@
 import tomlkit
 
 packages = [
-    "pip",
     "python-dotenv",
 ]
 
@@ -14,10 +13,7 @@ flake8_black_isort = [
 ruff = ["ruff"]
 
 basic = [
-    "ipython",
-    "jupyterlab",
     "matplotlib",
-    "notebook",
     "numpy",
     "pandas",
     "scikit-learn",

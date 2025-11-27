@@ -18,7 +18,6 @@ except ImportError:
 #  PACKAGE LISTS (inlined from ccds.hook_utils.dependencies)
 #
 packages = [
-    "pip",
     "python-dotenv",
 ]
 
@@ -31,10 +30,7 @@ flake8_black_isort = [
 ruff = ["ruff"]
 
 basic = [
-    "ipython",
-    "jupyterlab",
     "matplotlib",
-    "notebook",
     "numpy",
     "pandas",
     "scikit-learn",
@@ -205,9 +201,7 @@ tests_path = Path("tests")
 packages_to_install += ["pytest"]
 # {% endif %}
 
-# {% if cookiecutter.jupyter_kernel_support == "Yes" %}
-packages_to_install += ["ipykernel"]
-# {% endif %}
+# ipykernel is installed during create_environment, not as a project dependency
 
 # {% if cookiecutter.testing_framework == "none" %}
 shutil.rmtree(tests_path)

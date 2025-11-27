@@ -27,3 +27,6 @@ This journal tracks substantive work on documents, diagrams, and documentation c
 
 8. **Task - Make template standalone and uv default**: Inlined all ccds.hook_utils code into post_gen_project.py so template works with stock ccds CLI without depending on ccds package internals. Made uv the default environment manager. Updated generate-termynal.py to point to stellarshenson fork<br>
    **Result**: Template is now self-contained. uv is default. All 20 tests pass. Stock ccds CLI should work
+
+9. **Task - Clean up dependencies and add missing targets**: Removed pip, ipykernel, jupyterlab, notebook from pyproject.toml dependencies (these are env tools not project deps). ipykernel now installed during create_environment. Added install/remove_environment targets for uv/virtualenv. remove_environment also unregisters Jupyter kernel. Made Python 3.12 default. Updated integration tests to explicitly set environment_manager<br>
+   **Result**: Dependencies are now minimal. All environment managers have parity for install/remove targets. All 20 tests pass

@@ -349,11 +349,29 @@ create_environment:
 		nb_venv_kernels register $(PROJECT_DIR)/.venv; \
 		echo "$(OK_STYLE)>>> Kernel registered successfully$(NO_STYLE)"; \
 	else \
-		echo "$(MSG_PREFIX) registering Jupyter kernel with ipykernel"; \
+		echo "$(MSG_PREFIX) installing ipykernel and registering Jupyter kernel"; \
+		$(PROJECT_DIR)/.venv/bin/pip install ipykernel; \
 		$(PROJECT_DIR)/.venv/bin/python -m ipykernel install --user --name=$(PROJECT_NAME); \
 		echo "$(OK_STYLE)>>> Kernel registered as $(PROJECT_NAME)$(NO_STYLE)"; \
 	fi
 {% endif %}
+
+## Remove previously created environment
+remove_environment:
+	@echo "$(MSG_PREFIX) removing virtual environment at $(HIGHLIGHT_STYLE).venv$(NO_STYLE)"
+{% if cookiecutter.jupyter_kernel_support == 'Yes' %}
+	@echo "$(MSG_PREFIX) unregistering Jupyter kernel $(HIGHLIGHT_STYLE)$(PROJECT_NAME)$(NO_STYLE)"
+	@-jupyter kernelspec uninstall -y $(PROJECT_NAME) 2>/dev/null || true
+	@-rm -rf ~/.local/share/jupyter/kernels/$(PROJECT_NAME) 2>/dev/null || true
+{% endif %}
+	@rm -rf $(PROJECT_DIR)/.venv
+	@echo "$(OK_STYLE)>>> Environment removed$(NO_STYLE)"
+
+## Install src modules (editable)
+install: create_environment requirements
+	@echo "$(MSG_PREFIX) installing $(MODULE_NAME) in editable mode"
+	$(PROJECT_DIR)/.venv/bin/pip install -e .
+	@echo "$(OK_STYLE)>>> $(MODULE_NAME) installed$(NO_STYLE)"
 
 {% elif cookiecutter.environment_manager == 'uv' %}
 #################################################################################
@@ -373,11 +391,29 @@ create_environment:
 		nb_venv_kernels register $(PROJECT_DIR)/.venv; \
 		echo "$(OK_STYLE)>>> Kernel registered successfully$(NO_STYLE)"; \
 	else \
-		echo "$(MSG_PREFIX) registering Jupyter kernel with ipykernel"; \
+		echo "$(MSG_PREFIX) installing ipykernel and registering Jupyter kernel"; \
+		uv pip install ipykernel; \
 		$(PROJECT_DIR)/.venv/bin/python -m ipykernel install --user --name=$(PROJECT_NAME); \
 		echo "$(OK_STYLE)>>> Kernel registered as $(PROJECT_NAME)$(NO_STYLE)"; \
 	fi
 {% endif %}
+
+## Remove previously created environment
+remove_environment:
+	@echo "$(MSG_PREFIX) removing uv virtual environment at $(HIGHLIGHT_STYLE).venv$(NO_STYLE)"
+{% if cookiecutter.jupyter_kernel_support == 'Yes' %}
+	@echo "$(MSG_PREFIX) unregistering Jupyter kernel $(HIGHLIGHT_STYLE)$(PROJECT_NAME)$(NO_STYLE)"
+	@-jupyter kernelspec uninstall -y $(PROJECT_NAME) 2>/dev/null || true
+	@-rm -rf ~/.local/share/jupyter/kernels/$(PROJECT_NAME) 2>/dev/null || true
+{% endif %}
+	@rm -rf $(PROJECT_DIR)/.venv
+	@echo "$(OK_STYLE)>>> Environment removed$(NO_STYLE)"
+
+## Install src modules (editable)
+install: create_environment requirements
+	@echo "$(MSG_PREFIX) installing $(MODULE_NAME) in editable mode"
+	uv pip install -e .
+	@echo "$(OK_STYLE)>>> $(MODULE_NAME) installed$(NO_STYLE)"
 
 {% endif %}
 
