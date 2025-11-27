@@ -127,12 +127,12 @@ upgrade: test_environment
 {%- elif cookiecutter.environment_manager == 'virtualenv' %}
 upgrade:
 	@echo "$(MSG_PREFIX) upgrading packages"
-	$(PYTHON_INTERPRETER) -m pip install -U pip
+	$(PROJECT_DIR)/.venv/bin/pip install -U pip
 {%- if cookiecutter.dependency_file == 'requirements.txt' %}
-	$(PYTHON_INTERPRETER) -m pip install --upgrade -r requirements.txt
-	$(PYTHON_INTERPRETER) -m pip install --upgrade -r requirements-dev.txt
+	$(PROJECT_DIR)/.venv/bin/pip install --upgrade -r requirements.txt
+	$(PROJECT_DIR)/.venv/bin/pip install --upgrade -r requirements-dev.txt
 {%- elif cookiecutter.dependency_file == 'pyproject.toml' %}
-	$(PYTHON_INTERPRETER) -m pip install --upgrade -e ".[dev]"
+	$(PROJECT_DIR)/.venv/bin/pip install --upgrade -e ".[dev]"
 {%- endif %}
 {%- elif cookiecutter.environment_manager == 'uv' %}
 upgrade:
