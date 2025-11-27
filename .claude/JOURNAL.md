@@ -57,3 +57,6 @@ This journal tracks substantive work on documents, diagrams, and documentation c
 
 18. **Task - Update philosophy document**: Added "Guiding Philosophy" section emphasizing promoting best practices over proliferating outdated ones. Updated dev dependencies section to reflect new conda behavior (pyproject.toml instead of environment.yml)<br>
    **Result**: STELLARS_CCDS_PHILOSOPHY.md updated with best practices philosophy and accurate dev deps info
+
+19. **Task - Separate cloud tools from API libs**: Moved CLI tools to dev dependencies, kept API libraries in main dependencies. awscli/gsutil -> dev deps, botocore/google-cloud-storage/azure-storage-blob -> main deps. Fixed ruff isort config (underscore to hyphen). Updated test expectations for conda with requirements.txt<br>
+   **Result**: All 23 tests pass. Cloud dependencies properly separated
