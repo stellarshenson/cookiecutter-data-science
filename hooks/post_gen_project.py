@@ -170,7 +170,14 @@ def write_custom_config(user_input_config):
 packages_to_install = copy(packages)
 
 # {% if cookiecutter.dataset_storage.s3 %}
-packages_to_install += ["awscli"]
+# botocore is the S3 library for Python code, awscli is in dev dependencies
+packages_to_install += ["botocore"]
+# {% elif cookiecutter.dataset_storage.azure %}
+# azure-storage-blob is the Azure library for Python code, az CLI installed separately
+packages_to_install += ["azure-storage-blob"]
+# {% elif cookiecutter.dataset_storage.gcs %}
+# google-cloud-storage is the GCS library for Python code, gsutil is in dev dependencies
+packages_to_install += ["google-cloud-storage"]
 # {% endif %} #
 
 # {% if cookiecutter.include_code_scaffold == "Yes" %}
@@ -190,7 +197,9 @@ Path("setup.cfg").unlink()
 # {% endif %}
 # track packages that are not available through conda
 pip_only_packages = [
-    "awscli",
+    "botocore",
+    "azure-storage-blob",
+    "google-cloud-storage",
     "python-dotenv",
 ]
 

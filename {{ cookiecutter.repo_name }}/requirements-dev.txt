@@ -22,3 +22,8 @@ black
 flake8
 isort
 {%- endif %}
+{%- if cookiecutter.dataset_storage.s3 %}
+awscli
+{%- elif cookiecutter.dataset_storage.gcs %}
+gsutil
+{%- endif %}
