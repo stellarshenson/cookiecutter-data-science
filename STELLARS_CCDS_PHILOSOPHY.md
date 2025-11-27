@@ -1,4 +1,4 @@
-# Stellar's Cookiecutter Data Science Philosophy
+# Stellars' Cookiecutter Data Science Philosophy
 
 This fork of cookiecutter-data-science emphasizes **simplicity**, **separation of concerns**, and **minimal boilerplate** for data science projects.
 
@@ -118,7 +118,7 @@ Global conda environments remain available for shared tooling.
 
 ## Key Differentiators from Upstream ccds
 
-| Feature | Upstream ccds | Stellar's Fork |
+| Feature | Upstream ccds | Stellars' Fork |
 |---------|--------------|----------------|
 | Module prefix | `src/` | `lib_<project>/` |
 | Environment location | Global only | Local by default |
