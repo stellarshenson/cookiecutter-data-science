@@ -24,3 +24,6 @@ This journal tracks substantive work on documents, diagrams, and documentation c
 
 7. **Task - Align with upstream CI/CD workflows**: Updated tests.yml to match upstream (use `make docs` instead of direct mkdocs command). Updated generate-termynal.py with correct prompt sequence matching fork options. Updated ccds-help.json with all new/changed fields (env_name, env_location, jupyter_kernel_support, custom_config)<br>
    **Result**: tests.yml aligned with upstream. Docs scripts updated for termynal generation. All 20 tests pass
+
+8. **Task - Make template standalone and uv default**: Inlined all ccds.hook_utils code into post_gen_project.py so template works with stock ccds CLI without depending on ccds package internals. Made uv the default environment manager. Updated generate-termynal.py to point to stellarshenson fork<br>
+   **Result**: Template is now self-contained. uv is default. All 20 tests pass. Stock ccds CLI should work

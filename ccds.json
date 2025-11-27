@@ -13,9 +13,9 @@
         {"gcs": {"bucket": "bucket-name"}}
     ],
     "environment_manager": [
+        "uv",
         "conda",
         "virtualenv",
-        "uv",
         "none"
     ],
     "env_location": [

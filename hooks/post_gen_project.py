@@ -1,19 +1,172 @@
 import shutil
 from copy import copy
 from pathlib import Path
+from shutil import copytree
+from tempfile import TemporaryDirectory
+from urllib.request import urlretrieve
+from zipfile import ZipFile
 
-# https://github.com/cookiecutter/cookiecutter/issues/824
-#   our workaround is to include these utility functions in the CCDS package
-from ccds.hook_utils.custom_config import write_custom_config
-from ccds.hook_utils.dependencies import (
-    basic,
-    flake8_black_isort,
+import tomlkit
+
+# Attempt to import clone from cookiecutter, fall back to None if not available
+try:
+    from cookiecutter.vcs import clone as vcs_clone
+except ImportError:
+    vcs_clone = None
+
+#
+#  PACKAGE LISTS (inlined from ccds.hook_utils.dependencies)
+#
+packages = [
+    "pip",
+    "python-dotenv",
+]
+
+flake8_black_isort = [
+    "black",
+    "flake8",
+    "isort",
+]
+
+ruff = ["ruff"]
+
+basic = [
+    "ipython",
+    "jupyterlab",
+    "matplotlib",
+    "notebook",
+    "numpy",
+    "pandas",
+    "scikit-learn",
+]
+
+scaffold = [
+    "typer",
+    "loguru",
+    "tqdm",
+]
+
+
+#
+#  HELPER FUNCTIONS (inlined from ccds.hook_utils.dependencies)
+#
+def resolve_python_version_specifier(python_version):
+    """Resolves the user-provided Python version string to a version specifier."""
+    version_parts = python_version.split(".")
+    if len(version_parts) == 2:
+        major, minor = version_parts
+        patch = "0"
+        operator = "~="
+    elif len(version_parts) == 3:
+        major, minor, patch = version_parts
+        operator = "=="
+    else:
+        raise ValueError(
+            f"Invalid Python version specifier {python_version}. "
+            "Please specify version as <major>.<minor> or <major>.<minor>.<patch>, "
+            "e.g., 3.10, 3.10.1, etc."
+        )
+
+    resolved_python_version = ".".join((major, minor, patch))
+    return f"{operator}{resolved_python_version}"
+
+
+def write_python_version(python_version):
+    with open("pyproject.toml", "r") as f:
+        doc = tomlkit.parse(f.read())
+
+    doc["project"]["requires-python"] = resolve_python_version_specifier(python_version)
+    with open("pyproject.toml", "w") as f:
+        f.write(tomlkit.dumps(doc))
+
+
+def write_dependencies(
+    dependencies,
     packages,
-    ruff,
-    scaffold,
-    write_dependencies,
-    write_python_version,
-)
+    pip_only_packages,
+    repo_name,
+    module_name,
+    python_version,
+    environment_manager=None,
+    description=None,
+):
+    if dependencies == "requirements.txt":
+        with open(dependencies, "w") as f:
+            lines = sorted(packages)
+
+            lines += ["" "-e ."]
+
+            f.write("\n".join(lines))
+            f.write("\n")
+
+    elif dependencies == "pyproject.toml":
+        with open(dependencies, "r") as f:
+            doc = tomlkit.parse(f.read())
+
+        # Standard pyproject.toml dependencies
+        # Check if dependencies already exists (e.g., from template with code scaffold)
+        if "dependencies" in doc["project"]:
+            # Merge with existing dependencies
+            existing_deps = list(doc["project"]["dependencies"])
+            all_deps = sorted(set(existing_deps + packages))
+            doc["project"]["dependencies"].clear()
+            for dep in all_deps:
+                doc["project"]["dependencies"].append(dep)
+        else:
+            doc["project"].add("dependencies", sorted(packages))
+        doc["project"]["dependencies"].multiline(True)
+
+        with open(dependencies, "w") as f:
+            f.write(tomlkit.dumps(doc))
+
+
+def write_custom_config(user_input_config):
+    """Handle custom config overlay (inlined from ccds.hook_utils.custom_config)."""
+    if not user_input_config:
+        return
+
+    tmp = TemporaryDirectory()
+    tmp_zip = None
+
+    print(user_input_config)
+
+    # if not absolute, test if local path relative to parent of created directory
+    if not user_input_config.startswith("/"):
+        test_path = Path("..") / user_input_config
+    else:
+        test_path = Path(user_input_config)
+
+    local_path = None
+
+    # check if user passed a local path
+    if test_path.exists() and test_path.is_dir():
+        local_path = test_path
+
+    elif test_path.exists() and str(test_path).endswith(".zip"):
+        tmp_zip = test_path
+
+    # check if user passed a url to a zip
+    elif user_input_config.startswith("http") and (
+        user_input_config.split(".")[-1] in ["zip"]
+    ):
+        tmp_zip, _ = urlretrieve(user_input_config)
+
+    # assume it is a VCS uri and try to clone
+    elif vcs_clone is not None:
+        vcs_clone(user_input_config, clone_to_dir=tmp.name)
+        local_path = Path(tmp.name)
+
+    if tmp_zip:
+        with ZipFile(tmp_zip, "r") as zipf:
+            zipf.extractall(tmp.name)
+            local_path = Path(tmp.name)
+
+    # write whatever the user supplied into the project
+    if local_path:
+        copytree(local_path, ".", dirs_exist_ok=True)
+
+    tmp.cleanup()
+
 
 #
 #  TEMPLATIZED VARIABLES FILLED IN BY COOKIECUTTER

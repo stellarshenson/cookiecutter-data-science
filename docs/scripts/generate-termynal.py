@@ -54,7 +54,7 @@ ccds_script = [
     ("Choose from", "3"),  # dataset_storage -> s3
     ("bucket", "s3://my-aws-bucket"),
     ("aws_profile", ""),
-    ("Choose from", "1"),  # environment_manager -> conda
+    ("Choose from", "1"),  # environment_manager -> uv
     ("Choose from", "1"),  # env_location -> local
     ("Choose from", "1"),  # dependency_file -> pyproject.toml
     ("Choose from", "2"),  # pydata_packages -> basic
@@ -143,7 +143,7 @@ def render_termynal():
 
     # replace local directory in ccds call with URL so it can be used for documentation
     output = output.replace(
-        str(CCDS_ROOT), "https://github.com/drivendataorg/cookiecutter-data-science"
+        str(CCDS_ROOT), "https://github.com/stellarshenson/cookiecutter-data-science"
     )
     return output
 
