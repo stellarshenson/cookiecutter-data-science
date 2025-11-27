@@ -243,10 +243,11 @@ Path("environment.yml").unlink(missing_ok=True)
 # {% endif %}
 
 # Dev dependencies file handling:
-# - conda: uses environment.yml (delete requirements-dev.txt)
+# - conda with requirements.txt: uses requirements-dev.txt (keep it)
+# - conda with other dependency files: uses pyproject.toml [project.optional-dependencies.dev] (delete requirements-dev.txt)
 # - uv: uses pyproject.toml [project.optional-dependencies.dev] (delete requirements-dev.txt)
 # - virtualenv: uses requirements-dev.txt (keep it)
-# {% if cookiecutter.environment_manager in ["conda", "uv", "none"] %}
+# {% if cookiecutter.environment_manager == "uv" or (cookiecutter.environment_manager == "conda" and cookiecutter.dependency_file != "requirements.txt") or cookiecutter.environment_manager == "none" %}
 Path("requirements-dev.txt").unlink(missing_ok=True)
 # {% endif %}
 

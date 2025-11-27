@@ -2,6 +2,19 @@
 
 This fork of cookiecutter-data-science emphasizes **simplicity**, **separation of concerns**, and **minimal boilerplate** for data science projects.
 
+## Guiding Philosophy
+
+**Promote best practices, not proliferate outdated ones.**
+
+Project templates shape how thousands of developers work. A cookiecutter template isn't just scaffolding - it's an opinionated statement about how projects should be structured. We have a responsibility to:
+
+- **Adopt modern tooling** - Use uv over pip where appropriate, ruff over flake8+black+isort
+- **Deprecate legacy patterns** - Remove virtualenvwrapper support, drop outdated Python versions
+- **Simplify where possible** - One way to do things well, not five ways to do them poorly
+- **Keep dependencies minimal** - Separate dev from production, don't ship testing frameworks
+
+Every choice in this template should answer: "Is this how we'd recommend someone start a new project today?"
+
 ## Core Principles
 
 ### 1. Lightweight Production, Comprehensive Development
@@ -67,17 +80,7 @@ No post-scaffold configuration needed:
 
 Each environment manager has its own dev dependencies mechanism, installed automatically during `make create_environment`:
 
-#### For conda projects:
-Development tools are managed in `environment.yml`:
-- ipykernel (Jupyter kernel support)
-- pytest, pytest-cov (testing)
-- ruff or flake8+black+isort (linting/formatting)
-- nbdime (Git-Jupyter integration)
-- build, toml (packaging utilities)
-
-This keeps `pyproject.toml` clean with only production dependencies.
-
-#### For uv projects:
+#### For conda and uv projects:
 Development tools are in `pyproject.toml` under `[project.optional-dependencies]`:
 ```toml
 [project.optional-dependencies]
@@ -90,7 +93,10 @@ dev = [
 ]
 ```
 
-Installed automatically with: `uv pip install -e ".[dev]"`
+- conda: `pip install -e ".[dev]"` (environment.yml is minimal - just python and pip)
+- uv: `uv pip install -e ".[dev]"`
+
+This keeps production dependencies clean while providing a single source of truth for dev tools.
 
 #### For virtualenv projects:
 Development tools are in `requirements-dev.txt`:
@@ -103,6 +109,9 @@ ruff
 ```
 
 Installed automatically with: `pip install -r requirements-dev.txt`
+
+#### For conda with requirements.txt:
+When using `requirements.txt` as dependency file, dev tools are in `requirements-dev.txt` (same as virtualenv).
 
 ### 6. Local Environment by Default
 

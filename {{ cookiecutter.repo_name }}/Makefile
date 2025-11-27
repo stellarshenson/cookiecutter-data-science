@@ -85,11 +85,12 @@ requirements: test_environment
 	@echo "$(MSG_PREFIX) installing requirements for $(HIGHLIGHT_STYLE)$(CONDA_ENV_NAME)$(NO_STYLE) environment"
 	conda run $(CONDA_ENV_SELECTOR) $(CONDA_FLAGS) python -m pip install -U pip setuptools wheel
 {%- if cookiecutter.dependency_file == 'environment.yml' %}
-	conda env update $(CONDA_ENV_SELECTOR) -f environment.yml --prune
+	conda run $(CONDA_ENV_SELECTOR) $(CONDA_FLAGS) pip install -e ".[dev]"
 {%- elif cookiecutter.dependency_file == 'requirements.txt' %}
 	conda run $(CONDA_ENV_SELECTOR) $(CONDA_FLAGS) python -m pip install -r requirements.txt
+	conda run $(CONDA_ENV_SELECTOR) $(CONDA_FLAGS) python -m pip install -r requirements-dev.txt
 {%- elif cookiecutter.dependency_file == 'pyproject.toml' %}
-	conda run $(CONDA_ENV_SELECTOR) $(CONDA_FLAGS) pip install -e .
+	conda run $(CONDA_ENV_SELECTOR) $(CONDA_FLAGS) pip install -e ".[dev]"
 {%- endif %}
 {%- elif cookiecutter.environment_manager == 'virtualenv' %}
 requirements:
@@ -120,9 +121,12 @@ upgrade: test_environment
 	conda run $(CONDA_ENV_SELECTOR) $(CONDA_FLAGS) conda update --all -y
 	conda run $(CONDA_ENV_SELECTOR) $(CONDA_FLAGS) python -m pip install -U pip setuptools wheel
 {%- if cookiecutter.dependency_file == 'environment.yml' %}
-	conda env update $(CONDA_ENV_SELECTOR) -f environment.yml --prune
+	conda run $(CONDA_ENV_SELECTOR) $(CONDA_FLAGS) pip install --upgrade -e ".[dev]"
+{%- elif cookiecutter.dependency_file == 'requirements.txt' %}
+	conda run $(CONDA_ENV_SELECTOR) $(CONDA_FLAGS) python -m pip install --upgrade -r requirements.txt
+	conda run $(CONDA_ENV_SELECTOR) $(CONDA_FLAGS) python -m pip install --upgrade -r requirements-dev.txt
 {%- elif cookiecutter.dependency_file == 'pyproject.toml' %}
-	conda run $(CONDA_ENV_SELECTOR) $(CONDA_FLAGS) pip install --upgrade -e .
+	conda run $(CONDA_ENV_SELECTOR) $(CONDA_FLAGS) pip install --upgrade -e ".[dev]"
 {%- endif %}
 {%- elif cookiecutter.environment_manager == 'virtualenv' %}
 upgrade:
@@ -268,6 +272,12 @@ ifeq ($(ENV_LOCATION),local)
 		echo "$(MSG_PREFIX) creating new local conda environment at $(HIGHLIGHT_STYLE).venv/$(CONDA_ENV_NAME)$(NO_STYLE)"; \
 		conda env create -p $(CONDA_ENV_PATH) -f environment.yml; \
 		echo "$(MSG_PREFIX) new conda env created successfully. Activate with: $(HIGHLIGHT_STYLE)conda activate $(CONDA_ENV_PATH)$(NO_STYLE)"; \
+		echo "$(MSG_PREFIX) installing dev dependencies"; \
+{%- if cookiecutter.dependency_file == 'requirements.txt' %}
+		conda run -p $(CONDA_ENV_PATH) $(CONDA_FLAGS) pip install -q -r requirements-dev.txt; \
+{%- else %}
+		conda run -p $(CONDA_ENV_PATH) $(CONDA_FLAGS) pip install -q -e ".[dev]"; \
+{%- endif %}
 		conda run -p $(CONDA_ENV_PATH) $(CONDA_FLAGS) nbdime config-git --enable --global; \
 		echo "$(MSG_PREFIX) environment was configured to integrate git with jupyter notebooks"; \
 {%- if cookiecutter.jupyter_kernel_support == 'Yes' %}
@@ -292,6 +302,12 @@ else
 		echo "$(MSG_PREFIX) creating new conda environment $(HIGHLIGHT_STYLE)$(CONDA_ENV_NAME)$(NO_STYLE)"; \
 		conda env create -f environment.yml; \
 		echo "$(MSG_PREFIX) new conda env created successfully. Activate with: $(HIGHLIGHT_STYLE)conda activate $(CONDA_ENV_NAME)$(NO_STYLE)"; \
+		echo "$(MSG_PREFIX) installing dev dependencies"; \
+{%- if cookiecutter.dependency_file == 'requirements.txt' %}
+		conda run $(CONDA_ENV_SELECTOR) $(CONDA_FLAGS) pip install -q -r requirements-dev.txt; \
+{%- else %}
+		conda run $(CONDA_ENV_SELECTOR) $(CONDA_FLAGS) pip install -q -e ".[dev]"; \
+{%- endif %}
 		conda run $(CONDA_ENV_SELECTOR) $(CONDA_FLAGS) nbdime config-git --enable --global; \
 		echo "$(MSG_PREFIX) environment $(CONDA_ENV_NAME) was configured to integrate git with jupyter notebooks"; \
 {%- if cookiecutter.jupyter_kernel_support == 'Yes' %}
@@ -352,18 +368,12 @@ create_environment:
 		echo "$(MSG_PREFIX) virtual environment already exists at $(HIGHLIGHT_STYLE).venv$(NO_STYLE). Skipping creation."; \
 	else \
 		echo "$(MSG_PREFIX) creating virtualenv environment"; \
-		if command -v virtualenvwrapper.sh >/dev/null 2>&1; then \
-			echo "$(MSG_PREFIX) using virtualenvwrapper"; \
-			bash -c "source `which virtualenvwrapper.sh`; mkvirtualenv $(PROJECT_NAME) --python=$(PYTHON_INTERPRETER)"; \
-			echo "$(MSG_PREFIX) new virtualenv created. Activate with: $(HIGHLIGHT_STYLE)workon $(PROJECT_NAME)$(NO_STYLE)"; \
-		else \
-			echo "$(MSG_PREFIX) using standard venv (virtualenvwrapper not found)"; \
-			$(PYTHON_INTERPRETER) -m venv .venv; \
-			echo "$(MSG_PREFIX) new virtual environment created at .venv/"; \
-			echo "$(MSG_PREFIX) Activate with:"; \
-			echo "$(MSG_PREFIX) Windows: $(HIGHLIGHT_STYLE).\\.venv\\Scripts\\activate$(NO_STYLE)"; \
-			echo "$(MSG_PREFIX) Unix/macOS: $(HIGHLIGHT_STYLE)source .venv/bin/activate$(NO_STYLE)"; \
-		fi; \
+		echo "$(MSG_PREFIX) using standard venv"; \
+		$(PYTHON_INTERPRETER) -m venv .venv; \
+		echo "$(MSG_PREFIX) new virtual environment created at .venv/"; \
+		echo "$(MSG_PREFIX) Activate with:"; \
+		echo "$(MSG_PREFIX) Windows: $(HIGHLIGHT_STYLE).\\.venv\\Scripts\\activate$(NO_STYLE)"; \
+		echo "$(MSG_PREFIX) Unix/macOS: $(HIGHLIGHT_STYLE)source .venv/bin/activate$(NO_STYLE)"; \
 		echo "$(MSG_PREFIX) installing dev dependencies"; \
 		$(PROJECT_DIR)/.venv/bin/pip install -q -r requirements-dev.txt; \
 {%- if cookiecutter.jupyter_kernel_support == 'Yes' %}

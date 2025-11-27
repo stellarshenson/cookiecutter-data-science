@@ -2,23 +2,23 @@
 # Install with: pip install -r requirements-dev.txt
 
 build
-{% if cookiecutter.docs != 'none' -%}
+{%- if cookiecutter.docs != 'none' %}
 {{ cookiecutter.docs }}
-{% endif -%}
-{% if cookiecutter.jupyter_kernel_support == 'Yes' -%}
+{%- endif %}
+{%- if cookiecutter.jupyter_kernel_support == 'Yes' %}
 ipykernel
-{% endif -%}
+{%- endif %}
 ipython
 nbdime
-{% if cookiecutter.testing_framework == 'pytest' -%}
+{%- if cookiecutter.testing_framework == 'pytest' %}
 pytest
 pytest-cov
-{% endif -%}
+{%- endif %}
 toml
-{% if cookiecutter.linting_and_formatting == 'ruff' -%}
+{%- if cookiecutter.linting_and_formatting == 'ruff' %}
 ruff
-{% elif cookiecutter.linting_and_formatting == 'flake8+black+isort' -%}
+{%- elif cookiecutter.linting_and_formatting == 'flake8+black+isort' %}
 black
 flake8
 isort
-{% endif -%}
+{%- endif %}

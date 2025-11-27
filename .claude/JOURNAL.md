@@ -48,3 +48,12 @@ This journal tracks substantive work on documents, diagrams, and documentation c
 
 15. **Task - Fix uv dev dependencies and template cleanup**: Moved pip to dev dependencies in pyproject.toml (removed redundant install). Fixed Jinja whitespace in pyproject.toml template. Critical fix: `uv sync` now uses `--extra dev` to preserve dev dependencies - without this, `make requirements` was uninstalling ipykernel and other dev tools<br>
    **Result**: Dev dependencies preserved across make targets. Kernelspec creation works correctly
+
+16. **Task - Simplify CI and add upgrade targets**: Removed pixi, poetry, pipenv from tests.yml (unsupported). Silenced nb_venv_kernels unregister output. Added `make upgrade` target for all environment managers to upgrade packages<br>
+   **Result**: CI simplified to conda/uv/virtualenv. Upgrade targets added
+
+17. **Task - Unify dev deps via pyproject.toml**: Conda now uses pyproject.toml `[project.optional-dependencies.dev]` instead of environment.yml for dev dependencies. environment.yml is now minimal (just python and pip). Updated Makefile create_environment, requirements, upgrade targets to install dev deps via pip. Fixed virtualenv to use standard venv only (removed virtualenvwrapper support which caused `.venv/bin/pip not found` error). Updated post_gen_project.py file cleanup logic. Fixed Jinja whitespace in requirements-dev.txt<br>
+   **Result**: All managers now use consistent pip-based dev deps installation. All 20 tests pass
+
+18. **Task - Update philosophy document**: Added "Guiding Philosophy" section emphasizing promoting best practices over proliferating outdated ones. Updated dev dependencies section to reflect new conda behavior (pyproject.toml instead of environment.yml)<br>
+   **Result**: STELLARS_CCDS_PHILOSOPHY.md updated with best practices philosophy and accurate dev deps info
