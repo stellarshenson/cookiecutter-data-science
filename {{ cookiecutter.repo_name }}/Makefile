@@ -281,11 +281,7 @@ ifeq ($(ENV_LOCATION),local)
 		conda run -p $(CONDA_ENV_PATH) $(CONDA_FLAGS) nbdime config-git --enable --global; \
 		echo "$(MSG_PREFIX) environment was configured to integrate git with jupyter notebooks"; \
 {%- if cookiecutter.jupyter_kernel_support == 'Yes' %}
-		if command -v nb_venv_kernels >/dev/null 2>&1; then \
-			echo "$(MSG_PREFIX) registering Jupyter kernel for $(HIGHLIGHT_STYLE)$(CONDA_ENV_PATH)$(NO_STYLE)"; \
-			nb_venv_kernels register $(CONDA_ENV_PATH); \
-			echo "$(OK_STYLE)>>> Kernel registered successfully$(NO_STYLE)"; \
-		elif python -c "import nb_conda_kernels" 2>/dev/null; then \
+		if python -c "import nb_conda_kernels" 2>/dev/null; then \
 			echo "$(MSG_PREFIX) nb_conda_kernels detected - kernel will be auto-discovered"; \
 		else \
 			echo "$(MSG_PREFIX) registering Jupyter kernel with ipykernel"; \
@@ -328,10 +324,20 @@ remove_environment: check_conda
 ifeq (True,$(HAS_CONDA))
 ifeq ($(ENV_LOCATION),local)
 	@echo "$(MSG_PREFIX) detected conda, removing local environment at $(HIGHLIGHT_STYLE).venv/$(CONDA_ENV_NAME)$(NO_STYLE)"
-	conda run --name base conda env remove -y -p $(CONDA_ENV_PATH)
+{%- if cookiecutter.jupyter_kernel_support == 'Yes' %}
+	@echo "$(MSG_PREFIX) unregistering Jupyter kernel $(HIGHLIGHT_STYLE)$(CONDA_ENV_NAME)$(NO_STYLE)"
+	@jupyter kernelspec uninstall -y $(CONDA_ENV_NAME) >/dev/null 2>&1 || true
+	@-rm -rf ~/.local/share/jupyter/kernels/$(CONDA_ENV_NAME) 2>/dev/null || true
+{%- endif %}
+	conda env remove -y -p $(CONDA_ENV_PATH)
 else
 	@echo "$(MSG_PREFIX) detected conda, removing $(HIGHLIGHT_STYLE)$(CONDA_ENV_NAME)$(NO_STYLE) conda environment."
-	conda run --name base conda env remove -y -n $(CONDA_ENV_NAME)
+{%- if cookiecutter.jupyter_kernel_support == 'Yes' %}
+	@echo "$(MSG_PREFIX) unregistering Jupyter kernel $(HIGHLIGHT_STYLE)$(CONDA_ENV_NAME)$(NO_STYLE)"
+	@jupyter kernelspec uninstall -y $(CONDA_ENV_NAME) >/dev/null 2>&1 || true
+	@-rm -rf ~/.local/share/jupyter/kernels/$(CONDA_ENV_NAME) 2>/dev/null || true
+{%- endif %}
+	conda env remove -y -n $(CONDA_ENV_NAME)
 endif
 endif
 
@@ -379,7 +385,7 @@ create_environment:
 {%- if cookiecutter.jupyter_kernel_support == 'Yes' %}
 		if command -v nb_venv_kernels >/dev/null 2>&1; then \
 			echo "$(MSG_PREFIX) registering Jupyter kernel for $(HIGHLIGHT_STYLE).venv$(NO_STYLE)"; \
-			nb_venv_kernels register $(PROJECT_DIR)/.venv; \
+			nb_venv_kernels register $(PROJECT_DIR)/.venv >/dev/null 2>&1; \
 			echo "$(OK_STYLE)>>> Kernel registered successfully$(NO_STYLE)"; \
 		else \
 			echo "$(MSG_PREFIX) registering Jupyter kernel with ipykernel"; \
@@ -440,7 +446,7 @@ create_environment:
 {%- if cookiecutter.jupyter_kernel_support == 'Yes' %}
 		if command -v nb_venv_kernels >/dev/null 2>&1; then \
 			echo "$(MSG_PREFIX) registering Jupyter kernel for $(HIGHLIGHT_STYLE).venv$(NO_STYLE)"; \
-			nb_venv_kernels register $(PROJECT_DIR)/.venv; \
+			nb_venv_kernels register $(PROJECT_DIR)/.venv >/dev/null 2>&1; \
 			echo "$(OK_STYLE)>>> Kernel registered successfully$(NO_STYLE)"; \
 		else \
 			echo "$(MSG_PREFIX) registering Jupyter kernel with ipykernel"; \

@@ -60,3 +60,6 @@ This journal tracks substantive work on documents, diagrams, and documentation c
 
 19. **Task - Separate cloud tools from API libs**: Moved CLI tools to dev dependencies, kept API libraries in main dependencies. awscli/gsutil -> dev deps, botocore/google-cloud-storage/azure-storage-blob -> main deps. Fixed ruff isort config (underscore to hyphen). Updated test expectations for conda with requirements.txt<br>
    **Result**: All 23 tests pass. Cloud dependencies properly separated
+
+20. **Task - Simplify conda kernel handling**: Removed nb_venv_kernels from conda (use nb_conda_kernels auto-discovery or ipykernel install). Silenced nb_venv_kernels register output for virtualenv/uv. Added kernel cleanup to conda remove_environment. Simplified conda env remove command<br>
+   **Result**: Cleaner kernel management for conda environments
