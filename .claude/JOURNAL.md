@@ -45,3 +45,6 @@ This journal tracks substantive work on documents, diagrams, and documentation c
 
 14. **Task - Documentation cleanup and lint fixes**: Moved STELLARS_CCDS_PHILOSOPHY.md to repo root. Updated naming from "Stellar's" to "Stellars'" throughout. Fixed black formatting in test_github_checkout.py. Updated README link to philosophy doc<br>
    **Result**: All 20 tests pass. Lint passes. Documentation properly organized
+
+15. **Task - Fix uv dev dependencies and template cleanup**: Moved pip to dev dependencies in pyproject.toml (removed redundant install). Fixed Jinja whitespace in pyproject.toml template. Critical fix: `uv sync` now uses `--extra dev` to preserve dev dependencies - without this, `make requirements` was uninstalling ipykernel and other dev tools<br>
+   **Result**: Dev dependencies preserved across make targets. Kernelspec creation works correctly
