@@ -18,7 +18,7 @@ classifiers = [
     "Programming Language :: Python :: 3",
 {% if cookiecutter.open_source_license == 'MIT' %}    "License :: OSI Approved :: MIT License",{% elif cookiecutter.open_source_license == 'BSD-3-Clause' %}    "License :: OSI Approved :: BSD License",{% endif %}
 ]
-
+{%- if cookiecutter.dependency_file == 'pyproject.toml' %}
 
 dependencies = [
 {%- if cookiecutter.dataset_storage.s3 %}
@@ -41,7 +41,7 @@ dependencies = [
 {%- endif %}
     "python-dotenv",
 ]
-{%- if cookiecutter.dependency_file == 'pyproject.toml' and cookiecutter.environment_manager != 'none' %}
+{%- if cookiecutter.environment_manager != 'none' %}
 
 [project.optional-dependencies]
 dev = [
@@ -73,6 +73,7 @@ dev = [
     "gsutil",
 {%- endif %}
 ]
+{%- endif %}
 {%- endif %}
 
 [tool.setuptools]

@@ -71,7 +71,10 @@ def prompt_for_config(context, no_input=False):
             continue
 
         # Skip env_location for non-conda environments (only conda has global option)
-        if key == "env_location" and cookiecutter_dict.get("environment_manager") != "conda":
+        if (
+            key == "env_location"
+            and cookiecutter_dict.get("environment_manager") != "conda"
+        ):
             cookiecutter_dict[key] = "local"
             continue
 

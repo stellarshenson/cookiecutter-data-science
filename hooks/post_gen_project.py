@@ -148,10 +148,9 @@ for docs_template in docs_path.iterdir():
 #
 #  POST-GENERATION FUNCTIONS
 #
-# For conda environments, keep environment.yml for dev dependencies (ipykernel, pytest, etc.)
-# This keeps module dependencies in pyproject.toml clean
-# For non-conda environments, delete environment.yml since it's not used
-# {% if cookiecutter.environment_manager != "conda" %}
+# environment.yml only kept when dependency_file == "environment.yml" (conda-native dev deps)
+# See docs/docs/env-management.md for the full matrix
+# {% if cookiecutter.dependency_file != "environment.yml" %}
 Path("environment.yml").unlink(missing_ok=True)
 # {% endif %}
 
