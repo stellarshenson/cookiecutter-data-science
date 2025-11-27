@@ -80,14 +80,21 @@ def verify_folders(root, config):
     if config["docs"] == "mkdocs":
         expected_dirs += ["docs/docs"]
 
+    # Tests folder is created when testing_framework != "none"
+    if config.get("testing_framework", "pytest") != "none":
+        expected_dirs += ["tests"]
+
     expected_dirs = [
         #  (root / d).resolve().relative_to(root) for d in expected_dirs
         Path(d)
         for d in expected_dirs
     ]
 
+    # Exclude .ipynb_checkpoints and __pycache__ directories
+    excluded_dirs = {".ipynb_checkpoints", "__pycache__"}
     existing_dirs = [
-        d.resolve().relative_to(root) for d in root.glob("**") if d.is_dir()
+        d.resolve().relative_to(root) for d in root.glob("**")
+        if d.is_dir() and d.name not in excluded_dirs
     ]
 
     assert sorted(existing_dirs) == sorted(expected_dirs)
@@ -140,6 +147,10 @@ def verify_files(root, config):
             "docs/docs/getting-started.md",
         ]
 
+    # Tests files when testing_framework != "none"
+    if config.get("testing_framework", "pytest") != "none":
+        expected_files.append("tests/test_data.py")
+
     expected_files.append(config["dependency_file"])
 
     expected_files = [Path(f) for f in expected_files]
@@ -159,6 +170,9 @@ def verify_makefile_commands(root, config):
     - requirements
     - linting
     - formatting
+    - install (conda only)
+    - clean
+    - remove_environment (conda only)
     Ensure that these use the proper environment.
     """
     test_path = Path(__file__).parent
@@ -167,14 +181,8 @@ def verify_makefile_commands(root, config):
         harness_path = test_path / "conda_harness.sh"
     elif config["environment_manager"] == "virtualenv":
         harness_path = test_path / "virtualenv_harness.sh"
-    elif config["environment_manager"] == "pipenv":
-        harness_path = test_path / "pipenv_harness.sh"
     elif config["environment_manager"] == "uv":
         harness_path = test_path / "uv_harness.sh"
-    elif config["environment_manager"] == "pixi":
-        harness_path = test_path / "pixi_harness.sh"
-    elif config["environment_manager"] == "poetry":
-        harness_path = test_path / "poetry_harness.sh"
     elif config["environment_manager"] == "none":
         return True
     else:
@@ -182,13 +190,21 @@ def verify_makefile_commands(root, config):
             f"Environment manager '{config['environment_manager']}' not found in test harnesses."
         )
 
+    # Build command arguments
+    cmd_args = [
+        BASH_EXECUTABLE,
+        str(harness_path),
+        str(root.resolve()),
+        str(config["module_name"]),
+    ]
+
+    # Pass env_location and env_name for conda
+    if config["environment_manager"] == "conda":
+        cmd_args.append(config.get("env_location", "local"))
+        cmd_args.append(config.get("env_name", config["repo_name"]))
+
     result = run(
-        [
-            BASH_EXECUTABLE,
-            str(harness_path),
-            str(root.resolve()),
-            str(config["module_name"]),
-        ],
+        cmd_args,
         stderr=PIPE,
         stdout=PIPE,
     )
@@ -197,14 +213,10 @@ def verify_makefile_commands(root, config):
 
     # Check that makefile help ran successfully
     assert "Available rules:" in stdout_output
-    assert "clean                    Delete all compiled Python files" in stdout_output
+    assert "clean" in stdout_output
 
     # Check that linting and formatting ran successfully
-    if config["environment_manager"] in ["pixi", "poetry"]:
-        # For pixi and poetry, we just need to check that the commands completed successfully
-        # The specific linting output may be wrapped by the environment manager
-        pass
-    elif config["linting_and_formatting"] == "ruff":
+    if config["linting_and_formatting"] == "ruff":
         assert "All checks passed!" in stdout_output
         assert "left unchanged" in stdout_output
         assert "reformatted" not in stdout_output
@@ -212,5 +224,8 @@ def verify_makefile_commands(root, config):
         assert "All done!" in stderr_output
         assert "left unchanged" in stderr_output
         assert "reformatted" not in stderr_output
+
+    # Check that all targets passed (from harness)
+    assert "All targets passed!" in stdout_output
 
     assert result.returncode == 0

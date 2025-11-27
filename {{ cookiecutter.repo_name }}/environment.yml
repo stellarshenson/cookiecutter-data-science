@@ -1,0 +1,30 @@
+name: {{ cookiecutter.env_name }}
+
+# Development environment dependencies
+# Keep runtime dependencies in pyproject.toml
+channels:
+  - conda-forge
+
+dependencies:
+  - python={{ cookiecutter.python_version_number }}
+  - pip
+
+  - pip:
+    - build           # wheel building
+{% if cookiecutter.jupyter_kernel == 'Yes' %}
+    - ipykernel       # Jupyter kernel support
+{% endif %}
+    - IPython         # ipython extensions
+    - nbdime          # git-jupyter integration
+{% if cookiecutter.testing_framework == 'pytest' %}
+    - pytest          # testing framework
+    - pytest-cov      # test coverage reports
+{% endif %}
+    - toml            # toml file handling
+{% if cookiecutter.linting_and_formatting == 'ruff' %}
+    - ruff            # linting and formatting
+{% elif cookiecutter.linting_and_formatting == 'flake8+black+isort' %}
+    - black           # code formatting
+    - flake8          # linting
+    - isort           # import sorting
+{% endif %}

@@ -16,9 +16,10 @@ CCDS_ROOT = Path(__file__).parents[1].resolve()
 default_args = {
     "project_name": "my_test_project",
     "repo_name": "my-test-repo",
-    "module_name": "project_module",
+    "module_name": "lib_project_module",
     "author_name": "DrivenData",
     "description": "A test project",
+    # env_name is set per test config to avoid conflicts
 }
 
 
@@ -36,35 +37,21 @@ def config_generator(fast=False):
             ("environment_manager", opt)
             for opt in cookiecutter_json["environment_manager"]
         ],
+        [("env_location", opt) for opt in cookiecutter_json["env_location"]],
         [("dependency_file", opt) for opt in cookiecutter_json["dependency_file"]],
         [("pydata_packages", opt) for opt in cookiecutter_json["pydata_packages"]],
     )
 
     def _is_valid(config):
         config = dict(config)
-        #  Pipfile + pipenv only valid combo for either
-        if (config["environment_manager"] == "pipenv") ^ (
-            config["dependency_file"] == "Pipfile"
-        ):
-            return False
         # conda is the only valid env manager for environment.yml
         if (config["dependency_file"] == "environment.yml") and (
             config["environment_manager"] != "conda"
         ):
             return False
-        # pixi is the only valid env manager for pixi.toml
-        if (config["dependency_file"] == "pixi.toml") and (
-            config["environment_manager"] != "pixi"
-        ):
-            return False
-        # pixi supports both pixi.toml and pyproject.toml
-        if (config["environment_manager"] == "pixi") and (
-            config["dependency_file"] not in ["pixi.toml", "pyproject.toml"]
-        ):
-            return False
-        # poetry only supports pyproject.toml
-        if (config["environment_manager"] == "poetry") and (
-            config["dependency_file"] != "pyproject.toml"
+        # env_location only applies to conda
+        if (config["environment_manager"] != "conda") and (
+            config["env_location"] == "global"
         ):
             return False
         return True
@@ -93,6 +80,8 @@ def config_generator(fast=False):
         "dataset_storage",
         "open_source_license",
         "docs",
+        "testing_framework",
+        "jupyter_kernel",
     ]
     multi_select_cyclers = {k: cycle(cookiecutter_json[k]) for k in cycle_fields}
 
@@ -107,6 +96,8 @@ def config_generator(fast=False):
             config[field] = next(cycler)
 
         config["repo_name"] += f"-{ind}"
+        # Set env_name to match repo_name to avoid conflicts between tests
+        config["env_name"] = config["repo_name"].replace("-", "_")
         yield config
 
         # just do a single config if fast passed once or three times
@@ -140,7 +131,8 @@ def fast(request):
 def pytest_generate_tests(metafunc):
     # setup config fixture to get all of the results from config_generator
     def make_test_id(config):
-        return f"{config['environment_manager']}-{config['dependency_file']}-{config['pydata_packages']}"
+        env_loc = config.get('env_location', 'local')
+        return f"{config['environment_manager']}-{env_loc}-{config['dependency_file']}-{config['pydata_packages']}"
 
     if "config" in metafunc.fixturenames:
         metafunc.parametrize(

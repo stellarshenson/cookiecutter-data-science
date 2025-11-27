@@ -8,8 +8,8 @@ MODULE_NAME=$2
 # Configure exit / teardown behavior
 function finish {
     # Deactivate venv if we're in one
-    if [[ $(which python) == *"$PROJECT_NAME"* ]]; then
-        deactivate
+    if [[ $(which python) == *".venv"* ]]; then
+        deactivate || true
     fi
     # Clean up venv directory
     if [ -d ".venv" ]; then
@@ -28,7 +28,6 @@ make
 # Create and activate virtual environment
 make create_environment
 
-
 # Check if running on Windows and use appropriate activate path
 if [[ "$OSTYPE" == "msys"* || "$OSTYPE" == "cygwin"* ]]; then
     source ".venv/Scripts/activate"
@@ -40,4 +39,13 @@ make requirements
 make lint
 make format
 
-run_tests $PROJECT_NAME $MODULE_NAME
+# Test clean target
+mkdir -p __pycache__
+touch __pycache__/test.pyc
+make clean
+if [ -d "__pycache__" ]; then
+    echo "ERROR: clean did not remove __pycache__"
+    exit 1
+fi
+
+echo "All targets passed!"

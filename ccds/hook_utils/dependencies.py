@@ -175,7 +175,16 @@ def write_dependencies(
                 doc["tool"]["pixi"]["pypi-dependencies"][dep] = version
         else:
             # Standard pyproject.toml dependencies
-            doc["project"].add("dependencies", sorted(packages))
+            # Check if dependencies already exists (e.g., from template with code scaffold)
+            if "dependencies" in doc["project"]:
+                # Merge with existing dependencies
+                existing_deps = list(doc["project"]["dependencies"])
+                all_deps = sorted(set(existing_deps + packages))
+                doc["project"]["dependencies"].clear()
+                for dep in all_deps:
+                    doc["project"]["dependencies"].append(dep)
+            else:
+                doc["project"].add("dependencies", sorted(packages))
             doc["project"]["dependencies"].multiline(True)
 
             # poetry uses standard project dependencies, but we should use its build system

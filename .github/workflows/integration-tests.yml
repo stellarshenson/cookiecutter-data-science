@@ -1,0 +1,427 @@
+name: Integration Tests
+
+on:
+  push:
+    branches: [master, main, v2-integration]
+  pull_request:
+    branches: [master, main]
+  workflow_dispatch:
+
+jobs:
+  test-conda-local:
+    name: Conda (local env)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -l {0}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Miniconda
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          auto-update-conda: true
+          python-version: "3.10"
+          activate-environment: test
+          auto-activate-base: false
+
+      - name: Install ccds
+        run: |
+          pip install cookiecutter-data-science
+
+      - name: Generate project
+        run: |
+          cd /tmp
+          ccds $GITHUB_WORKSPACE --no-input \
+            project_name="test_conda_local" \
+            environment_manager="conda" \
+            env_location="local" \
+            dependency_file="environment.yml" \
+            testing_framework="pytest" \
+            linting_and_formatting="ruff" \
+            include_code_scaffold="Yes" \
+            jupyter_kernel="Yes"
+
+      - name: Verify project structure
+        run: |
+          cd /tmp/test_conda_local
+          echo "=== Project structure ==="
+          ls -la
+          echo "=== environment.yml ==="
+          cat environment.yml
+          echo "=== Makefile targets ==="
+          make help
+
+      - name: Test create_environment
+        run: |
+          cd /tmp/test_conda_local
+          make create_environment
+          echo "=== Verify local env created ==="
+          ls -la .venv/
+
+      - name: Test requirements
+        run: |
+          cd /tmp/test_conda_local
+          make requirements
+
+      - name: Test install
+        run: |
+          cd /tmp/test_conda_local
+          make install
+
+      - name: Verify module import
+        run: |
+          cd /tmp/test_conda_local
+          conda run -p .venv/test_conda_local python -c "import lib_test_conda_local; print('Module imported successfully')"
+
+      - name: Test clean
+        run: |
+          cd /tmp/test_conda_local
+          # Create some files to clean
+          mkdir -p __pycache__
+          touch __pycache__/test.pyc
+          mkdir -p lib_test_conda_local/__pycache__
+          touch lib_test_conda_local/__pycache__/test.pyc
+          make clean
+          echo "=== Verify cleaned ==="
+          test ! -d __pycache__ && echo "OK: __pycache__ removed"
+
+      - name: Test remove_environment
+        run: |
+          cd /tmp/test_conda_local
+          make remove_environment
+          echo "=== Verify env removed ==="
+          test ! -d .venv/test_conda_local/conda-meta && echo "OK: Environment removed"
+
+  test-conda-global:
+    name: Conda (global env)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -l {0}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Miniconda
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          auto-update-conda: true
+          python-version: "3.10"
+          activate-environment: test
+          auto-activate-base: false
+
+      - name: Install ccds
+        run: |
+          pip install cookiecutter-data-science
+
+      - name: Generate project
+        run: |
+          cd /tmp
+          ccds $GITHUB_WORKSPACE --no-input \
+            project_name="test_conda_global" \
+            environment_manager="conda" \
+            env_location="global" \
+            dependency_file="environment.yml" \
+            testing_framework="pytest" \
+            linting_and_formatting="ruff" \
+            include_code_scaffold="Yes" \
+            jupyter_kernel="Yes"
+
+      - name: Verify project structure
+        run: |
+          cd /tmp/test_conda_global
+          echo "=== Project structure ==="
+          ls -la
+          echo "=== Makefile targets ==="
+          make help
+
+      - name: Test create_environment
+        run: |
+          cd /tmp/test_conda_global
+          make create_environment
+          echo "=== Verify global env created ==="
+          conda env list | grep test_conda_global
+
+      - name: Test requirements
+        run: |
+          cd /tmp/test_conda_global
+          make requirements
+
+      - name: Test install
+        run: |
+          cd /tmp/test_conda_global
+          make install
+
+      - name: Verify module import
+        run: |
+          cd /tmp/test_conda_global
+          conda run --name test_conda_global python -c "import lib_test_conda_global; print('Module imported successfully')"
+
+      - name: Test clean
+        run: |
+          cd /tmp/test_conda_global
+          mkdir -p __pycache__
+          touch __pycache__/test.pyc
+          make clean
+          test ! -d __pycache__ && echo "OK: __pycache__ removed"
+
+      - name: Test remove_environment
+        run: |
+          cd /tmp/test_conda_global
+          make remove_environment
+          echo "=== Verify env removed ==="
+          ! conda env list | grep -q "^test_conda_global " && echo "OK: Environment removed"
+
+  test-virtualenv:
+    name: Virtualenv
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install dependencies
+        run: |
+          pip install cookiecutter-data-science virtualenvwrapper
+
+      - name: Generate project
+        run: |
+          cd /tmp
+          ccds $GITHUB_WORKSPACE --no-input \
+            project_name="test_virtualenv" \
+            environment_manager="virtualenv" \
+            env_location="local" \
+            dependency_file="requirements.txt" \
+            testing_framework="pytest" \
+            linting_and_formatting="ruff" \
+            include_code_scaffold="Yes" \
+            jupyter_kernel="Yes"
+
+      - name: Verify project structure
+        run: |
+          cd /tmp/test_virtualenv
+          echo "=== Project structure ==="
+          ls -la
+          echo "=== requirements.txt ==="
+          cat requirements.txt
+          echo "=== Makefile targets ==="
+          make help
+
+      - name: Test create_environment (manual venv)
+        run: |
+          cd /tmp/test_virtualenv
+          # virtualenvwrapper requires specific setup, use standard venv instead
+          python -m venv .venv
+          echo "=== Verify venv created ==="
+          ls -la .venv/
+
+      - name: Test requirements
+        run: |
+          cd /tmp/test_virtualenv
+          source .venv/bin/activate
+          make requirements
+
+      - name: Verify module import
+        run: |
+          cd /tmp/test_virtualenv
+          source .venv/bin/activate
+          pip install -e .
+          python -c "import lib_test_virtualenv; print('Module imported successfully')"
+
+      - name: Test clean
+        run: |
+          cd /tmp/test_virtualenv
+          mkdir -p __pycache__
+          touch __pycache__/test.pyc
+          make clean
+          test ! -d __pycache__ && echo "OK: __pycache__ removed"
+
+  test-uv:
+    name: UV
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install UV
+        uses: astral-sh/setup-uv@v4
+
+      - name: Install ccds
+        run: |
+          pip install cookiecutter-data-science
+
+      - name: Generate project
+        run: |
+          cd /tmp
+          ccds $GITHUB_WORKSPACE --no-input \
+            project_name="test_uv" \
+            environment_manager="uv" \
+            env_location="local" \
+            dependency_file="pyproject.toml" \
+            testing_framework="pytest" \
+            linting_and_formatting="ruff" \
+            include_code_scaffold="Yes" \
+            jupyter_kernel="Yes"
+
+      - name: Verify project structure
+        run: |
+          cd /tmp/test_uv
+          echo "=== Project structure ==="
+          ls -la
+          echo "=== pyproject.toml ==="
+          cat pyproject.toml
+          echo "=== Makefile targets ==="
+          make help
+
+      - name: Test create_environment
+        run: |
+          cd /tmp/test_uv
+          make create_environment
+          echo "=== Verify venv created ==="
+          ls -la .venv/
+
+      - name: Test requirements
+        run: |
+          cd /tmp/test_uv
+          source .venv/bin/activate
+          make requirements
+
+      - name: Verify module import
+        run: |
+          cd /tmp/test_uv
+          source .venv/bin/activate
+          uv pip install -e .
+          python -c "import lib_test_uv; print('Module imported successfully')"
+
+      - name: Test clean
+        run: |
+          cd /tmp/test_uv
+          mkdir -p __pycache__
+          touch __pycache__/test.pyc
+          make clean
+          test ! -d __pycache__ && echo "OK: __pycache__ removed"
+
+  test-no-scaffold:
+    name: Conda (no code scaffold)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -l {0}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Miniconda
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          auto-update-conda: true
+          python-version: "3.10"
+          activate-environment: test
+          auto-activate-base: false
+
+      - name: Install ccds
+        run: |
+          pip install cookiecutter-data-science
+
+      - name: Generate project without scaffold
+        run: |
+          cd /tmp
+          ccds $GITHUB_WORKSPACE --no-input \
+            project_name="test_no_scaffold" \
+            environment_manager="conda" \
+            env_location="local" \
+            dependency_file="environment.yml" \
+            testing_framework="none" \
+            linting_and_formatting="ruff" \
+            include_code_scaffold="No" \
+            jupyter_kernel="No"
+
+      - name: Verify minimal structure
+        run: |
+          cd /tmp/test_no_scaffold
+          echo "=== Project structure ==="
+          ls -la
+          echo "=== Module should be empty ==="
+          ls -la lib_test_no_scaffold/
+          cat lib_test_no_scaffold/__init__.py
+
+      - name: Test create_environment
+        run: |
+          cd /tmp/test_no_scaffold
+          make create_environment
+
+      - name: Test clean
+        run: |
+          cd /tmp/test_no_scaffold
+          make clean
+
+  test-flake8-black:
+    name: Conda (flake8+black+isort)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -l {0}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Miniconda
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          auto-update-conda: true
+          python-version: "3.10"
+          activate-environment: test
+          auto-activate-base: false
+
+      - name: Install ccds
+        run: |
+          pip install cookiecutter-data-science
+
+      - name: Generate project with flake8+black+isort
+        run: |
+          cd /tmp
+          ccds $GITHUB_WORKSPACE --no-input \
+            project_name="test_flake8" \
+            environment_manager="conda" \
+            env_location="local" \
+            dependency_file="environment.yml" \
+            testing_framework="pytest" \
+            linting_and_formatting="flake8+black+isort" \
+            include_code_scaffold="Yes" \
+            jupyter_kernel="Yes"
+
+      - name: Verify linting config
+        run: |
+          cd /tmp/test_flake8
+          echo "=== setup.cfg should exist ==="
+          cat setup.cfg
+          echo "=== pyproject.toml should have black/isort config ==="
+          cat pyproject.toml
+
+      - name: Test create_environment
+        run: |
+          cd /tmp/test_flake8
+          make create_environment
+
+      - name: Test lint target exists
+        run: |
+          cd /tmp/test_flake8
+          make help | grep -q "lint" && echo "OK: lint target exists"
+          make help | grep -q "format" && echo "OK: format target exists"

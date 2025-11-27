@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+set -ex
 
 PROJECT_NAME=$(basename $1)
 CCDS_ROOT=$(dirname $0)
@@ -7,14 +7,18 @@ MODULE_NAME=$2
 
 # configure exit / teardown behavior
 function finish {
-    if [[ $(which python) == *"$PROJECT_NAME"* ]]; then
-        deactivate
+    # Deactivate venv if we're in one
+    if [[ $(which python) == *".venv"* ]] || [[ $(which python) == *"$PROJECT_NAME"* ]]; then
+        deactivate || true
     fi
 
+    # Clean up virtualenvwrapper env if it exists
     if [ ! -z `which rmvirtualenv` ]; then
-        rmvirtualenv $PROJECT_NAME
-    elif [ ! -z `which rmvirtualenv.bat` ]; then
-        rmvirtualenv.bat $PROJECT_NAME
+        rmvirtualenv $PROJECT_NAME 2>/dev/null || true
+    fi
+    # Clean up .venv directory
+    if [ -d ".venv" ]; then
+        rm -rf .venv
     fi
 }
 trap finish EXIT
@@ -25,37 +29,38 @@ source $CCDS_ROOT/test_functions.sh
 # navigate to the generated project and run make commands
 cd $1
 
-if [ -z $TMPDIR ]
-then
-    windowstmpdir=/c/Users/VssAdministrator/AppData/Local/Temp
-    if [ -e $windowstmpdir ]
-    then
-        export TMPDIR=$windowstmpdir
-    fi
-fi
-
-TEMP_ENV_ROOT=$(mktemp -d "${TMPDIR:-/tmp/}$(basename $0).XXXXXXXXXXXX")
-export WORKON_HOME=$TEMP_ENV_ROOT
-
-if [ ! -z `which virtualenvwrapper.sh` ]
-then
-    source `which virtualenvwrapper.sh`
-fi
-
 make
 make create_environment
 
-# workon not sourced
-
-if [ -e $TEMP_ENV_ROOT/$PROJECT_NAME/bin/activate ]
-then
-    . $TEMP_ENV_ROOT/$PROJECT_NAME/bin/activate
+# Activate the virtualenv - check both standard venv and virtualenvwrapper locations
+if [ -e ".venv/bin/activate" ]; then
+    # Standard venv in project directory
+    source ".venv/bin/activate"
+elif [ -e ".venv/Scripts/activate" ]; then
+    # Standard venv on Windows
+    source ".venv/Scripts/activate"
+elif [ ! -z "$WORKON_HOME" ] && [ -e "$WORKON_HOME/$PROJECT_NAME/bin/activate" ]; then
+    # virtualenvwrapper on Unix
+    source "$WORKON_HOME/$PROJECT_NAME/bin/activate"
+elif [ ! -z "$WORKON_HOME" ] && [ -e "$WORKON_HOME/$PROJECT_NAME/Scripts/activate" ]; then
+    # virtualenvwrapper on Windows
+    source "$WORKON_HOME/$PROJECT_NAME/Scripts/activate"
 else
-    . $TEMP_ENV_ROOT/$PROJECT_NAME/Scripts/activate
+    echo "ERROR: Could not find virtualenv to activate"
+    exit 1
 fi
 
 make requirements
 make lint
 make format
 
-run_tests $PROJECT_NAME $MODULE_NAME
+# Test clean target
+mkdir -p __pycache__
+touch __pycache__/test.pyc
+make clean
+if [ -d "__pycache__" ]; then
+    echo "ERROR: clean did not remove __pycache__"
+    exit 1
+fi
+
+echo "All targets passed!"

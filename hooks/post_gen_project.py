@@ -52,6 +52,10 @@ tests_path = Path("tests")
 packages_to_install += ["pytest"]
 # {% endif %}
 
+# {% if cookiecutter.jupyter_kernel == "Yes" %}
+packages_to_install += ["ipykernel"]
+# {% endif %}
+
 # {% if cookiecutter.testing_framework == "none" %}
 shutil.rmtree(tests_path)
 
@@ -85,6 +89,11 @@ for docs_template in docs_path.iterdir():
 #
 #  POST-GENERATION FUNCTIONS
 #
+# For environment.yml, we keep our pre-configured template
+# Only generate dependency files for requirements.txt and pyproject.toml
+# {% if cookiecutter.dependency_file != "environment.yml" %}
+# Delete environment.yml since we're using a different dependency file
+Path("environment.yml").unlink(missing_ok=True)
 write_dependencies(
     "{{ cookiecutter.dependency_file }}",
     packages_to_install,
@@ -95,6 +104,7 @@ write_dependencies(
     environment_manager="{{ cookiecutter.environment_manager }}",
     description="{{ cookiecutter.description }}",
 )
+# {% endif %}
 
 write_python_version("{{ cookiecutter.python_version_number }}")
 
