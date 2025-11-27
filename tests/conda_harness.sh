@@ -71,7 +71,8 @@ if [ -d "__pycache__" ]; then
     exit 1
 fi
 
-# Test remove_environment
+# Test remove_environment (must deactivate first)
+conda deactivate
 make remove_environment
 if [[ "$ENV_LOCATION" == "local" ]]; then
     if [ -d ".venv/$ENV_NAME/conda-meta" ]; then

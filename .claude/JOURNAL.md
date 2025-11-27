@@ -63,3 +63,6 @@ This journal tracks substantive work on documents, diagrams, and documentation c
 
 20. **Task - Simplify conda kernel handling**: Removed nb_venv_kernels from conda (use nb_conda_kernels auto-discovery or ipykernel install). Silenced nb_venv_kernels register output for virtualenv/uv. Added kernel cleanup to conda remove_environment. Simplified conda env remove command<br>
    **Result**: Cleaner kernel management for conda environments
+
+21. **Task - Fix conda global env test failure**: Fixed conda_harness.sh test failure for global environments. Conda doesn't allow removing an active environment (`CondaEnvironmentError: Cannot remove current environment`). Added `conda deactivate` before `make remove_environment` in the harness<br>
+   **Result**: All 20 tests pass including conda-global configurations
