@@ -86,6 +86,11 @@ def prompt_for_config(context, no_input=False):
                     )
                     cookiecutter_dict[key] = val
                 else:
+                    # Filter dependency_file options: environment.yml only for conda
+                    if key == "dependency_file":
+                        if cookiecutter_dict.get("environment_manager") != "conda":
+                            raw = [opt for opt in raw if opt != "environment.yml"]
+
                     # We are dealing with a choice variable
                     val = prompt_choice_for_config(
                         cookiecutter_dict, env, key, raw, no_input

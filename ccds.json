@@ -24,7 +24,8 @@
     ],
     "dependency_file": [
         "pyproject.toml",
-        "requirements.txt"
+        "requirements.txt",
+        "environment.yml"
     ],
     "pydata_packages": [
         "none",
