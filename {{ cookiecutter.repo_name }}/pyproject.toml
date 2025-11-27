@@ -26,6 +26,29 @@ dependencies = [
     "tqdm",
 ]
 {% endif %}
+{% if cookiecutter.environment_manager == 'uv' %}
+[project.optional-dependencies]
+dev = [
+    "build",
+{% if cookiecutter.jupyter_kernel_support == 'Yes' %}
+    "ipykernel",
+{% endif %}
+    "ipython",
+    "nbdime",
+{% if cookiecutter.testing_framework == 'pytest' %}
+    "pytest",
+    "pytest-cov",
+{% endif %}
+    "toml",
+{% if cookiecutter.linting_and_formatting == 'ruff' %}
+    "ruff",
+{% elif cookiecutter.linting_and_formatting == 'flake8+black+isort' %}
+    "black",
+    "flake8",
+    "isort",
+{% endif %}
+]
+{% endif %}
 [tool.setuptools]
 include-package-data = true
 

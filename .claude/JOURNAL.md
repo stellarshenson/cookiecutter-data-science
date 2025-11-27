@@ -39,3 +39,6 @@ This journal tracks substantive work on documents, diagrams, and documentation c
 
 12. **Task - Add GitHub checkout tests**: Created tests/test_github_checkout.py with automated tests for using ccds with GitHub repo and --checkout master for conda, uv, and virtualenv environment managers. Tests verify project structure, lib_ prefix, and Makefile syntax<br>
    **Result**: New test file added for validating GitHub checkout workflow
+
+13. **Task - Implement dev dependencies per environment manager**: Added per-manager dev dependencies system. Conda uses environment.yml, uv uses pyproject.toml `[project.optional-dependencies.dev]`, virtualenv uses requirements-dev.txt. Dev dependencies installed automatically during `make create_environment`. Updated philosophy doc and README to reflect fork features and point to philosophy document<br>
+   **Result**: Complete dev dependencies separation. All 20 tests pass. README and philosophy doc updated

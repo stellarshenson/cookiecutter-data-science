@@ -39,8 +39,7 @@ Each supported manager has:
 ```bash
 ccds gh:stellarshenson/cookiecutter-data-science
 cd my_project
-make create_environment
-make requirements
+make install
 # Ready to work
 ```
 
@@ -60,7 +59,13 @@ No post-scaffold configuration needed:
 - Immediately recognizable as project-specific code
 - Installable in editable mode: `pip install -e .`
 
+> [!NOTE]
+> You can rename the module folder to anything you prefer. The `lib_` prefix just makes it easy to spot your project code at a glance.
+
+
 ### 5. Development Dependencies Strategy
+
+Each environment manager has its own dev dependencies mechanism, installed automatically during `make create_environment`:
 
 #### For conda projects:
 Development tools are managed in `environment.yml`:
@@ -72,8 +77,8 @@ Development tools are managed in `environment.yml`:
 
 This keeps `pyproject.toml` clean with only production dependencies.
 
-#### For uv/virtualenv projects:
-Development tools are in `[project.optional-dependencies]`:
+#### For uv projects:
+Development tools are in `pyproject.toml` under `[project.optional-dependencies]`:
 ```toml
 [project.optional-dependencies]
 dev = [
@@ -85,7 +90,19 @@ dev = [
 ]
 ```
 
-Install with: `pip install -e ".[dev]"` or `uv pip install -e ".[dev]"`
+Installed automatically with: `uv pip install -e ".[dev]"`
+
+#### For virtualenv projects:
+Development tools are in `requirements-dev.txt`:
+```
+ipykernel
+pytest
+pytest-cov
+ruff
+...
+```
+
+Installed automatically with: `pip install -r requirements-dev.txt`
 
 ### 6. Local Environment by Default
 
@@ -115,9 +132,9 @@ Global conda environments remain available for shared tooling.
 ## Usage Philosophy
 
 1. **Start simple** - Use defaults, they're sensible
-2. **Iterate fast** - `make create_environment && make requirements` gets you working
-3. **Deploy clean** - Production image only has what it needs
-4. **Develop fully** - Development environment has everything
+2. **Iterate fast** - `make install` creates environment with dev tools and installs your module
+3. **Deploy clean** - Production image only has what it needs (`pip install .`)
+4. **Develop fully** - Development environment has all tools pre-configured
 
 ## When to Use What
 

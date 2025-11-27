@@ -1,9 +1,7 @@
 """Test using ccds with our GitHub repo and --checkout master"""
 
 import os
-import shutil
 import subprocess
-import sys
 import tempfile
 from pathlib import Path
 

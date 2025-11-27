@@ -243,6 +243,14 @@ for docs_template in docs_path.iterdir():
 Path("environment.yml").unlink(missing_ok=True)
 # {% endif %}
 
+# Dev dependencies file handling:
+# - conda: uses environment.yml (delete requirements-dev.txt)
+# - uv: uses pyproject.toml [project.optional-dependencies.dev] (delete requirements-dev.txt)
+# - virtualenv: uses requirements-dev.txt (keep it)
+# {% if cookiecutter.environment_manager in ["conda", "uv", "none"] %}
+Path("requirements-dev.txt").unlink(missing_ok=True)
+# {% endif %}
+
 # {% if cookiecutter.dependency_file != "environment.yml" %}
 write_dependencies(
     "{{ cookiecutter.dependency_file }}",

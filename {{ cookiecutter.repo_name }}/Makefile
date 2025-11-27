@@ -330,9 +330,9 @@ create_environment:
 			echo "$(MSG_PREFIX) Windows: $(HIGHLIGHT_STYLE).\\.venv\\Scripts\\activate$(NO_STYLE)"; \
 			echo "$(MSG_PREFIX) Unix/macOS: $(HIGHLIGHT_STYLE)source .venv/bin/activate$(NO_STYLE)"; \
 		fi; \
+		echo "$(MSG_PREFIX) installing dev dependencies"; \
+		$(PROJECT_DIR)/.venv/bin/pip install -q -r requirements-dev.txt; \
 {%- if cookiecutter.jupyter_kernel_support == 'Yes' %}
-		echo "$(MSG_PREFIX) installing ipykernel"; \
-		$(PROJECT_DIR)/.venv/bin/pip install -q ipykernel; \
 		if command -v nb_venv_kernels >/dev/null 2>&1; then \
 			echo "$(MSG_PREFIX) registering Jupyter kernel for $(HIGHLIGHT_STYLE).venv$(NO_STYLE)"; \
 			nb_venv_kernels register $(PROJECT_DIR)/.venv; \
@@ -393,9 +393,9 @@ create_environment:
 		echo "$(MSG_PREFIX) new uv virtual environment created. Activate with:"; \
 		echo "$(MSG_PREFIX) Windows: $(HIGHLIGHT_STYLE).\\\.venv\\\Scripts\\\activate$(NO_STYLE)"; \
 		echo "$(MSG_PREFIX) Unix/macOS: $(HIGHLIGHT_STYLE)source ./.venv/bin/activate$(NO_STYLE)"; \
+		echo "$(MSG_PREFIX) installing dev dependencies"; \
+		uv pip install -q --python $(PROJECT_DIR)/.venv -e ".[dev]"; \
 {%- if cookiecutter.jupyter_kernel_support == 'Yes' %}
-		echo "$(MSG_PREFIX) installing ipykernel"; \
-		uv pip install -q --python $(PROJECT_DIR)/.venv ipykernel; \
 		if command -v nb_venv_kernels >/dev/null 2>&1; then \
 			echo "$(MSG_PREFIX) registering Jupyter kernel for $(HIGHLIGHT_STYLE).venv$(NO_STYLE)"; \
 			nb_venv_kernels register $(PROJECT_DIR)/.venv; \

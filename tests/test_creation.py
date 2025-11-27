@@ -158,6 +158,10 @@ def verify_files(root, config):
     if config["environment_manager"] == "conda":
         expected_files.append("environment.yml")
 
+    # Virtualenv uses requirements-dev.txt for dev dependencies
+    if config["environment_manager"] == "virtualenv":
+        expected_files.append("requirements-dev.txt")
+
     expected_files = [Path(f) for f in expected_files]
 
     existing_files = [f.relative_to(root) for f in root.glob("**/*") if f.is_file()]
