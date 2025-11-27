@@ -3,15 +3,15 @@
 This document describes how dependencies, dev dependencies, and Jupyter kernels are managed across different environment manager and dependency file combinations.
 
 ## Dependency Matrix
+| Env Type | requirements.txt | requirements-dev.txt | pyproject.toml | environment.yml | Auto Kernel Discovery | Manual Kernel Discovery |
+|----------|------------------|----------------------|----------------|-----------------|-----------------------|-------------------------|
+| conda / requirements.txt    | ✅ | ✅ | ❌ | ✅, minimal | conda / nb_conda_kernels | ipykernel / install uninstall |
+| conda / pyproject.toml      | ❌  | ❌  | ✅, prod and dev | ✅, minimal | conda / nb_conda_kernels | ipykernel / install uninstall |
+| uv / requirements.txt       | ✅ | ✅ | ❌ | ❌ | nb_venv_kernels register unregister | ipykernel install uninstall |
+| uv / pyproject.toml         | ❌  | ❌  | ✅, prod and dev | ❌ | nb_venv_kernels register unregister | ipykernel install uninstall |
+| venv / requirements.txt     | ✅ | ✅ | ❌ | ❌ | nb_venv_kernels register unregister | ipykernel install uninstall |
+| venv / pyproject.toml       | ❌  | ❌  | ✅, prod and dev | ❌ | nb_venv_kernels register unregister| ipykernel install uninstall |
 
-| Env Type | Dependencies File | Dev Dependencies | Env File | Automated Kernel Discovery | Manual Kernel Discovery |
-|----------|------------------|------------------|----------|------------------------|---------------------|
-| conda / requirements.txt | requirements.txt | requirements-dev.txt | environment.yml | conda via nb_conda_kernels | ipykernel install uninstall |
-| conda / pyproject.toml | pyproject.toml dependencies | pyproject.toml dev dependencies | environment.yml | conda via nb_conda_kernels | ipykernel install uninstall |
-| uv / requirements.txt | requirements.txt | requirements-dev.txt | n/a | nb_venv_kernels register unregister | ipykernel install uninstall |
-| uv / pyproject.toml | pyproject.toml dependencies | pyproject.toml dev dependencies | n/a | nb_venv_kernels register unregister | ipykernel install uninstall |
-| venv / requirements.txt | requirements.txt | requirements-dev.txt | n/a | nb_venv_kernels register unregister | ipykernel install uninstall |
-| venv / pyproject.toml | pyproject.toml dependencies | pyproject.toml dev dependencies | n/a | nb_venv_kernels register unregister| ipykernel install uninstall |
 
 ## Key Points
 

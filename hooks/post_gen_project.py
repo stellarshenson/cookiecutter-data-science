@@ -1,5 +1,4 @@
 import shutil
-from copy import copy
 from pathlib import Path
 from shutil import copytree
 from tempfile import TemporaryDirectory
@@ -14,37 +13,9 @@ try:
 except ImportError:
     vcs_clone = None
 
-#
-#  PACKAGE LISTS (inlined from ccds.hook_utils.dependencies)
-#
-packages = [
-    "python-dotenv",
-]
-
-flake8_black_isort = [
-    "black",
-    "flake8",
-    "isort",
-]
-
-ruff = ["ruff"]
-
-basic = [
-    "matplotlib",
-    "numpy",
-    "pandas",
-    "scikit-learn",
-]
-
-scaffold = [
-    "typer",
-    "loguru",
-    "tqdm",
-]
-
 
 #
-#  HELPER FUNCTIONS (inlined from ccds.hook_utils.dependencies)
+#  HELPER FUNCTIONS
 #
 def resolve_python_version_specifier(python_version):
     """Resolves the user-provided Python version string to a version specifier."""
@@ -74,46 +45,6 @@ def write_python_version(python_version):
     doc["project"]["requires-python"] = resolve_python_version_specifier(python_version)
     with open("pyproject.toml", "w") as f:
         f.write(tomlkit.dumps(doc))
-
-
-def write_dependencies(
-    dependencies,
-    packages,
-    pip_only_packages,
-    repo_name,
-    module_name,
-    python_version,
-    environment_manager=None,
-    description=None,
-):
-    if dependencies == "requirements.txt":
-        with open(dependencies, "w") as f:
-            lines = sorted(packages)
-
-            lines += ["" "-e ."]
-
-            f.write("\n".join(lines))
-            f.write("\n")
-
-    elif dependencies == "pyproject.toml":
-        with open(dependencies, "r") as f:
-            doc = tomlkit.parse(f.read())
-
-        # Standard pyproject.toml dependencies
-        # Check if dependencies already exists (e.g., from template with code scaffold)
-        if "dependencies" in doc["project"]:
-            # Merge with existing dependencies
-            existing_deps = list(doc["project"]["dependencies"])
-            all_deps = sorted(set(existing_deps + packages))
-            doc["project"]["dependencies"].clear()
-            for dep in all_deps:
-                doc["project"]["dependencies"].append(dep)
-        else:
-            doc["project"].add("dependencies", sorted(packages))
-        doc["project"]["dependencies"].multiline(True)
-
-        with open(dependencies, "w") as f:
-            f.write(tomlkit.dumps(doc))
 
 
 def write_custom_config(user_input_config):
@@ -167,26 +98,6 @@ def write_custom_config(user_input_config):
 #
 #  TEMPLATIZED VARIABLES FILLED IN BY COOKIECUTTER
 #
-packages_to_install = copy(packages)
-
-# {% if cookiecutter.dataset_storage.s3 %}
-# botocore is the S3 library for Python code, awscli is in dev dependencies
-packages_to_install += ["botocore"]
-# {% elif cookiecutter.dataset_storage.azure %}
-# azure-storage-blob is the Azure library for Python code, az CLI installed separately
-packages_to_install += ["azure-storage-blob"]
-# {% elif cookiecutter.dataset_storage.gcs %}
-# google-cloud-storage is the GCS library for Python code, gsutil is in dev dependencies
-packages_to_install += ["google-cloud-storage"]
-# {% endif %} #
-
-# {% if cookiecutter.include_code_scaffold == "Yes" %}
-packages_to_install += scaffold
-# {% endif %}
-
-# {% if cookiecutter.pydata_packages == "basic" %}
-packages_to_install += basic
-# {% endif %}
 
 # {% if cookiecutter.linting_and_formatting == "ruff" %}
 # ruff is in dev dependencies, not project dependencies
@@ -195,13 +106,6 @@ Path("setup.cfg").unlink()
 # {% elif cookiecutter.linting_and_formatting == "flake8+black+isort" %}
 # flake8, black, isort are in dev dependencies, not project dependencies
 # {% endif %}
-# track packages that are not available through conda
-pip_only_packages = [
-    "botocore",
-    "azure-storage-blob",
-    "google-cloud-storage",
-    "python-dotenv",
-]
 
 # Select testing framework
 tests_path = Path("tests")
@@ -251,25 +155,15 @@ for docs_template in docs_path.iterdir():
 Path("environment.yml").unlink(missing_ok=True)
 # {% endif %}
 
-# Dev dependencies file handling:
-# - requirements.txt: uses requirements-dev.txt (keep it)
-# - pyproject.toml: uses pyproject.toml [project.optional-dependencies.dev] (delete requirements-dev.txt)
-# - none: no dependencies (delete requirements-dev.txt)
-# {% if cookiecutter.dependency_file == "pyproject.toml" or cookiecutter.environment_manager == "none" %}
+# Dependency file handling - see docs/docs/env-management.md for the full matrix
+# - requirements.txt: keep requirements.txt and requirements-dev.txt, delete others
+# - pyproject.toml: keep pyproject.toml (with dev deps), delete requirements files
+# {% if cookiecutter.dependency_file == "pyproject.toml" %}
+Path("requirements.txt").unlink(missing_ok=True)
 Path("requirements-dev.txt").unlink(missing_ok=True)
-# {% endif %}
-
-# {% if cookiecutter.dependency_file != "environment.yml" %}
-write_dependencies(
-    "{{ cookiecutter.dependency_file }}",
-    packages_to_install,
-    pip_only_packages,
-    repo_name="{{ cookiecutter.repo_name }}",
-    module_name="{{ cookiecutter.module_name }}",
-    python_version="{{ cookiecutter.python_version_number }}",
-    environment_manager="{{ cookiecutter.environment_manager }}",
-    description="{{ cookiecutter.description }}",
-)
+# {% elif cookiecutter.dependency_file == "requirements.txt" and cookiecutter.environment_manager == "none" %}
+# No environment manager means no dev dependencies needed
+Path("requirements-dev.txt").unlink(missing_ok=True)
 # {% endif %}
 
 write_python_version("{{ cookiecutter.python_version_number }}")

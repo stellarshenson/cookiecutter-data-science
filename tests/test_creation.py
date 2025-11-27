@@ -161,7 +161,10 @@ def verify_files(root, config):
     # requirements-dev.txt is used when dependency_file is requirements.txt
     # (pyproject.toml uses [project.optional-dependencies.dev] instead)
     # Not needed for 'none' environment manager
-    if config["dependency_file"] == "requirements.txt" and config["environment_manager"] != "none":
+    if (
+        config["dependency_file"] == "requirements.txt"
+        and config["environment_manager"] != "none"
+    ):
         expected_files.append("requirements-dev.txt")
 
     expected_files = [Path(f) for f in expected_files]
@@ -171,13 +174,27 @@ def verify_files(root, config):
     assert sorted(existing_files) == sorted(set(expected_files))
 
     # Explicit checks for files that should NOT exist
+    # See docs/docs/env-management.md for the dependency matrix
     # environment.yml only for conda
     if config["environment_manager"] != "conda":
-        assert not (root / "environment.yml").exists(), "environment.yml should not exist for non-conda environments"
+        assert not (
+            root / "environment.yml"
+        ).exists(), "environment.yml should not exist for non-conda environments"
 
-    # requirements-dev.txt only for requirements.txt dependency file
+    # requirements.txt only when dependency_file is requirements.txt
     if config["dependency_file"] == "pyproject.toml":
-        assert not (root / "requirements-dev.txt").exists(), "requirements-dev.txt should not exist when using pyproject.toml"
+        assert not (
+            root / "requirements.txt"
+        ).exists(), "requirements.txt should not exist when using pyproject.toml"
+
+    # requirements-dev.txt only for requirements.txt dependency file (and not for 'none' env manager)
+    if (
+        config["dependency_file"] == "pyproject.toml"
+        or config["environment_manager"] == "none"
+    ):
+        assert not (
+            root / "requirements-dev.txt"
+        ).exists(), "requirements-dev.txt should not exist when using pyproject.toml or none env manager"
 
     for f in existing_files:
         assert no_curlies(root / f)
