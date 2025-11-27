@@ -35,6 +35,7 @@ dev = [
 {% endif %}
     "ipython",
     "nbdime",
+    "pip",
 {% if cookiecutter.testing_framework == 'pytest' %}
     "pytest",
     "pytest-cov",

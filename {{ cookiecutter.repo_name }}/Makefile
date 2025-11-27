@@ -388,8 +388,6 @@ create_environment:
 	else \
 		echo "$(MSG_PREFIX) creating uv virtual environment"; \
 		uv venv -q --python $(PYTHON_VERSION); \
-		echo "$(MSG_PREFIX) installing pip for notebook compatibility"; \
-		uv pip install -q --python $(PROJECT_DIR)/.venv pip; \
 		echo "$(MSG_PREFIX) new uv virtual environment created. Activate with:"; \
 		echo "$(MSG_PREFIX) Windows: $(HIGHLIGHT_STYLE).\\\.venv\\\Scripts\\\activate$(NO_STYLE)"; \
 		echo "$(MSG_PREFIX) Unix/macOS: $(HIGHLIGHT_STYLE)source ./.venv/bin/activate$(NO_STYLE)"; \
