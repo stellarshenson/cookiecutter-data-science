@@ -1,212 +1,81 @@
 # Stellars' Cookiecutter Data Science Philosophy
 
-This fork of cookiecutter-data-science emphasizes **simplicity**, **separation of concerns**, and **minimal boilerplate** for data science projects.
+This fork emphasizes **simplicity**, **separation of concerns**, and **minimal boilerplate**.
 
 ## Guiding Philosophy
 
 **Promote best practices, not proliferate outdated ones.**
 
-Project templates shape how thousands of developers work. A cookiecutter template isn't just scaffolding - it's an opinionated statement about how projects should be structured. We have a responsibility to:
-
-- **Adopt modern tooling** - Use uv over pip where appropriate, ruff over flake8+black+isort
-- **Deprecate legacy patterns** - Remove virtualenvwrapper support, drop outdated Python versions
-- **Simplify where possible** - One way to do things well, not five ways to do them poorly
-- **Keep dependencies minimal** - Separate dev from production, don't ship testing frameworks
-
-Every choice in this template should answer: "Is this how we'd recommend someone start a new project today?"
+- **Adopt modern tooling** - uv over pip, ruff over flake8+black+isort
+- **Simplify choices** - 4 environment managers instead of 7, focus on what works well
+- **Separate dev from production** - clear dependency boundaries
+- **Zero post-scaffold configuration** - Jupyter kernels, linting, testing all pre-configured
 
 ## Core Principles
 
-### 1. Lightweight Production, Comprehensive Development
+### 1. Dev vs Production Dependencies
 
-**Problem**: Traditional project scaffolds mix development tools with production dependencies, resulting in bloated deployments and unclear dependency boundaries.
+**Upstream**: All dependencies in one file, no separation.
 
-**Solution**: Strict separation between:
-- **Production dependencies** (`pyproject.toml` dependencies) - Only what your module needs to run
-- **Development dependencies** (`[project.optional-dependencies.dev]` or `requirements-dev.txt`) - Tools for development, testing, linting
+**This fork**: Strict separation based on dependency file choice:
 
-This enables:
-- Lightweight Docker images for production (`pip install .`)
-- Full development environment (`pip install -e ".[dev]"`)
-- Clear understanding of what ships vs what develops
+| Dependency File | Production | Development |
+|-----------------|------------|-------------|
+| `pyproject.toml` | `[project.dependencies]` | `[project.optional-dependencies.dev]` |
+| `requirements.txt` | `requirements.txt` | `requirements-dev.txt` |
+| `environment.yml` | conda packages | conda packages (all in one, conda-native) |
 
-### 2. Fewer Environment Managers, Done Right
+### 2. Installable Module with `lib_` Prefix
 
-**Problem**: Supporting many environment managers (conda, virtualenv, uv, pipenv, poetry, pixi) leads to inconsistent behavior, edge cases, and maintenance burden.
+**Upstream**: Module named `<project_name>` (e.g., `my_project`).
 
-**Solution**: Focus on well-tested, complete support for:
-- **conda** - Full-featured with local/global environments, environment.yml for dev dependencies
-- **uv** - Modern, fast Python package manager
-- **virtualenv** - Standard Python virtual environments
+**This fork**: Module named `lib_<project_name>` (e.g., `lib_my_project`).
 
-Each supported manager has:
-- Environment existence checks (no recreating existing envs)
-- Proper Jupyter kernel registration and cleanup
-- Consistent Makefile targets across managers
+This avoids conflicts with common package names and makes project code immediately recognizable.
 
-### 3. Zero Boilerplate After Scaffold
+### 3. Local Environment by Default
 
-**Problem**: Many project templates require significant manual configuration after creation - setting up linters, configuring tests, registering kernels.
+**Upstream**: Conda environments always global. Virtualenv uses virtualenvwrapper.
 
-**Solution**: Projects are immediately usable:
-```bash
-ccds gh:stellarshenson/cookiecutter-data-science
-cd my_project
-make install
-# Ready to work
-```
+**This fork**:
+- Conda: local `.venv/<env_name>/` by default, global optional
+- uv/virtualenv: local `.venv/` using standard venv (no virtualenvwrapper)
 
-No post-scaffold configuration needed:
-- Jupyter kernel auto-registered during environment creation
-- Linting and formatting pre-configured (ruff or flake8+black+isort)
-- Test framework ready (pytest with coverage)
-- Git-Jupyter integration via nbdime
+### 4. Jupyter Kernel Auto-Registration
 
-### 4. Installable Module with `lib_` Prefix
+**Upstream**: No kernel registration - manual setup required.
 
-**Problem**: Project code often lives in ambiguously named directories, leading to import conflicts and unclear package boundaries.
+**This fork**: Kernels auto-registered during `make create_environment`:
+- Uses nb_conda_kernels/nb_venv_kernels when available
+- Falls back to ipykernel with consistent naming: `Python [conda|uv|venv env:<name>]`
+- Kernels cleaned up on `make remove_environment`
 
-**Solution**: All project code lives in `lib_<project_name>/`:
-- Clear distinction: `lib_myproject` is your installable module
-- Avoids conflicts with common package names
-- Immediately recognizable as project-specific code
-- Installable in editable mode: `pip install -e .`
+### 5. Environment Existence Checks
 
-> [!NOTE]
-> You can rename the module folder to anything you prefer. The `lib_` prefix just makes it easy to spot your project code at a glance.
+**Upstream**: `make create_environment` always tries to create, may fail or recreate.
 
+**This fork**: Checks if environment exists first, skips creation if present.
 
-### 5. Development Dependencies Strategy
-
-Dev dependencies location is determined by **dependency file choice**, not environment manager. This simplifies the mental model:
-
-| Dependency File | Dev Dependencies | Environment Manager |
-|-----------------|------------------|---------------------|
-| `pyproject.toml` | `[project.optional-dependencies.dev]` | conda, uv, virtualenv |
-| `requirements.txt` | `requirements-dev.txt` | conda, uv, virtualenv |
-| `environment.yml` | conda-forge packages in environment.yml | conda only |
-
-#### When using pyproject.toml:
-Development tools are in `pyproject.toml` under `[project.optional-dependencies]`:
-```toml
-[project.optional-dependencies]
-dev = [
-    "ipykernel",
-    "pytest",
-    "pytest-cov",
-    "ruff",
-    ...
-]
-```
-
-Installed with:
-- conda: `pip install -e ".[dev]"`
-- uv: `uv pip install -e ".[dev]"`
-- virtualenv: `pip install -e ".[dev]"`
-
-#### When using requirements.txt:
-Development tools are in `requirements-dev.txt`:
-```
-ipykernel
-pytest
-pytest-cov
-ruff
-...
-```
-
-Installed with:
-- conda: `pip install -r requirements-dev.txt`
-- uv: `uv pip install -r requirements-dev.txt`
-- virtualenv: `pip install -r requirements-dev.txt`
-
-#### When using environment.yml (conda only):
-All dependencies including dev tools are managed via conda-forge in `environment.yml`:
-```yaml
-dependencies:
-  - python=3.12
-  - pip
-  - ipython
-  - ipykernel
-  - pytest
-  - ruff
-  - pip:
-    - -e ".[dev]"
-```
-
-This is the conda-native approach for teams preferring pure conda package management.
-
-This keeps production dependencies clean while providing consistent behavior across all environment managers.
-
-### 6. Local Environment by Default
-
-**Problem**: Global conda environments pollute the base environment and can conflict across projects.
-
-**Solution**: Local `.venv/` directory by default:
-- Conda: `.venv/<env_name>/` for local environments
-- uv/virtualenv: `.venv/`
-- Easy cleanup: `rm -rf .venv`
-- Clear project isolation
-
-Global conda environments remain available for shared tooling.
-
-### 7. Consistent Jupyter Kernel Naming
-
-**Problem**: Jupyter kernels registered by different tools (nb_conda_kernels, nb_venv_kernels, ipykernel) have inconsistent naming, making it hard to identify which environment a kernel belongs to.
-
-**Solution**: Unified kernel naming convention across all environment managers:
-- `Python [conda env:<name>]` - conda environments
-- `Python [uv env:<name>]` - uv environments
-- `Python [venv env:<name>]` - virtualenv environments
-
-This matches the convention used by nb_conda_kernels and nb_venv_kernels for seamless integration whether using auto-discovery or manual ipykernel registration.
-
-### 8. Cloud Storage as Variables
-
-**Problem**: Hardcoded bucket names and profiles in Makefile commands make it difficult to change storage configuration.
-
-**Solution**: Cloud storage configuration uses Makefile variables:
-```makefile
-# AWS S3 configuration
-S3_BUCKET = my-bucket
-AWS_PROFILE = default
-
-# Azure Blob Storage configuration
-AZURE_CONTAINER = my-container
-
-# Google Cloud Storage configuration
-GCS_BUCKET = my-bucket
-```
-
-Sync commands reference these variables, making configuration changes straightforward without editing command logic.
-
-## Key Differentiators from Upstream ccds
+## Key Differences from Upstream
 
 | Feature | Upstream ccds | Stellars' Fork |
 |---------|--------------|----------------|
-| Module prefix | `src/` | `lib_<project>/` |
-| Environment location | Global only | Local by default |
-| Dev dependencies | Mixed | Separated by dependency file |
-| Dependency files | pyproject.toml, requirements.txt | + environment.yml (conda) |
-| Jupyter kernel | Manual setup | Auto-registered with consistent naming |
-| Environment exists check | No | Yes |
-| Kernel cleanup on remove | No | Yes |
-| Cloud storage config | Inline in commands | Makefile variables |
-| Default env manager | conda | uv |
+| Module naming | `<project_name>` | `lib_<project_name>` |
+| Environment managers | 7 (virtualenv, conda, pipenv, uv, pixi, poetry, none) | 4 (uv, conda, virtualenv, none) |
+| Default env manager | virtualenv | uv |
+| Dependency files | 5 (requirements.txt, pyproject.toml, environment.yml, Pipfile, pixi.toml) | 3 (pyproject.toml, requirements.txt, environment.yml) |
 | Default Python | 3.10 | 3.12 |
-
-## Usage Philosophy
-
-1. **Start simple** - Use defaults, they're sensible
-2. **Iterate fast** - `make install` creates environment with dev tools and installs your module
-3. **Deploy clean** - Production image only has what it needs (`pip install .`)
-4. **Develop fully** - Development environment has all tools pre-configured
+| Conda env location | Global only | Local by default, global optional |
+| Dev dependencies | Mixed with production | Separated |
+| Jupyter kernel | Manual setup | Auto-registered with cleanup |
+| Environment exists check | No | Yes |
+| Cloud storage config | Inline in commands | Makefile variables |
+| virtualenv implementation | virtualenvwrapper | Standard venv |
 
 ## When to Use What
 
-| Scenario | Recommended Manager |
-|----------|-------------------|
+| Scenario | Recommended |
+|----------|-------------|
 | Data science with conda packages | conda |
-| Pure Python, modern tooling | uv |
-| Traditional Python development | virtualenv |
-| Maximum compatibility | virtualenv |
-| Fastest environment creation | uv |
+| Pure Python, fast setup | uv |
+| Traditional Python | virtualenv |

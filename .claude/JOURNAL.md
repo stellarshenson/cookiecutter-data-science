@@ -97,5 +97,5 @@ This journal tracks substantive work on documents, diagrams, and documentation c
 31. **Task - Cloud storage variables in Makefile**: Moved cloud resource names to Makefile variables instead of inline in commands. Added S3_BUCKET, AWS_PROFILE for S3; AZURE_CONTAINER for Azure; GCS_BUCKET for GCS. Updated sync_data_down and sync_data_up to use these variables. Fixed pytest-cookies plugin interference by adding `-p no:cookies` to pyproject.toml pytest config<br>
    **Result**: Cloud storage config now uses variables for easier maintenance. Test infrastructure fixed. All 24 tests pass
 
-32. **Task - Update stellars-philosophy.md**: Added documentation for environment.yml dependency file option, consistent Jupyter kernel naming convention, and cloud storage variables. Updated key differentiators table with new features<br>
-   **Result**: Philosophy doc now reflects all recent enhancements
+32. **Task - Rewrite stellars-philosophy.md**: Simplified and corrected philosophy doc based on upstream research. Cloned upstream repo and verified actual features: module naming (not src/), env managers (7 vs our 4), dependency files (5 vs our 3), default Python (3.10), virtualenvwrapper usage, no dev deps separation, no kernel registration. Updated comparison table with accurate facts<br>
+   **Result**: Philosophy doc now accurate and concise based on verified upstream research
