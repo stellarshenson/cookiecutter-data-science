@@ -26,22 +26,25 @@ NO_STYLE = \033[0m
 #################################################################################
 # ENVIRONMENT CONFIGURATION                                                     #
 #################################################################################
+
+# unified environment name for all managers
+{% if cookiecutter.dependency_file == 'environment.yml' -%}
+ENV_NAME = $(shell sed -n '/^name:/{ s/^name:[ \t]*//; s/[ \t]*\#.*//; s/[ \t]*$$//p; }' environment.yml)
+{% else -%}
+ENV_NAME = {{ cookiecutter.env_name }}
+{% endif -%}
+
 {% if cookiecutter.environment_manager == 'conda' -%}
 # conda environment configuration
 ENV_LOCATION = {{ cookiecutter.env_location }}
 CONDA_FLAGS = --no-capture-output
-{% if cookiecutter.dependency_file == 'environment.yml' -%}
-CONDA_ENV_NAME = $(shell sed -n '/^name:/{ s/^name:[ \t]*//; s/[ \t]*\#.*//; s/[ \t]*$$//p; }' environment.yml)
-{% else -%}
-CONDA_ENV_NAME = {{ cookiecutter.env_name }}
-{% endif -%}
-CONDA_ENV_PATH = $(PROJECT_DIR)/.venv/$(CONDA_ENV_NAME)
+CONDA_ENV_PATH = $(PROJECT_DIR)/.venv/$(ENV_NAME)
 
 # set conda env selector based on location (local vs global)
 ifeq ($(ENV_LOCATION),local)
 CONDA_ENV_SELECTOR = -p $(CONDA_ENV_PATH)
 else
-CONDA_ENV_SELECTOR = --name $(CONDA_ENV_NAME)
+CONDA_ENV_SELECTOR = --name $(ENV_NAME)
 endif
 
 # check if conda is present
@@ -59,7 +62,7 @@ else
 HAS_CONDA_ENV=True
 endif
 else
-ifeq (,$(shell conda env list | grep $(CONDA_ENV_NAME)))
+ifeq (,$(shell conda env list | grep $(ENV_NAME)))
 HAS_CONDA_ENV=False
 else
 HAS_CONDA_ENV=True
@@ -82,7 +85,7 @@ VENV_PATH = $(PROJECT_DIR)/.venv
 .PHONY: requirements
 {%- if cookiecutter.environment_manager == 'conda' %}
 requirements: test_environment
-	@echo "$(MSG_PREFIX) installing requirements for $(HIGHLIGHT_STYLE)$(CONDA_ENV_NAME)$(NO_STYLE) environment"
+	@echo "$(MSG_PREFIX) installing requirements for $(HIGHLIGHT_STYLE)$(ENV_NAME)$(NO_STYLE) environment"
 	conda run $(CONDA_ENV_SELECTOR) $(CONDA_FLAGS) python -m pip install -U pip setuptools wheel
 {%- if cookiecutter.dependency_file == 'environment.yml' %}
 	conda run $(CONDA_ENV_SELECTOR) $(CONDA_FLAGS) pip install -e ".[dev]"
@@ -117,7 +120,7 @@ requirements:
 .PHONY: upgrade
 {%- if cookiecutter.environment_manager == 'conda' %}
 upgrade: test_environment
-	@echo "$(MSG_PREFIX) upgrading packages in $(HIGHLIGHT_STYLE)$(CONDA_ENV_NAME)$(NO_STYLE) environment"
+	@echo "$(MSG_PREFIX) upgrading packages in $(HIGHLIGHT_STYLE)$(ENV_NAME)$(NO_STYLE) environment"
 	conda run $(CONDA_ENV_SELECTOR) $(CONDA_FLAGS) conda update --all -y
 	conda run $(CONDA_ENV_SELECTOR) $(CONDA_FLAGS) python -m pip install -U pip setuptools wheel
 {%- if cookiecutter.dependency_file == 'environment.yml' %}
@@ -265,11 +268,11 @@ endif
 create_environment: check_conda
 ifeq (True,$(HAS_CONDA))
 ifeq ($(ENV_LOCATION),local)
-	@echo "$(MSG_PREFIX) detected conda. Checking if local environment exists at .venv/$(CONDA_ENV_NAME)"
+	@echo "$(MSG_PREFIX) detected conda. Checking if local environment exists at .venv/$(ENV_NAME)"
 	@if [ -d "$(CONDA_ENV_PATH)/conda-meta" ]; then \
-		echo "$(MSG_PREFIX) local conda environment already exists at .venv/$(CONDA_ENV_NAME). Skipping creation."; \
+		echo "$(MSG_PREFIX) local conda environment already exists at .venv/$(ENV_NAME). Skipping creation."; \
 	else \
-		echo "$(MSG_PREFIX) creating new local conda environment at $(HIGHLIGHT_STYLE).venv/$(CONDA_ENV_NAME)$(NO_STYLE)"; \
+		echo "$(MSG_PREFIX) creating new local conda environment at $(HIGHLIGHT_STYLE).venv/$(ENV_NAME)$(NO_STYLE)"; \
 {%- if cookiecutter.dependency_file == 'environment.yml' %}
 		conda env create -p $(CONDA_ENV_PATH) -f environment.yml; \
 {%- else %}
@@ -289,23 +292,23 @@ ifeq ($(ENV_LOCATION),local)
 			echo "$(MSG_PREFIX) nb_conda_kernels detected - kernel will be auto-discovered"; \
 		else \
 			echo "$(MSG_PREFIX) registering Jupyter kernel with ipykernel"; \
-			conda run -p $(CONDA_ENV_PATH) $(CONDA_FLAGS) python -m ipykernel install --user --name=$(CONDA_ENV_NAME); \
-			echo "$(OK_STYLE)>>> Kernel registered as $(CONDA_ENV_NAME)$(NO_STYLE)"; \
+			conda run -p $(CONDA_ENV_PATH) $(CONDA_FLAGS) python -m ipykernel install --user --name=$(ENV_NAME) --display-name "Python [conda env:$(ENV_NAME)]"; \
+			echo "$(OK_STYLE)>>> Kernel registered as $(ENV_NAME)$(NO_STYLE)"; \
 		fi; \
 {%- endif %}
 	fi
 else
-	@echo "$(MSG_PREFIX) detected conda. Checking if environment $(CONDA_ENV_NAME) exists."
-	@if conda info --envs | grep -q "^$(CONDA_ENV_NAME)"; then \
-		echo "$(MSG_PREFIX) conda environment $(CONDA_ENV_NAME) already exists. Skipping creation."; \
+	@echo "$(MSG_PREFIX) detected conda. Checking if environment $(ENV_NAME) exists."
+	@if conda info --envs | grep -q "^$(ENV_NAME)"; then \
+		echo "$(MSG_PREFIX) conda environment $(ENV_NAME) already exists. Skipping creation."; \
 	else \
-		echo "$(MSG_PREFIX) creating new conda environment $(HIGHLIGHT_STYLE)$(CONDA_ENV_NAME)$(NO_STYLE)"; \
+		echo "$(MSG_PREFIX) creating new conda environment $(HIGHLIGHT_STYLE)$(ENV_NAME)$(NO_STYLE)"; \
 {%- if cookiecutter.dependency_file == 'environment.yml' %}
 		conda env create -f environment.yml; \
 {%- else %}
-		conda create -n $(CONDA_ENV_NAME) python={{ cookiecutter.python_version_number }} pip -y -q; \
+		conda create -n $(ENV_NAME) python={{ cookiecutter.python_version_number }} pip -y -q; \
 {%- endif %}
-		echo "$(MSG_PREFIX) new conda env created successfully. Activate with: $(HIGHLIGHT_STYLE)conda activate $(CONDA_ENV_NAME)$(NO_STYLE)"; \
+		echo "$(MSG_PREFIX) new conda env created successfully. Activate with: $(HIGHLIGHT_STYLE)conda activate $(ENV_NAME)$(NO_STYLE)"; \
 		echo "$(MSG_PREFIX) installing dependencies"; \
 {%- if cookiecutter.dependency_file == 'requirements.txt' %}
 		conda run $(CONDA_ENV_SELECTOR) $(CONDA_FLAGS) pip install -q -r requirements.txt -r requirements-dev.txt; \
@@ -313,14 +316,14 @@ else
 		conda run $(CONDA_ENV_SELECTOR) $(CONDA_FLAGS) pip install -q -e ".[dev]"; \
 {%- endif %}
 		conda run $(CONDA_ENV_SELECTOR) $(CONDA_FLAGS) nbdime config-git --enable --global; \
-		echo "$(MSG_PREFIX) environment $(CONDA_ENV_NAME) was configured to integrate git with jupyter notebooks"; \
+		echo "$(MSG_PREFIX) environment $(ENV_NAME) was configured to integrate git with jupyter notebooks"; \
 {%- if cookiecutter.jupyter_kernel_support == 'Yes' %}
 		if python -c "import nb_conda_kernels" 2>/dev/null; then \
 			echo "$(MSG_PREFIX) nb_conda_kernels detected - kernel will be auto-discovered"; \
 		else \
 			echo "$(MSG_PREFIX) registering Jupyter kernel with ipykernel"; \
-			conda run --name $(CONDA_ENV_NAME) $(CONDA_FLAGS) python -m ipykernel install --user --name=$(CONDA_ENV_NAME); \
-			echo "$(OK_STYLE)>>> Kernel registered as $(CONDA_ENV_NAME)$(NO_STYLE)"; \
+			conda run --name $(ENV_NAME) $(CONDA_FLAGS) python -m ipykernel install --user --name=$(ENV_NAME) --display-name "Python [conda env:$(ENV_NAME)]"; \
+			echo "$(OK_STYLE)>>> Kernel registered as $(ENV_NAME)$(NO_STYLE)"; \
 		fi; \
 {%- endif %}
 	fi
@@ -331,44 +334,44 @@ endif
 remove_environment: check_conda
 ifeq (True,$(HAS_CONDA))
 ifeq ($(ENV_LOCATION),local)
-	@echo "$(MSG_PREFIX) detected conda, removing local environment at $(HIGHLIGHT_STYLE).venv/$(CONDA_ENV_NAME)$(NO_STYLE)"
+	@echo "$(MSG_PREFIX) detected conda, removing local environment at $(HIGHLIGHT_STYLE).venv/$(ENV_NAME)$(NO_STYLE)"
 {%- if cookiecutter.jupyter_kernel_support == 'Yes' %}
-	@echo "$(MSG_PREFIX) unregistering Jupyter kernel $(HIGHLIGHT_STYLE)$(CONDA_ENV_NAME)$(NO_STYLE)"
-	@jupyter kernelspec uninstall -y $(CONDA_ENV_NAME) >/dev/null 2>&1 || true
-	@-rm -rf ~/.local/share/jupyter/kernels/$(CONDA_ENV_NAME) 2>/dev/null || true
+	@echo "$(MSG_PREFIX) unregistering Jupyter kernel $(HIGHLIGHT_STYLE)$(ENV_NAME)$(NO_STYLE)"
+	@jupyter kernelspec uninstall -y $(ENV_NAME) >/dev/null 2>&1 || true
+	@-rm -rf ~/.local/share/jupyter/kernels/$(ENV_NAME) 2>/dev/null || true
 {%- endif %}
 	conda env remove -y -p $(CONDA_ENV_PATH)
 else
-	@echo "$(MSG_PREFIX) detected conda, removing $(HIGHLIGHT_STYLE)$(CONDA_ENV_NAME)$(NO_STYLE) conda environment."
+	@echo "$(MSG_PREFIX) detected conda, removing $(HIGHLIGHT_STYLE)$(ENV_NAME)$(NO_STYLE) conda environment."
 {%- if cookiecutter.jupyter_kernel_support == 'Yes' %}
-	@echo "$(MSG_PREFIX) unregistering Jupyter kernel $(HIGHLIGHT_STYLE)$(CONDA_ENV_NAME)$(NO_STYLE)"
-	@jupyter kernelspec uninstall -y $(CONDA_ENV_NAME) >/dev/null 2>&1 || true
-	@-rm -rf ~/.local/share/jupyter/kernels/$(CONDA_ENV_NAME) 2>/dev/null || true
+	@echo "$(MSG_PREFIX) unregistering Jupyter kernel $(HIGHLIGHT_STYLE)$(ENV_NAME)$(NO_STYLE)"
+	@jupyter kernelspec uninstall -y $(ENV_NAME) >/dev/null 2>&1 || true
+	@-rm -rf ~/.local/share/jupyter/kernels/$(ENV_NAME) 2>/dev/null || true
 {%- endif %}
-	conda env remove -y -n $(CONDA_ENV_NAME)
+	conda env remove -y -n $(ENV_NAME)
 endif
 endif
 
 ## Test python environment is setup correctly
 test_environment: check_conda
 ifeq ($(ENV_LOCATION),local)
-	@echo "$(MSG_PREFIX) testing local environment at $(HIGHLIGHT_STYLE).venv/$(CONDA_ENV_NAME)$(NO_STYLE) if ready"
+	@echo "$(MSG_PREFIX) testing local environment at $(HIGHLIGHT_STYLE).venv/$(ENV_NAME)$(NO_STYLE) if ready"
 	@if [ ! -d "$(CONDA_ENV_PATH)/conda-meta" ]; then \
-		echo "$(ERR_PREFIX) $(ERR_STYLE)ERROR: local environment not found at .venv/$(CONDA_ENV_NAME)$(NO_STYLE)"; \
+		echo "$(ERR_PREFIX) $(ERR_STYLE)ERROR: local environment not found at .venv/$(ENV_NAME)$(NO_STYLE)"; \
 		exit 1; \
 	fi
 	@echo "$(MSG_PREFIX) checking Python version"
 	@conda run -p $(CONDA_ENV_PATH) $(CONDA_FLAGS) python --version
-	@echo "$(OK_STYLE)>>> Local environment .venv/$(CONDA_ENV_NAME) is properly configured$(NO_STYLE)"
+	@echo "$(OK_STYLE)>>> Local environment .venv/$(ENV_NAME) is properly configured$(NO_STYLE)"
 else
-	@echo "$(MSG_PREFIX) testing environment $(HIGHLIGHT_STYLE)$(CONDA_ENV_NAME)$(NO_STYLE) if ready"
-	@if ! conda env list | grep -q "^$(CONDA_ENV_NAME) "; then \
-		echo "$(ERR_PREFIX) $(ERR_STYLE)ERROR: environment $(CONDA_ENV_NAME) not found$(NO_STYLE)"; \
+	@echo "$(MSG_PREFIX) testing environment $(HIGHLIGHT_STYLE)$(ENV_NAME)$(NO_STYLE) if ready"
+	@if ! conda env list | grep -q "^$(ENV_NAME) "; then \
+		echo "$(ERR_PREFIX) $(ERR_STYLE)ERROR: environment $(ENV_NAME) not found$(NO_STYLE)"; \
 		exit 1; \
 	fi
 	@echo "$(MSG_PREFIX) checking Python version"
 	@conda run $(CONDA_ENV_SELECTOR) $(CONDA_FLAGS) python --version
-	@echo "$(OK_STYLE)>>> Environment $(CONDA_ENV_NAME) is properly configured$(NO_STYLE)"
+	@echo "$(OK_STYLE)>>> Environment $(ENV_NAME) is properly configured$(NO_STYLE)"
 endif
 
 {%- elif cookiecutter.environment_manager == 'virtualenv' %}
@@ -396,13 +399,13 @@ create_environment:
 {%- endif %}
 {%- if cookiecutter.jupyter_kernel_support == 'Yes' %}
 		if command -v nb_venv_kernels >/dev/null 2>&1; then \
-			echo "$(MSG_PREFIX) registering Jupyter kernel for $(HIGHLIGHT_STYLE).venv$(NO_STYLE)"; \
-			nb_venv_kernels register $(PROJECT_DIR)/.venv >/dev/null 2>&1; \
+			echo "$(MSG_PREFIX) registering Jupyter kernel for $(HIGHLIGHT_STYLE)$(ENV_NAME)$(NO_STYLE)"; \
+			nb_venv_kernels register --name $(ENV_NAME) $(PROJECT_DIR)/.venv >/dev/null 2>&1; \
 			echo "$(OK_STYLE)>>> Kernel registered successfully$(NO_STYLE)"; \
 		else \
 			echo "$(MSG_PREFIX) registering Jupyter kernel with ipykernel"; \
-			$(PROJECT_DIR)/.venv/bin/python -m ipykernel install --user --name=$(PROJECT_NAME); \
-			echo "$(OK_STYLE)>>> Kernel registered as $(PROJECT_NAME)$(NO_STYLE)"; \
+			$(PROJECT_DIR)/.venv/bin/python -m ipykernel install --user --name=$(ENV_NAME) --display-name "Python [venv env:$(ENV_NAME)]"; \
+			echo "$(OK_STYLE)>>> Kernel registered as $(ENV_NAME)$(NO_STYLE)"; \
 		fi; \
 {%- endif %}
 	fi
@@ -411,13 +414,13 @@ create_environment:
 remove_environment:
 	@echo "$(MSG_PREFIX) removing virtual environment at $(HIGHLIGHT_STYLE).venv$(NO_STYLE)"
 {%- if cookiecutter.jupyter_kernel_support == 'Yes' %}
-	@echo "$(MSG_PREFIX) unregistering Jupyter kernel $(HIGHLIGHT_STYLE)$(PROJECT_NAME)$(NO_STYLE)"
+	@echo "$(MSG_PREFIX) unregistering Jupyter kernel $(HIGHLIGHT_STYLE)$(ENV_NAME)$(NO_STYLE)"
 	@if command -v nb_venv_kernels >/dev/null 2>&1; then \
 		nb_venv_kernels unregister $(PROJECT_DIR)/.venv >/dev/null 2>&1 || true; \
 	else \
-		jupyter kernelspec uninstall -y $(PROJECT_NAME) >/dev/null 2>&1 || true; \
+		jupyter kernelspec uninstall -y $(ENV_NAME) >/dev/null 2>&1 || true; \
 	fi
-	@-rm -rf ~/.local/share/jupyter/kernels/$(PROJECT_NAME) 2>/dev/null || true
+	@-rm -rf ~/.local/share/jupyter/kernels/$(ENV_NAME) 2>/dev/null || true
 {%- endif %}
 	@rm -rf $(PROJECT_DIR)/.venv
 	@echo "$(OK_STYLE)>>> Environment removed$(NO_STYLE)"
@@ -461,13 +464,13 @@ create_environment:
 {%- endif %}
 {%- if cookiecutter.jupyter_kernel_support == 'Yes' %}
 		if command -v nb_venv_kernels >/dev/null 2>&1; then \
-			echo "$(MSG_PREFIX) registering Jupyter kernel for $(HIGHLIGHT_STYLE).venv$(NO_STYLE)"; \
-			nb_venv_kernels register $(PROJECT_DIR)/.venv >/dev/null 2>&1; \
+			echo "$(MSG_PREFIX) registering Jupyter kernel for $(HIGHLIGHT_STYLE)$(ENV_NAME)$(NO_STYLE)"; \
+			nb_venv_kernels register --name $(ENV_NAME) $(PROJECT_DIR)/.venv >/dev/null 2>&1; \
 			echo "$(OK_STYLE)>>> Kernel registered successfully$(NO_STYLE)"; \
 		else \
 			echo "$(MSG_PREFIX) registering Jupyter kernel with ipykernel"; \
-			$(PROJECT_DIR)/.venv/bin/python -m ipykernel install --user --name=$(PROJECT_NAME); \
-			echo "$(OK_STYLE)>>> Kernel registered as $(PROJECT_NAME)$(NO_STYLE)"; \
+			$(PROJECT_DIR)/.venv/bin/python -m ipykernel install --user --name=$(ENV_NAME) --display-name "Python [uv env:$(ENV_NAME)]"; \
+			echo "$(OK_STYLE)>>> Kernel registered as $(ENV_NAME)$(NO_STYLE)"; \
 		fi; \
 {%- endif %}
 	fi
@@ -476,13 +479,13 @@ create_environment:
 remove_environment:
 	@echo "$(MSG_PREFIX) removing uv virtual environment at $(HIGHLIGHT_STYLE).venv$(NO_STYLE)"
 {%- if cookiecutter.jupyter_kernel_support == 'Yes' %}
-	@echo "$(MSG_PREFIX) unregistering Jupyter kernel $(HIGHLIGHT_STYLE)$(PROJECT_NAME)$(NO_STYLE)"
+	@echo "$(MSG_PREFIX) unregistering Jupyter kernel $(HIGHLIGHT_STYLE)$(ENV_NAME)$(NO_STYLE)"
 	@if command -v nb_venv_kernels >/dev/null 2>&1; then \
 		nb_venv_kernels unregister $(PROJECT_DIR)/.venv >/dev/null 2>&1 || true; \
 	else \
-		jupyter kernelspec uninstall -y $(PROJECT_NAME) >/dev/null 2>&1 || true; \
+		jupyter kernelspec uninstall -y $(ENV_NAME) >/dev/null 2>&1 || true; \
 	fi
-	@-rm -rf ~/.local/share/jupyter/kernels/$(PROJECT_NAME) 2>/dev/null || true
+	@-rm -rf ~/.local/share/jupyter/kernels/$(ENV_NAME) 2>/dev/null || true
 {%- endif %}
 	@rm -rf $(PROJECT_DIR)/.venv
 	@echo "$(OK_STYLE)>>> Environment removed$(NO_STYLE)"
@@ -523,7 +526,7 @@ data: requirements
 {%- if cookiecutter.environment_manager == 'conda' %}
 ## Install src modules without dependencies (editable)
 install: check_conda clean create_environment
-	@echo "$(MSG_PREFIX) installing $(MODULE_NAME) in the $(CONDA_ENV_NAME) environment $(OK_STYLE)EDITABLE$(NO_STYLE)"
+	@echo "$(MSG_PREFIX) installing $(MODULE_NAME) in the $(ENV_NAME) environment $(OK_STYLE)EDITABLE$(NO_STYLE)"
 	@conda run $(CONDA_ENV_SELECTOR) $(CONDA_FLAGS) pip install --editable .
 	@echo "$(MSG_PREFIX) you can now import $(HIGHLIGHT_STYLE)$(MODULE_NAME)$(NO_STYLE) module in your notebooks and scripts\n"
 

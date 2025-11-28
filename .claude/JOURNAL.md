@@ -87,3 +87,6 @@ This journal tracks substantive work on documents, diagrams, and documentation c
 
 28. **Task - Create env_matrix.py test spec**: Created `tests/env_matrix.py` as single source of truth for environment specification matrix. Module contains `ENV_MATRIX` dict keyed by `(environment_manager, dependency_file)` tuples with `files_present`, `files_absent`, `pyproject_has_deps`, `pyproject_has_dev_deps` for all 7 valid combinations. Provides `get_expected_files(config)` and `get_absent_files(config)` helper functions. Refactored `test_creation.py` to import from env_matrix instead of hardcoding file expectations<br>
    **Result**: All 24 tests pass. Test specifications now centralized in env_matrix.py for maintainability
+
+29. **Task - Unify ENV_NAME and kernel naming**: Unified environment name variable across all managers - replaced `CONDA_ENV_NAME` with `ENV_NAME` at the top of Makefile (works for all env managers). Added `--name` param to nb_venv_kernels for uv/venv environments. Updated ipykernel fallback to use consistent display names matching nb_conda_kernels/nb_venv_kernels convention: `Python [conda env:name]`, `Python [uv env:name]`, `Python [venv env:name]`<br>
+   **Result**: All 24 tests pass. Kernel naming now consistent across all environment managers
