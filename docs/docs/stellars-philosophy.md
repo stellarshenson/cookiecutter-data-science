@@ -80,10 +80,11 @@ No post-scaffold configuration needed:
 
 Dev dependencies location is determined by **dependency file choice**, not environment manager. This simplifies the mental model:
 
-| Dependency File | Dev Dependencies |
-|-----------------|------------------|
-| `pyproject.toml` | `[project.optional-dependencies.dev]` |
-| `requirements.txt` | `requirements-dev.txt` |
+| Dependency File | Dev Dependencies | Environment Manager |
+|-----------------|------------------|---------------------|
+| `pyproject.toml` | `[project.optional-dependencies.dev]` | conda, uv, virtualenv |
+| `requirements.txt` | `requirements-dev.txt` | conda, uv, virtualenv |
+| `environment.yml` | conda-forge packages in environment.yml | conda only |
 
 #### When using pyproject.toml:
 Development tools are in `pyproject.toml` under `[project.optional-dependencies]`:
@@ -118,6 +119,22 @@ Installed with:
 - uv: `uv pip install -r requirements-dev.txt`
 - virtualenv: `pip install -r requirements-dev.txt`
 
+#### When using environment.yml (conda only):
+All dependencies including dev tools are managed via conda-forge in `environment.yml`:
+```yaml
+dependencies:
+  - python=3.12
+  - pip
+  - ipython
+  - ipykernel
+  - pytest
+  - ruff
+  - pip:
+    - -e ".[dev]"
+```
+
+This is the conda-native approach for teams preferring pure conda package management.
+
 This keeps production dependencies clean while providing consistent behavior across all environment managers.
 
 ### 6. Local Environment by Default
@@ -132,16 +149,48 @@ This keeps production dependencies clean while providing consistent behavior acr
 
 Global conda environments remain available for shared tooling.
 
+### 7. Consistent Jupyter Kernel Naming
+
+**Problem**: Jupyter kernels registered by different tools (nb_conda_kernels, nb_venv_kernels, ipykernel) have inconsistent naming, making it hard to identify which environment a kernel belongs to.
+
+**Solution**: Unified kernel naming convention across all environment managers:
+- `Python [conda env:<name>]` - conda environments
+- `Python [uv env:<name>]` - uv environments
+- `Python [venv env:<name>]` - virtualenv environments
+
+This matches the convention used by nb_conda_kernels and nb_venv_kernels for seamless integration whether using auto-discovery or manual ipykernel registration.
+
+### 8. Cloud Storage as Variables
+
+**Problem**: Hardcoded bucket names and profiles in Makefile commands make it difficult to change storage configuration.
+
+**Solution**: Cloud storage configuration uses Makefile variables:
+```makefile
+# AWS S3 configuration
+S3_BUCKET = my-bucket
+AWS_PROFILE = default
+
+# Azure Blob Storage configuration
+AZURE_CONTAINER = my-container
+
+# Google Cloud Storage configuration
+GCS_BUCKET = my-bucket
+```
+
+Sync commands reference these variables, making configuration changes straightforward without editing command logic.
+
 ## Key Differentiators from Upstream ccds
 
 | Feature | Upstream ccds | Stellars' Fork |
 |---------|--------------|----------------|
 | Module prefix | `src/` | `lib_<project>/` |
 | Environment location | Global only | Local by default |
-| Dev dependencies | Mixed | Separated |
-| Jupyter kernel | Manual setup | Auto-registered |
+| Dev dependencies | Mixed | Separated by dependency file |
+| Dependency files | pyproject.toml, requirements.txt | + environment.yml (conda) |
+| Jupyter kernel | Manual setup | Auto-registered with consistent naming |
 | Environment exists check | No | Yes |
 | Kernel cleanup on remove | No | Yes |
+| Cloud storage config | Inline in commands | Makefile variables |
 | Default env manager | conda | uv |
 | Default Python | 3.10 | 3.12 |
 
