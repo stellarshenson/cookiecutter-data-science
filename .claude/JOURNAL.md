@@ -93,3 +93,6 @@ This journal tracks substantive work on documents, diagrams, and documentation c
 
 30. **Task - Clean up .venv on conda local remove**: Updated conda local `remove_environment` target to also remove the `.venv` directory after `conda env remove`. Added consistent success message to both local and global conda environment removal<br>
    **Result**: Conda local teardown now fully cleans up the .venv directory
+
+31. **Task - Cloud storage variables in Makefile**: Moved cloud resource names to Makefile variables instead of inline in commands. Added S3_BUCKET, AWS_PROFILE for S3; AZURE_CONTAINER for Azure; GCS_BUCKET for GCS. Updated sync_data_down and sync_data_up to use these variables. Fixed pytest-cookies plugin interference by adding `-p no:cookies` to pyproject.toml pytest config<br>
+   **Result**: Cloud storage config now uses variables for easier maintenance. Test infrastructure fixed

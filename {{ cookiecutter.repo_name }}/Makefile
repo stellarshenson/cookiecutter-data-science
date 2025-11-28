@@ -9,6 +9,22 @@ PROJECT_NAME = {{ cookiecutter.repo_name }}
 MODULE_NAME = {{ cookiecutter.module_name }}
 PYTHON_VERSION = {{ cookiecutter.python_version_number }}
 PYTHON_INTERPRETER = python
+{%- if not cookiecutter.dataset_storage.none %}
+{%- if cookiecutter.dataset_storage.s3 %}
+
+# AWS S3 configuration
+S3_BUCKET = {{ cookiecutter.dataset_storage.s3.bucket }}
+AWS_PROFILE = {{ cookiecutter.dataset_storage.s3.aws_profile }}
+{%- elif cookiecutter.dataset_storage.azure %}
+
+# Azure Blob Storage configuration
+AZURE_CONTAINER = {{ cookiecutter.dataset_storage.azure.container }}
+{%- elif cookiecutter.dataset_storage.gcs %}
+
+# Google Cloud Storage configuration
+GCS_BUCKET = {{ cookiecutter.dataset_storage.gcs.bucket }}
+{%- endif %}
+{%- endif %}
 
 #################################################################################
 # STYLES                                                                        #
@@ -226,28 +242,30 @@ test:
 sync_data_down:
 	@echo "$(MSG_PREFIX) downloading data from storage"
 {%- if cookiecutter.dataset_storage.s3 %}
-	aws s3 sync s3://{{ cookiecutter.dataset_storage.s3.bucket }}/data/ \
-		data/{% if cookiecutter.dataset_storage.s3.aws_profile != 'default' %} --profile {{ cookiecutter.dataset_storage.s3.aws_profile }}{% endif %}
-
+{%- if cookiecutter.dataset_storage.s3.aws_profile != 'default' %}
+	aws s3 sync s3://$(S3_BUCKET)/data/ data/ --profile $(AWS_PROFILE)
+{%- else %}
+	aws s3 sync s3://$(S3_BUCKET)/data/ data/
+{%- endif %}
 {%- elif cookiecutter.dataset_storage.azure %}
-	az storage blob download-batch -s {{ cookiecutter.dataset_storage.azure.container }}/data/ \
-		-d data/
+	az storage blob download-batch -s $(AZURE_CONTAINER)/data/ -d data/
 {%- elif cookiecutter.dataset_storage.gcs %}
-	gsutil -m rsync -r gs://{{ cookiecutter.dataset_storage.gcs.bucket }}/data/ data/
+	gsutil -m rsync -r gs://$(GCS_BUCKET)/data/ data/
 {%- endif %}
 
 ## Upload data to storage system
 sync_data_up:
 	@echo "$(MSG_PREFIX) uploading data to storage"
 {%- if cookiecutter.dataset_storage.s3 %}
-	aws s3 sync data/ \
-		s3://{{ cookiecutter.dataset_storage.s3.bucket }}/data{% if cookiecutter.dataset_storage.s3.aws_profile != 'default' %} --profile {{ cookiecutter.dataset_storage.s3.aws_profile }}{% endif %}
-
+{%- if cookiecutter.dataset_storage.s3.aws_profile != 'default' %}
+	aws s3 sync data/ s3://$(S3_BUCKET)/data/ --profile $(AWS_PROFILE)
+{%- else %}
+	aws s3 sync data/ s3://$(S3_BUCKET)/data/
+{%- endif %}
 {%- elif cookiecutter.dataset_storage.azure %}
-	az storage blob upload-batch -d {{ cookiecutter.dataset_storage.azure.container }}/data/ \
-		-s data/
+	az storage blob upload-batch -d $(AZURE_CONTAINER)/data/ -s data/
 {%- elif cookiecutter.dataset_storage.gcs %}
-	gsutil -m rsync -r data/ gs://{{ cookiecutter.dataset_storage.gcs.bucket }}/data/
+	gsutil -m rsync -r data/ gs://$(GCS_BUCKET)/data/
 {%- endif %}
 {%- endif %}
 

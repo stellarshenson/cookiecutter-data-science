@@ -43,3 +43,7 @@ ccds = "ccds.__main__:main"
 "Source Code" = "https://github.com/drivendataorg/cookiecutter-data-science/"
 "Bug Tracker" = "https://github.com/drivendataorg/cookiecutter-data-science/issues"
 "DrivenData" = "https://drivendata.co"
+
+[tool.pytest.ini_options]
+# Disable pytest-cookies plugin as it interferes with ccds monkey-patching
+addopts = "-p no:cookies"
