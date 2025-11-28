@@ -99,3 +99,6 @@ This journal tracks substantive work on documents, diagrams, and documentation c
 
 32. **Task - Rewrite stellars-philosophy.md**: Simplified and corrected philosophy doc based on upstream research. Cloned upstream repo and verified actual features: module naming (not src/), env managers (7 vs our 4), dependency files (5 vs our 3), default Python (3.10), virtualenvwrapper usage, no dev deps separation, no kernel registration. Updated comparison table with accurate facts<br>
    **Result**: Philosophy doc now accurate and concise based on verified upstream research
+
+33. **Task - Enhance philosophy doc with emphasis**: Added stronger philosophy statements and GitHub alert blocks (IMPORTANT, TIP, NOTE, WARNING, CAUTION) for emphasis. Removed 'none' from environment manager counts in comparison table (6 vs 3 instead of 7 vs 4). Added explanation for why pipenv/poetry/pixi are intentionally excluded<br>
+   **Result**: Philosophy doc now has clearer opinionated stance with visual emphasis

@@ -6,10 +6,16 @@ This fork emphasizes **simplicity**, **separation of concerns**, and **minimal b
 
 **Promote best practices, not proliferate outdated ones.**
 
+Project templates shape how thousands of developers work. A cookiecutter template isn't just scaffolding - it's an opinionated statement about how projects should be structured. We have a responsibility to:
+
 - **Adopt modern tooling** - uv over pip, ruff over flake8+black+isort
-- **Simplify choices** - 4 environment managers instead of 7, focus on what works well
+- **Deprecate legacy patterns** - Remove virtualenvwrapper, drop pipenv/poetry/pixi complexity
+- **Simplify choices** - 3 environment managers instead of 6, focus on what works well
 - **Separate dev from production** - clear dependency boundaries
 - **Zero post-scaffold configuration** - Jupyter kernels, linting, testing all pre-configured
+
+> [!IMPORTANT]
+> Every choice in this template should answer: "Is this how we'd recommend someone start a new project today?"
 
 ## Core Principles
 
@@ -25,6 +31,9 @@ This fork emphasizes **simplicity**, **separation of concerns**, and **minimal b
 | `requirements.txt` | `requirements.txt` | `requirements-dev.txt` |
 | `environment.yml` | conda packages | conda packages (all in one, conda-native) |
 
+> [!TIP]
+> This enables lightweight Docker images for production (`pip install .`) while providing full development environment (`pip install -e ".[dev]"`).
+
 ### 2. Installable Module with `lib_` Prefix
 
 **Upstream**: Module named `<project_name>` (e.g., `my_project`).
@@ -33,6 +42,9 @@ This fork emphasizes **simplicity**, **separation of concerns**, and **minimal b
 
 This avoids conflicts with common package names and makes project code immediately recognizable.
 
+> [!NOTE]
+> You can rename the module folder to anything you prefer. The `lib_` prefix just makes it easy to spot your project code at a glance.
+
 ### 3. Local Environment by Default
 
 **Upstream**: Conda environments always global. Virtualenv uses virtualenvwrapper.
@@ -40,6 +52,9 @@ This avoids conflicts with common package names and makes project code immediate
 **This fork**:
 - Conda: local `.venv/<env_name>/` by default, global optional
 - uv/virtualenv: local `.venv/` using standard venv (no virtualenvwrapper)
+
+> [!WARNING]
+> Global conda environments pollute the base environment and can conflict across projects. Local environments provide clear isolation and easy cleanup with `rm -rf .venv`.
 
 ### 4. Jupyter Kernel Auto-Registration
 
@@ -61,7 +76,7 @@ This avoids conflicts with common package names and makes project code immediate
 | Feature | Upstream ccds | Stellars' Fork |
 |---------|--------------|----------------|
 | Module naming | `<project_name>` | `lib_<project_name>` |
-| Environment managers | 7 (virtualenv, conda, pipenv, uv, pixi, poetry, none) | 4 (uv, conda, virtualenv, none) |
+| Environment managers | 6 (virtualenv, conda, pipenv, uv, pixi, poetry) | 3 (uv, conda, virtualenv) |
 | Default env manager | virtualenv | uv |
 | Dependency files | 5 (requirements.txt, pyproject.toml, environment.yml, Pipfile, pixi.toml) | 3 (pyproject.toml, requirements.txt, environment.yml) |
 | Default Python | 3.10 | 3.12 |
@@ -71,6 +86,9 @@ This avoids conflicts with common package names and makes project code immediate
 | Environment exists check | No | Yes |
 | Cloud storage config | Inline in commands | Makefile variables |
 | virtualenv implementation | virtualenvwrapper | Standard venv |
+
+> [!CAUTION]
+> This fork intentionally removes support for pipenv, poetry, and pixi. These tools add complexity without proportional benefit for data science workflows. If you need them, use upstream ccds.
 
 ## When to Use What
 
