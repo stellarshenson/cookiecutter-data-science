@@ -341,6 +341,8 @@ ifeq ($(ENV_LOCATION),local)
 	@-rm -rf ~/.local/share/jupyter/kernels/$(ENV_NAME) 2>/dev/null || true
 {%- endif %}
 	conda env remove -y -p $(CONDA_ENV_PATH)
+	@rm -rf $(PROJECT_DIR)/.venv
+	@echo "$(OK_STYLE)>>> Environment removed$(NO_STYLE)"
 else
 	@echo "$(MSG_PREFIX) detected conda, removing $(HIGHLIGHT_STYLE)$(ENV_NAME)$(NO_STYLE) conda environment."
 {%- if cookiecutter.jupyter_kernel_support == 'Yes' %}
@@ -349,6 +351,7 @@ else
 	@-rm -rf ~/.local/share/jupyter/kernels/$(ENV_NAME) 2>/dev/null || true
 {%- endif %}
 	conda env remove -y -n $(ENV_NAME)
+	@echo "$(OK_STYLE)>>> Environment removed$(NO_STYLE)"
 endif
 endif
 

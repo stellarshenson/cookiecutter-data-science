@@ -90,3 +90,6 @@ This journal tracks substantive work on documents, diagrams, and documentation c
 
 29. **Task - Unify ENV_NAME and kernel naming**: Unified environment name variable across all managers - replaced `CONDA_ENV_NAME` with `ENV_NAME` at the top of Makefile (works for all env managers). Added `--name` param to nb_venv_kernels for uv/venv environments. Updated ipykernel fallback to use consistent display names matching nb_conda_kernels/nb_venv_kernels convention: `Python [conda env:name]`, `Python [uv env:name]`, `Python [venv env:name]`<br>
    **Result**: All 24 tests pass. Kernel naming now consistent across all environment managers
+
+30. **Task - Clean up .venv on conda local remove**: Updated conda local `remove_environment` target to also remove the `.venv` directory after `conda env remove`. Added consistent success message to both local and global conda environment removal<br>
+   **Result**: Conda local teardown now fully cleans up the .venv directory
