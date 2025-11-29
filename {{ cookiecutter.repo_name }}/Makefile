@@ -601,7 +601,7 @@ increment_build_number: check_conda
 define PRINT_HELP_PYSCRIPT
 import re, sys; \
 lines = sys.stdin.read(); \
-matches = re.findall(r'\n## ([^\n]+)\n([a-zA-Z_-]+):', lines); \
+matches = re.findall(r'\n## ([^\n]+)\n(?!\.PHONY)([a-zA-Z_.][a-zA-Z0-9_.-]*):', lines); \
 matches = sorted(matches, key=lambda x: x[1].lower()); \
 print('\nAvailable rules:\n'); \
 print('\n'.join(['\033[36m{:25}\033[0m{}'.format(*reversed(match)) for match in matches])); \
@@ -612,3 +612,5 @@ export PRINT_HELP_PYSCRIPT
 ## Print the list of available commands
 help:
 	@$(PYTHON_INTERPRETER) -c "$${PRINT_HELP_PYSCRIPT}" < $(MAKEFILE_LIST)
+
+# EOF
