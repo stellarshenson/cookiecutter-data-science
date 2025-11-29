@@ -1,4 +1,4 @@
-.PHONY: clean data lint format requirements upgrade build sync_data_up sync_data_down test
+.PHONY: clean data lint format requirements upgrade build sync_data_up sync_data_down sync_models_up sync_models_down test
 
 #################################################################################
 # GLOBALS                                                                       #
@@ -266,6 +266,36 @@ sync_data_up:
 	az storage blob upload-batch -d $(AZURE_CONTAINER)/data/ -s data/
 {%- elif cookiecutter.dataset_storage.gcs %}
 	gsutil -m rsync -r data/ gs://$(GCS_BUCKET)/data/
+{%- endif %}
+
+## Download models from storage system
+sync_models_down:
+	@echo "$(MSG_PREFIX) downloading models from storage"
+{%- if cookiecutter.dataset_storage.s3 %}
+{%- if cookiecutter.dataset_storage.s3.aws_profile != 'default' %}
+	aws s3 sync s3://$(S3_BUCKET)/models/ models/ --profile $(AWS_PROFILE)
+{%- else %}
+	aws s3 sync s3://$(S3_BUCKET)/models/ models/
+{%- endif %}
+{%- elif cookiecutter.dataset_storage.azure %}
+	az storage blob download-batch -s $(AZURE_CONTAINER)/models/ -d models/
+{%- elif cookiecutter.dataset_storage.gcs %}
+	gsutil -m rsync -r gs://$(GCS_BUCKET)/models/ models/
+{%- endif %}
+
+## Upload models to storage system
+sync_models_up:
+	@echo "$(MSG_PREFIX) uploading models to storage"
+{%- if cookiecutter.dataset_storage.s3 %}
+{%- if cookiecutter.dataset_storage.s3.aws_profile != 'default' %}
+	aws s3 sync models/ s3://$(S3_BUCKET)/models/ --profile $(AWS_PROFILE)
+{%- else %}
+	aws s3 sync models/ s3://$(S3_BUCKET)/models/
+{%- endif %}
+{%- elif cookiecutter.dataset_storage.azure %}
+	az storage blob upload-batch -d $(AZURE_CONTAINER)/models/ -s models/
+{%- elif cookiecutter.dataset_storage.gcs %}
+	gsutil -m rsync -r models/ gs://$(GCS_BUCKET)/models/
 {%- endif %}
 {%- endif %}
 

@@ -85,6 +85,7 @@ This avoids conflicts with common package names and makes project code immediate
 | Jupyter kernel | Manual setup | Auto-registered with cleanup |
 | Environment exists check | No | Yes |
 | Cloud storage config | Inline in commands | Makefile variables |
+| Model sync targets | No | Yes (`sync_models_up/down`) |
 | virtualenv implementation | virtualenvwrapper | Standard venv |
 
 > [!CAUTION]

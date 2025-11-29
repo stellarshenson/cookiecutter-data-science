@@ -102,3 +102,6 @@ This journal tracks substantive work on documents, diagrams, and documentation c
 
 33. **Task - Enhance philosophy doc with emphasis**: Added stronger philosophy statements and GitHub alert blocks (IMPORTANT, TIP, NOTE, WARNING, CAUTION) for emphasis. Removed 'none' from environment manager counts in comparison table (6 vs 3 instead of 7 vs 4). Added explanation for why pipenv/poetry/pixi are intentionally excluded<br>
    **Result**: Philosophy doc now has clearer opinionated stance with visual emphasis
+
+34. **Task - Add model sync targets**: Added `sync_models_down` and `sync_models_up` Makefile targets for syncing models directory with cloud storage (S3, Azure, GCS). Mirrors data sync pattern. Added to .PHONY line<br>
+   **Result**: Models can now be synced to/from cloud storage like data

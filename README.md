@@ -16,6 +16,7 @@ This is **Stellars' fork** of Cookiecutter Data Science with enhanced features f
 - **Dev/prod separation** - Development tools separate from production dependencies
 - **Zero boilerplate** - Jupyter kernel, linting, testing pre-configured
 - **Environment checks** - No recreating existing environments
+- **Model sync** - `sync_models_up/down` targets for cloud storage
 
 > [!NOTE]
 > This fork works with the standard `ccds` CLI from PyPI. Install it with `pipx install cookiecutter-data-science`.
