@@ -18,6 +18,8 @@ This is **Stellars' fork** of Cookiecutter Data Science with enhanced features f
 - **Environment checks** - No recreating existing environments
 - **Model sync** - `sync_models_up/down` targets for cloud storage
 
+This data science project template makes use of [nb_venv_kernels Jupyter kernel manager](https://github.com/stellarshenson/nb_venv_kernels) to give you those environments as jupyter kernels
+
 > [!NOTE]
 > This fork works with the standard `ccds` CLI from PyPI. Install it with `pipx install cookiecutter-data-science`.
 
