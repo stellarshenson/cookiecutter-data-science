@@ -105,3 +105,6 @@ This journal tracks substantive work on documents, diagrams, and documentation c
 
 34. **Task - Add model sync targets**: Added `sync_models_down` and `sync_models_up` Makefile targets for syncing models directory with cloud storage (S3, Azure, GCS). Mirrors data sync pattern. Added to .PHONY line<br>
    **Result**: Models can now be synced to/from cloud storage like data
+
+35. **Task - Fix CI test failures**: Fixed three issues causing GitHub Actions test failures: (1) config.py template had import sorting issue - ruff with `force-sort-within-sections = true` requires `from pathlib import Path` before `import sys`, (2) missing blank line after `from tqdm import tqdm` in try block, and trailing blank line at end of file, (3) environment.yml Makefile was trying `pip install -e ".[dev]"` but pyproject.toml doesn't have `[project.optional-dependencies]` section when `dependency_file == environment.yml` - changed to `pip install -e .` since dev deps come from environment.yml itself<br>
+   **Result**: All 24 tests pass. config.py properly formatted for ruff. environment.yml workflow correctly installs only the package without expecting dev extras

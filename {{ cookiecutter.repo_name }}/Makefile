@@ -104,7 +104,7 @@ requirements: test_environment
 	@echo "$(MSG_PREFIX) installing requirements for $(HIGHLIGHT_STYLE)$(ENV_NAME)$(NO_STYLE) environment"
 	conda run $(CONDA_ENV_SELECTOR) $(CONDA_FLAGS) python -m pip install -U pip setuptools wheel
 {%- if cookiecutter.dependency_file == 'environment.yml' %}
-	conda run $(CONDA_ENV_SELECTOR) $(CONDA_FLAGS) pip install -e ".[dev]"
+	conda run $(CONDA_ENV_SELECTOR) $(CONDA_FLAGS) pip install -e .
 {%- elif cookiecutter.dependency_file == 'requirements.txt' %}
 	conda run $(CONDA_ENV_SELECTOR) $(CONDA_FLAGS) python -m pip install -r requirements.txt
 	conda run $(CONDA_ENV_SELECTOR) $(CONDA_FLAGS) python -m pip install -r requirements-dev.txt
@@ -140,7 +140,7 @@ upgrade: test_environment
 	conda run $(CONDA_ENV_SELECTOR) $(CONDA_FLAGS) conda update --all -y
 	conda run $(CONDA_ENV_SELECTOR) $(CONDA_FLAGS) python -m pip install -U pip setuptools wheel
 {%- if cookiecutter.dependency_file == 'environment.yml' %}
-	conda run $(CONDA_ENV_SELECTOR) $(CONDA_FLAGS) pip install --upgrade -e ".[dev]"
+	conda run $(CONDA_ENV_SELECTOR) $(CONDA_FLAGS) pip install --upgrade -e .
 {%- elif cookiecutter.dependency_file == 'requirements.txt' %}
 	conda run $(CONDA_ENV_SELECTOR) $(CONDA_FLAGS) python -m pip install --upgrade -r requirements.txt
 	conda run $(CONDA_ENV_SELECTOR) $(CONDA_FLAGS) python -m pip install --upgrade -r requirements-dev.txt

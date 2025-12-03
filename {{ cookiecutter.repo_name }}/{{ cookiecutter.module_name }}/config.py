@@ -1,5 +1,6 @@
-import sys
 from pathlib import Path
+import sys
+
 from dotenv import load_dotenv
 from loguru import logger
 
@@ -13,6 +14,7 @@ logger.add(sys.stdout, colorize=True)
 # https://github.com/Delgan/loguru/issues/135
 try:
     from tqdm import tqdm
+
     logger.remove()
     logger.add(lambda msg: tqdm.write(msg, end="", file=sys.stdout), colorize=True)
 except ModuleNotFoundError:
@@ -36,4 +38,3 @@ FIGURES_DIR = REPORTS_DIR / "figures"
 
 # log current root dir
 logger.info(f"PROJ_ROOT path is: {PROJ_ROOT}")
-
