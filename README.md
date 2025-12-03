@@ -9,13 +9,30 @@ _A logical, reasonably standardized but flexible project structure for doing and
 
 This is **Stellars' fork** of Cookiecutter Data Science with enhanced features for data science workflows. See the [Philosophy Document](docs/docs/stellars-philosophy.md) for design principles.
 
-**Key enhancements over upstream:**
-- **uv default** - Modern, fast Python package manager as default
-- **Local environments** - `.venv/` directory by default for project isolation
-- **`lib_` prefix** - Clear module naming (`lib_myproject/` instead of `src/`)
+## Key Features
+
+| Feature | Upstream ccds | Stellars' Fork |
+|---------|--------------|----------------|
+| Module naming | `<project_name>` | `lib_<project_name>` |
+| Environment managers | 6 (virtualenv, conda, pipenv, uv, pixi, poetry) | 3 (uv, conda, virtualenv) |
+| Default env manager | virtualenv | uv |
+| Dependency files | 5 (requirements.txt, pyproject.toml, environment.yml, Pipfile, pixi.toml) | 3 (pyproject.toml, requirements.txt, environment.yml) |
+| Default Python | 3.10 | 3.12 |
+| Conda env location | Global only | Local by default, global optional |
+| Dev dependencies | Mixed with production | Separated |
+| Jupyter kernel | Manual setup | Auto-registered with cleanup |
+| Environment exists check | No | Yes |
+| Cloud storage config | Inline in commands | Makefile variables |
+| Model sync targets | No | Yes (`sync_models_up/down`) |
+| virtualenv implementation | virtualenvwrapper | Standard venv |
+
+**Key enhancements:**
+- **uv default** - Modern, fast Python package manager
+- **Local environments** - `.venv/` directory for project isolation
+- **`lib_` prefix** - Clear module naming (`lib_myproject/`)
 - **Dev/prod separation** - Development tools separate from production dependencies
 - **Zero boilerplate** - Jupyter kernel, linting, testing pre-configured
-- **Environment checks** - No recreating existing environments
+- **Environment checks** - Skip creation if environment exists
 - **Model sync** - `sync_models_up/down` targets for cloud storage
 
 This data science project template makes use of [nb_venv_kernels Jupyter kernel manager](https://github.com/stellarshenson/nb_venv_kernels) to give you those environments as jupyter kernels
