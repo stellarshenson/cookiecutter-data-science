@@ -184,8 +184,13 @@ clean:
 .env:
 	@if [ -f ".env.enc" ]; then \
 		echo "$(MSG_PREFIX) decrypting .env from .env.enc (AES-256)"; \
-		openssl enc -d -aes-256-cbc -pbkdf2 -in .env.enc -out .env; \
-		echo "$(OK_STYLE)>>> .env restored$(NO_STYLE)"; \
+		if openssl enc -d -aes-256-cbc -pbkdf2 -in .env.enc -out .env; then \
+			echo "$(OK_STYLE)>>> .env restored$(NO_STYLE)"; \
+		else \
+			rm -f .env; \
+			echo "$(ERR_PREFIX) $(ERR_STYLE)decryption failed - wrong password?$(NO_STYLE)"; \
+			exit 1; \
+		fi; \
 	else \
 		echo "$(MSG_PREFIX) creating empty .env file"; \
 		touch .env; \
