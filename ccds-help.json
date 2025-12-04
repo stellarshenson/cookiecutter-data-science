@@ -378,6 +378,29 @@
         ]
     },
     {
+        "field": "env_encryption",
+        "help": {
+            "description": "Whether to include Makefile targets for .env file encryption using password-protected zip.",
+            "more_information": ""
+        },
+        "choices": [
+            {
+                "choice": "Yes",
+                "help": {
+                    "description": "Include .env and .env.zip targets for encrypting/decrypting .env files.",
+                    "more_information": ""
+                }
+            },
+            {
+                "choice": "No",
+                "help": {
+                    "description": "No .env encryption targets.",
+                    "more_information": ""
+                }
+            }
+        ]
+    },
+    {
         "field": "custom_config",
         "help": {
             "description": "Path to additional config files to overlay on the generated project.",

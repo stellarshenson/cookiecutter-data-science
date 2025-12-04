@@ -179,6 +179,26 @@ clean:
 	@echo "$(MSG_PREFIX) removing dist and build directory"
 	@rm -rf build dist
 
+{% if cookiecutter.env_encryption == 'Yes' -%}
+## Restore .env file from encrypted zip (or create empty if no zip exists)
+.env:
+	@if [ -f ".env.zip" ]; then \
+		echo "$(MSG_PREFIX) extracting .env from .env.zip"; \
+		unzip .env.zip; \
+		echo "$(OK_STYLE)>>> .env restored$(NO_STYLE)"; \
+	else \
+		echo "$(MSG_PREFIX) creating empty .env file"; \
+		touch .env; \
+		echo "$(OK_STYLE)>>> empty .env created$(NO_STYLE)"; \
+	fi
+
+## Create encrypted zip from .env file
+.env.zip: .env
+	@echo "$(MSG_PREFIX) creating encrypted .env.zip from .env"
+	@zip -e .env.zip .env
+	@echo "$(OK_STYLE)>>> .env.zip created$(NO_STYLE)"
+
+{% endif -%}
 {% if cookiecutter.linting_and_formatting == 'ruff' -%}
 ## Lint using ruff (use `make format` to do formatting)
 lint:
@@ -477,7 +497,8 @@ remove_environment:
 	@echo "$(OK_STYLE)>>> Environment removed$(NO_STYLE)"
 
 ## Install src modules (editable)
-install: create_environment requirements clean
+install: create_environment requirements clean{% if cookiecutter.env_encryption == 'Yes' %} .env{% endif %}
+
 	@echo "$(MSG_PREFIX) installing $(MODULE_NAME) in editable mode"
 	$(PROJECT_DIR)/.venv/bin/pip install -e .
 	@echo "$(OK_STYLE)>>> $(MODULE_NAME) installed$(NO_STYLE)"
@@ -542,7 +563,8 @@ remove_environment:
 	@echo "$(OK_STYLE)>>> Environment removed$(NO_STYLE)"
 
 ## Install src modules (editable)
-install: create_environment requirements clean
+install: create_environment requirements clean{% if cookiecutter.env_encryption == 'Yes' %} .env{% endif %}
+
 	@echo "$(MSG_PREFIX) installing $(MODULE_NAME) in editable mode"
 	@uv pip install -q --python $(PROJECT_DIR)/.venv -e .
 	@echo "$(OK_STYLE)>>> $(MODULE_NAME) installed$(NO_STYLE)"
@@ -576,7 +598,8 @@ data: requirements
 
 {%- if cookiecutter.environment_manager == 'conda' %}
 ## Install src modules without dependencies (editable)
-install: check_conda clean create_environment
+install: check_conda clean create_environment{% if cookiecutter.env_encryption == 'Yes' %} .env{% endif %}
+
 	@echo "$(MSG_PREFIX) installing $(MODULE_NAME) in the $(ENV_NAME) environment $(OK_STYLE)EDITABLE$(NO_STYLE)"
 	@conda run $(CONDA_ENV_SELECTOR) $(CONDA_FLAGS) pip install --editable .
 	@echo "$(MSG_PREFIX) you can now import $(HIGHLIGHT_STYLE)$(MODULE_NAME)$(NO_STYLE) module in your notebooks and scripts\n"

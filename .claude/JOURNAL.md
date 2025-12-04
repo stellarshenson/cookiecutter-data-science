@@ -114,3 +114,6 @@ This journal tracks substantive work on documents, diagrams, and documentation c
 
 37. **Task - Add clean to build workflow**: Updated Makefile build workflow to ensure clean state before building. Added `clean` as dependency to `install` targets for virtualenv and uv (ensures stale build artifacts removed before editable install). Added `clean` as dependency to `build` targets for all environment managers (virtualenv, uv, conda) ensuring `increment_build_number` runs after clean install. Build order is now: clean -> install -> test -> increment_build_number for consistent versioning<br>
    **Result**: Build workflow now guarantees clean state. All environment managers have consistent build target dependencies
+
+38. **Task - Add .env encryption option**: Added `env_encryption` cookiecutter option for simple password-protected .env file management using zip. When enabled, adds `.env` and `.env.zip` Makefile targets - `.env` restores from encrypted zip if present or creates empty file, `.env.zip` creates password-protected archive. Added `.env` as conditional dependency to all `install` targets so first install triggers extraction. Updated ccds.json with Yes/No choice and ccds-help.json with documentation<br>
+   **Result**: Simple .env encryption workflow - .env is gitignored, .env.zip is tracked, `make install` auto-extracts on fresh clone
