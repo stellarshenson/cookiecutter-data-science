@@ -180,11 +180,11 @@ clean:
 	@rm -rf build dist
 
 {% if cookiecutter.env_encryption == 'Yes' -%}
-## Restore .env file from encrypted zip (or create empty if no zip exists)
+## Restore .env file from encrypted archive (or create empty if no archive exists)
 .env:
-	@if [ -f ".env.zip" ]; then \
-		echo "$(MSG_PREFIX) extracting .env from .env.zip"; \
-		unzip .env.zip; \
+	@if [ -f ".env.enc" ]; then \
+		echo "$(MSG_PREFIX) decrypting .env from .env.enc (AES-256)"; \
+		openssl enc -d -aes-256-cbc -pbkdf2 -in .env.enc -out .env; \
 		echo "$(OK_STYLE)>>> .env restored$(NO_STYLE)"; \
 	else \
 		echo "$(MSG_PREFIX) creating empty .env file"; \
@@ -192,11 +192,11 @@ clean:
 		echo "$(OK_STYLE)>>> empty .env created$(NO_STYLE)"; \
 	fi
 
-## Create encrypted zip from .env file
-.env.zip: .env
-	@echo "$(MSG_PREFIX) creating encrypted .env.zip from .env"
-	@zip -e .env.zip .env
-	@echo "$(OK_STYLE)>>> .env.zip created$(NO_STYLE)"
+## Create encrypted archive from .env file (AES-256)
+.env.enc: .env
+	@echo "$(MSG_PREFIX) encrypting .env to .env.enc (AES-256)"
+	@openssl enc -aes-256-cbc -pbkdf2 -in .env -out .env.enc
+	@echo "$(OK_STYLE)>>> .env.enc created$(NO_STYLE)"
 
 {% endif -%}
 {% if cookiecutter.linting_and_formatting == 'ruff' -%}

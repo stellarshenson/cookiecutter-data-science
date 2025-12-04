@@ -380,14 +380,14 @@
     {
         "field": "env_encryption",
         "help": {
-            "description": "Whether to include Makefile targets for .env file encryption using password-protected zip.",
+            "description": "Whether to include Makefile targets for .env file encryption using OpenSSL AES-256.",
             "more_information": ""
         },
         "choices": [
             {
                 "choice": "Yes",
                 "help": {
-                    "description": "Include .env and .env.zip targets for encrypting/decrypting .env files.",
+                    "description": "Include .env and .env.enc targets for encrypting/decrypting .env files with AES-256.",
                     "more_information": ""
                 }
             },
