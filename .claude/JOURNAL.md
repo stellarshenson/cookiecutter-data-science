@@ -111,3 +111,6 @@ This journal tracks substantive work on documents, diagrams, and documentation c
 
 36. **Task - Add key features table to README**: Added comprehensive comparison table from stellars-philosophy.md to README.md showing differences between upstream ccds and this fork across 12 features: module naming, environment managers, default env manager, dependency files, Python version, conda location, dev deps, Jupyter kernel, environment checks, cloud storage config, model sync, and virtualenv implementation<br>
    **Result**: README now has clear feature comparison table plus bullet point summary of key enhancements
+
+37. **Task - Add clean to build workflow**: Updated Makefile build workflow to ensure clean state before building. Added `clean` as dependency to `install` targets for virtualenv and uv (ensures stale build artifacts removed before editable install). Added `clean` as dependency to `build` targets for all environment managers (virtualenv, uv, conda) ensuring `increment_build_number` runs after clean install. Build order is now: clean -> install -> test -> increment_build_number for consistent versioning<br>
+   **Result**: Build workflow now guarantees clean state. All environment managers have consistent build target dependencies

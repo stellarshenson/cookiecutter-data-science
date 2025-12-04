@@ -477,13 +477,13 @@ remove_environment:
 	@echo "$(OK_STYLE)>>> Environment removed$(NO_STYLE)"
 
 ## Install src modules (editable)
-install: create_environment requirements
+install: create_environment requirements clean
 	@echo "$(MSG_PREFIX) installing $(MODULE_NAME) in editable mode"
 	$(PROJECT_DIR)/.venv/bin/pip install -e .
 	@echo "$(OK_STYLE)>>> $(MODULE_NAME) installed$(NO_STYLE)"
 
 ## Build package
-build: install test increment_build_number
+build: clean install test increment_build_number
 	@echo "$(MSG_PREFIX) building $(MODULE_NAME)"
 	$(PROJECT_DIR)/.venv/bin/python -m build --wheel
 
@@ -542,13 +542,13 @@ remove_environment:
 	@echo "$(OK_STYLE)>>> Environment removed$(NO_STYLE)"
 
 ## Install src modules (editable)
-install: create_environment requirements
+install: create_environment requirements clean
 	@echo "$(MSG_PREFIX) installing $(MODULE_NAME) in editable mode"
 	@uv pip install -q --python $(PROJECT_DIR)/.venv -e .
 	@echo "$(OK_STYLE)>>> $(MODULE_NAME) installed$(NO_STYLE)"
 
 ## Build package
-build: install test increment_build_number
+build: clean install test increment_build_number
 	@echo "$(MSG_PREFIX) building $(MODULE_NAME)"
 	$(PROJECT_DIR)/.venv/bin/python -m build --wheel
 
@@ -582,7 +582,7 @@ install: check_conda clean create_environment
 	@echo "$(MSG_PREFIX) you can now import $(HIGHLIGHT_STYLE)$(MODULE_NAME)$(NO_STYLE) module in your notebooks and scripts\n"
 
 ## Build package and install
-build: check_conda install test increment_build_number
+build: check_conda clean install test increment_build_number
 	@echo "$(MSG_PREFIX) building $(MODULE_NAME)"
 	@conda run $(CONDA_ENV_SELECTOR) $(CONDA_FLAGS) python -m build --wheel
 
