@@ -71,6 +71,18 @@ This avoids conflicts with common package names and makes project code immediate
 
 **This fork**: Checks if environment exists first, skips creation if present.
 
+### 6. Secrets Management with .env Encryption
+
+**Upstream**: No secrets management - `.env` in gitignore, manual handling.
+
+**This fork**: Optional `env_encryption` feature using OpenSSL AES-256:
+- `make .env.enc` - encrypts `.env` to `.env.enc` (password-protected)
+- `make .env` - decrypts `.env.enc` or creates empty `.env` if no archive exists
+- `.env` is dependency of `make install` - auto-decrypts on fresh clone
+
+> [!TIP]
+> Commit `.env.enc` to git and share the password out-of-band. On `make install`, team members enter the password once to decrypt secrets.
+
 ## Key Differences from Upstream
 
 | Feature | Upstream ccds | Stellars' Fork |
@@ -87,6 +99,7 @@ This avoids conflicts with common package names and makes project code immediate
 | Cloud storage config | Inline in commands | Makefile variables |
 | Model sync targets | No | Yes (`sync_models_up/down`) |
 | virtualenv implementation | virtualenvwrapper | Standard venv |
+| .env encryption | No | Optional (OpenSSL AES-256) |
 
 > [!CAUTION]
 > This fork intentionally removes support for pipenv, poetry, and pixi. These tools add complexity without proportional benefit for data science workflows. If you need them, use upstream ccds.
