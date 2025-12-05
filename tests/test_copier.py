@@ -18,7 +18,7 @@ import pytest
 from env_matrix import get_absent_files, get_expected_files
 
 CCDS_ROOT = Path(__file__).parents[1].resolve()
-COPIER_DIR = CCDS_ROOT / "copier"
+COPIER_DIR = CCDS_ROOT  # copier.yml is now at repo root
 
 
 def is_copier_available():
@@ -89,8 +89,14 @@ def copier_config_generator(fast=False):
     # Cycle through linting and code scaffold options
     code_format_cycler = cycle(
         product(
-            [("include_code_scaffold", opt) for opt in ccds_json["include_code_scaffold"]],
-            [("linting_and_formatting", opt) for opt in ccds_json["linting_and_formatting"]],
+            [
+                ("include_code_scaffold", opt)
+                for opt in ccds_json["include_code_scaffold"]
+            ],
+            [
+                ("linting_and_formatting", opt)
+                for opt in ccds_json["linting_and_formatting"]
+            ],
         )
     )
 
@@ -182,6 +188,7 @@ def bake_copier_project(config):
 
 def pytest_generate_tests(metafunc):
     """Generate test configurations for parametrized tests."""
+
     def make_test_id(config):
         env_loc = config.get("env_location", "local")
         return f"copier-{config['environment_manager']}-{env_loc}-{config['dependency_file']}-{config['pydata_packages']}"

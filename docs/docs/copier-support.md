@@ -21,11 +21,8 @@ ccds gh:stellarshenson/cookiecutter-data-science
 
 ### Using Copier
 
-Requires cloning the repo first (copier doesn't support subdirectory paths in Git URLs):
-
 ```bash
-git clone https://github.com/stellarshenson/cookiecutter-data-science.git
-copier copy --trust ./cookiecutter-data-science/copier my-project
+copier copy --trust https://github.com/stellarshenson/cookiecutter-data-science.git my-project
 ```
 
 The `--trust` flag is required because the template uses Jinja extensions and post-generation tasks.
@@ -33,7 +30,7 @@ The `--trust` flag is required because the template uses Jinja extensions and po
 With pre-filled answers:
 
 ```bash
-copier copy --trust ./cookiecutter-data-science/copier -d project_name="My Project" my-project
+copier copy --trust https://github.com/stellarshenson/cookiecutter-data-science.git -d project_name="My Project" my-project
 ```
 
 ## Updating Projects
@@ -58,9 +55,9 @@ The template maintains two parallel structures:
 cookiecutter-data-science/
 ├── {{ cookiecutter.repo_name }}/    # Cookiecutter template (source of truth)
 ├── ccds.json                        # Cookiecutter configuration
+├── copier.yml                       # Copier configuration (at repo root)
 ├── hooks/post_gen_project.py        # Cookiecutter post-gen hook
-└── copier/                          # Copier template (derived)
-    ├── copier.yml                   # Copier configuration
+└── copier/                          # Copier template files (derived)
     ├── template/                    # Transformed template files
     └── scripts/
         ├── build_copier_template.py # Transforms cookiecutter -> copier
@@ -87,7 +84,7 @@ This script:
 
 | Aspect | Cookiecutter | Copier |
 |--------|--------------|--------|
-| Config file | `ccds.json` | `copier/copier.yml` |
+| Config file | `ccds.json` | `copier.yml` |
 | Variable syntax | `{{ cookiecutter.var }}` | `{{ var }}` |
 | Template directory | `{{ cookiecutter.repo_name }}/` | `copier/template/` |
 | Post-gen hook | Jinja-rendered Python | Static Python with CLI args |

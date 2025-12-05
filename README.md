@@ -64,9 +64,8 @@ pipx install copier
 # Using Cookiecutter
 ccds gh:stellarshenson/cookiecutter-data-science
 
-# Using Copier (requires local clone, supports template updates)
-git clone https://github.com/stellarshenson/cookiecutter-data-science.git
-copier copy --trust ./cookiecutter-data-science/copier my-project
+# Using Copier (supports template updates)
+copier copy --trust https://github.com/stellarshenson/cookiecutter-data-science.git my-project
 ```
 
 See [Copier Support](docs/docs/copier-support.md) for Copier details. Then follow the prompts, and once created:
