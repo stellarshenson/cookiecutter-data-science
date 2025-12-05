@@ -63,35 +63,16 @@ pip install cookiecutter-data-science
 
 ## Starting a new project
 
-### Using Cookiecutter (default)
-
-To start a new project with this fork:
-
 ```bash
+# Using Cookiecutter
 ccds gh:stellarshenson/cookiecutter-data-science
-```
 
-### Using Copier
-
-Alternatively, use [Copier](https://copier.readthedocs.io/) which supports template updates:
-
-```bash
-# Clone the repository first
+# Using Copier (requires local clone, supports template updates)
 git clone https://github.com/stellarshenson/cookiecutter-data-science.git
-
-# Create project from local clone
 copier copy --trust ./cookiecutter-data-science/copier my-project
-
-# With pre-filled answers (non-interactive)
-copier copy --trust ./cookiecutter-data-science/copier \
-  -d project_name="My Project" \
-  -d environment_manager="conda" \
-  my-project
 ```
 
-See [Copier Support](docs/docs/copier-support.md) for details on the implementation and template updates.
-
-Then follow the prompts, and once created:
+See [Copier Support](docs/docs/copier-support.md) for Copier details. Then follow the prompts, and once created:
 
 ```bash
 cd my_project
