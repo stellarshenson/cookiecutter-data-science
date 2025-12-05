@@ -40,10 +40,10 @@ Project templates shape how thousands of developers work. A cookiecutter templat
 
 **This fork**: Module named `lib_<project_name>` (e.g., `lib_my_project`).
 
-This avoids conflicts with common package names and makes project code immediately recognizable.
+This avoids conflicts with common package names and makes project code immediately recognizable. A `lib_` prefixed module is far easier to spot in imports than an arbitrary project name - you instantly know it's your local code, not some pip-installed dependency.
 
 > [!NOTE]
-> You can rename the module folder to anything you prefer. The `lib_` prefix just makes it easy to spot your project code at a glance.
+> You can rename the module folder to anything you prefer. The `lib_` prefix is just a sensible default that makes your project code easy to spot at a glance.
 
 ### 3. Local Environment by Default
 
