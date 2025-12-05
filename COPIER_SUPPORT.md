@@ -17,10 +17,17 @@ cookiecutter https://github.com/stellarshenson/cookiecutter-data-science
 ### Using Copier
 
 ```bash
-copier copy --trust https://github.com/stellarshenson/cookiecutter-data-science/copier my-project
+# From local clone
+copier copy --trust ./copier my-project --defaults
+
+# From GitHub (main branch)
+copier copy --trust "https://github.com/stellarshenson/cookiecutter-data-science.git//copier" my-project
+
+# From specific branch
+copier copy --trust "https://github.com/stellarshenson/cookiecutter-data-science.git//copier" --vcs-ref feature/copier-template my-project
 ```
 
-The `--trust` flag is required because the template uses Jinja extensions and post-generation tasks.
+The `--trust` flag is required because the template uses Jinja extensions and post-generation tasks. The `//copier` suffix tells copier to look in the `copier/` subdirectory.
 
 ## Architecture
 
