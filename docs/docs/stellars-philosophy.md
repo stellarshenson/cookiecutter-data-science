@@ -113,3 +113,7 @@ This avoids conflicts with common package names and makes project code immediate
 | Data science with conda packages | conda |
 | Pure Python, fast setup | uv |
 | Traditional Python | virtualenv |
+
+## Acknowledgements
+
+This fork stands on the shoulders of [DrivenData's giants](https://github.com/drivendataorg/cookiecutter-data-science) - peeping over their shoulder at the excellent work they've done, then adding some opinionated tweaks while they do the heavy lifting. All credit for the original architecture goes to the upstream team.

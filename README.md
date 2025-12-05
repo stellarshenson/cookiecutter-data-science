@@ -123,7 +123,7 @@ ccds gh:stellarshenson/cookiecutter-data-science --checkout master
 
 ## Upstream
 
-This fork is based on [DrivenData's Cookiecutter Data Science](https://github.com/drivendataorg/cookiecutter-data-science). See the [upstream documentation](https://cookiecutter-data-science.drivendata.org/) for the original project.
+This fork stands on the shoulders of [DrivenData's giants](https://github.com/drivendataorg/cookiecutter-data-science) - peeping over their shoulder at the excellent work they've done, then adding some opinionated tweaks while they do the heavy lifting. See the [upstream documentation](https://cookiecutter-data-science.drivendata.org/) for the original project.
 
 ## Contributing
 
