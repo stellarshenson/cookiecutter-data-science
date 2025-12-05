@@ -22,17 +22,20 @@ ccds gh:stellarshenson/cookiecutter-data-science
 ### Using Copier
 
 ```bash
-# From local clone
-copier copy --trust ./copier my-project
+# Clone the repository first (required - copier doesn't support subdirectory paths in Git URLs)
+git clone https://github.com/stellarshenson/cookiecutter-data-science.git
 
-# From GitHub (main branch)
-copier copy --trust "https://github.com/stellarshenson/cookiecutter-data-science.git//copier" my-project
+# Create project from local clone
+copier copy --trust ./cookiecutter-data-science/copier my-project
 
-# From specific branch
-copier copy --trust "https://github.com/stellarshenson/cookiecutter-data-science.git//copier" --vcs-ref feature/copier-template my-project
+# With pre-filled answers (non-interactive)
+copier copy --trust ./cookiecutter-data-science/copier \
+  -d project_name="My Project" \
+  -d environment_manager="conda" \
+  my-project
 ```
 
-The `--trust` flag is required because the template uses Jinja extensions and post-generation tasks. The `//copier` suffix tells Copier to look in the `copier/` subdirectory.
+The `--trust` flag is required because the template uses Jinja extensions and post-generation tasks.
 
 ## Updating Projects
 
