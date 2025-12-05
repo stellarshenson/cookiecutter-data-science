@@ -71,3 +71,6 @@ This journal tracks substantive work on documents, diagrams, and documentation c
 
 43. **Task - Merge copier to master and update tooling**: Merged `feature/copier-template` branch to `master` via fast-forward (13 commits). Tagged `STABLE_COPIER_IMPLEMENTATION`. Updated README.md with copier usage examples using `-d` flag for pre-filled answers. Discovered copier doesn't support subdirectory paths in Git URLs (`gh:repo//subdir` doesn't work) - must clone repo first then use local path. Updated `/opt/utils/lab-utils.d/new-project.sh` to use copier with local template path, prompting for project name and passing it via `-d project_name`<br>
    **Result**: Copier implementation merged to master. Lab utility script updated for copier-based project scaffolding
+
+44. **Task - Simplify copier documentation**: Consolidated README.md "Starting a new project" section into single code block with comments for both cookiecutter (`ccds`) and copier methods. Fixed isort import ordering in `tests/test_copier.py` (removed blank line between pytest and env_matrix imports). Updated `docs/docs/copier-support.md` with simplified usage instructions<br>
+   **Result**: Documentation cleaner and more concise. CI lint passes
