@@ -48,17 +48,14 @@ This data science project template makes use of [nb_venv_kernels Jupyter kernel 
 
 ## Installation
 
-Cookiecutter Data Science v2 requires Python 3.9+. Since this is a cross-project utility application, we recommend installing it with [pipx](https://pypa.github.io/pipx/). Installation command options:
+Requires Python 3.9+. We recommend installing with [pipx](https://pypa.github.io/pipx/):
 
 ```bash
-# With pipx from PyPI (recommended)
+# Cookiecutter (ccds command)
 pipx install cookiecutter-data-science
 
-# With pip from PyPI
-pip install cookiecutter-data-science
-
-# With conda from conda-forge (coming soon)
-# conda install cookiecutter-data-science -c conda-forge
+# Copier (alternative with template update support)
+pipx install copier
 ```
 
 ## Starting a new project
