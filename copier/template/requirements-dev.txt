@@ -1,0 +1,29 @@
+# Development dependencies
+# Install with: pip install -r requirements-dev.txt
+
+build
+{% if docs != 'none' %}
+{{ docs }}
+{%- endif %}
+{% if jupyter_kernel_support == 'Yes' %}
+ipykernel
+{%- endif %}
+ipython
+nbdime
+{% if testing_framework == 'pytest' %}
+pytest
+pytest-cov
+{%- endif %}
+toml
+{% if linting_and_formatting == 'ruff' %}
+ruff
+{% elif linting_and_formatting == 'flake8+black+isort' %}
+black
+flake8
+isort
+{%- endif %}
+{% if dataset_storage == 's3' %}
+awscli
+{% elif dataset_storage == 'gcs' %}
+gsutil
+{%- endif %}

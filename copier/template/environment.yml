@@ -1,0 +1,31 @@
+name: {{ env_name }}
+
+# Conda environment with dev dependencies
+channels:
+  - conda-forge
+
+dependencies:
+  - python={{ python_version_number }}
+  - pip
+{% if dependency_file == 'environment.yml' %}
+  # Dev dependencies (conda-native)
+  - ipython
+  - nbdime
+{% if jupyter_kernel_support == 'Yes' %}
+  - ipykernel
+{%- endif %}
+{% if docs == 'mkdocs' %}
+  - mkdocs
+{%- endif %}
+{% if testing_framework == 'pytest' %}
+  - pytest
+  - pytest-cov
+{%- endif %}
+{% if linting_and_formatting == 'ruff' %}
+  - ruff
+{% elif linting_and_formatting == 'flake8+black+isort' %}
+  - black
+  - flake8
+  - isort
+{%- endif %}
+{%- endif %}
