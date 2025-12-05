@@ -26,6 +26,7 @@ This is **Stellars' fork** of Cookiecutter Data Science with enhanced features f
 | Model sync targets | No | Yes (`sync_models_up/down`) |
 | virtualenv implementation | virtualenvwrapper | Standard venv |
 | .env encryption | No | Optional (OpenSSL AES-256) |
+| Build versioning | No | Auto-increment on `make build` |
 
 **Key enhancements:**
 - **uv default** - Modern, fast Python package manager
@@ -36,6 +37,7 @@ This is **Stellars' fork** of Cookiecutter Data Science with enhanced features f
 - **Environment checks** - Skip creation if environment exists
 - **Model sync** - `sync_models_up/down` targets for cloud storage
 - **.env encryption** - Optional AES-256 encryption for secrets (`make .env.enc`)
+- **Build versioning** - Auto-increment build number in pyproject.toml on `make build`
 
 This data science project template makes use of [nb_venv_kernels Jupyter kernel manager](https://github.com/stellarshenson/nb_venv_kernels) to give you those environments as jupyter kernels
 
