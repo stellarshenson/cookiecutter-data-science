@@ -14,7 +14,7 @@ _jinja_extensions:
 project_name:
   type: str
   default: "{{ _copier_conf.dst_path.name }}"
-  help: "Name of the project (defaults to destination folder name)"
+  when: false
 
 repo_name:
   type: str
