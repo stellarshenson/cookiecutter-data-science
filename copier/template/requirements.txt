@@ -2,19 +2,19 @@
 # Install with: pip install -r requirements.txt
 
 -e .
-{% if dataset_storage == 's3' %}
+{%- if dataset_storage == 's3' %}
 botocore
-{% elif dataset_storage == 'azure' %}
+{%- elif dataset_storage == 'azure' %}
 azure-storage-blob
-{% elif dataset_storage == 'gcs' %}
+{%- elif dataset_storage == 'gcs' %}
 google-cloud-storage
 {%- endif %}
-{% if include_code_scaffold == 'Yes' %}
+{%- if include_code_scaffold == 'Yes' %}
 loguru
 tqdm
 typer
 {%- endif %}
-{% if pydata_packages == 'basic' %}
+{%- if pydata_packages == 'basic' %}
 matplotlib
 numpy
 pandas

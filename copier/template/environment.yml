@@ -7,23 +7,23 @@ channels:
 dependencies:
   - python={{ python_version_number }}
   - pip
-{% if dependency_file == 'environment.yml' %}
+{%- if dependency_file == 'environment.yml' %}
   # Dev dependencies (conda-native)
   - ipython
   - nbdime
-{% if jupyter_kernel_support == 'Yes' %}
+{%- if jupyter_kernel_support == 'Yes' %}
   - ipykernel
 {%- endif %}
-{% if docs == 'mkdocs' %}
+{%- if docs == 'mkdocs' %}
   - mkdocs
 {%- endif %}
-{% if testing_framework == 'pytest' %}
+{%- if testing_framework == 'pytest' %}
   - pytest
   - pytest-cov
 {%- endif %}
-{% if linting_and_formatting == 'ruff' %}
+{%- if linting_and_formatting == 'ruff' %}
   - ruff
-{% elif linting_and_formatting == 'flake8+black+isort' %}
+{%- elif linting_and_formatting == 'flake8+black+isort' %}
   - black
   - flake8
   - isort
