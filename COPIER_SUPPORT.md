@@ -1,10 +1,27 @@
 # Copier Support Analysis
 
-This document captures research on making this cookiecutter template interoperable with Copier.
+This document captures research and implementation attempts on making this cookiecutter template interoperable with Copier.
 
 ## Overview
 
 Copier is an alternative project templating tool with features like template updates and different syntax conventions. This analysis explores what would be required to support both cookiecutter and Copier from the same template.
+
+## Implementation Attempt Summary
+
+An experimental implementation was attempted on the `feature/copier-template` branch. Key findings:
+
+### What Worked
+
+1. **Cookiecutter namespace compatibility**: Copier can create a computed `cookiecutter` dict variable that allows `{{ cookiecutter.var }}` syntax to work in templates
+2. **Jinja2 time extension**: Adding `jinja2_time.TimeExtension` allows the `{% now %}` tag to work
+3. **Post-generation tasks**: Copier tasks can pass environment variables to Python scripts for cleanup
+4. **Template rendering**: All Jinja2 templates rendered correctly with the cookiecutter namespace
+
+### What Failed
+
+**Critical blocker**: Cookiecutter requires the template directory to have a templated name containing `{{ cookiecutter.` (e.g., `{{ cookiecutter.repo_name }}/`). When renamed to `template/` for Copier compatibility, cookiecutter throws `NonTemplatedInputDirException`.
+
+This is a fundamental architectural incompatibility - the same template directory cannot serve both tools.
 
 ## Current Template Features
 
@@ -27,144 +44,61 @@ Features that need Copier equivalents:
 |--------|--------------|--------|
 | Config file | `cookiecutter.json` / `ccds.json` | `copier.yml` |
 | Variable syntax | `{{ cookiecutter.var }}` | `{{ var }}` |
-| Directory names | `{{ cookiecutter.repo_name }}/` | `{{ repo_name }}/` |
-| Hooks | `hooks/post_gen_project.py` | `_tasks` in copier.yml |
+| Directory names | `{{ cookiecutter.repo_name }}/` (required) | `{{ repo_name }}/` or static |
+| Hooks | `hooks/post_gen_project.py` (Jinja-rendered) | `_tasks` in copier.yml (static Python) |
 | Template updates | Not supported | Native support |
 | Conditional questions | Custom pre_prompt.py | Native `when:` clause |
 
 ## Challenges
 
-### 1. Variable Namespace
+### 1. Template Directory Name (Blocker)
 
-All templates use `{{ cookiecutter.variable }}` syntax. Copier uses `{{ variable }}` directly.
+Cookiecutter requires the template directory to contain `{{ cookiecutter.` in its name. Copier cannot process directories with this naming pattern correctly.
 
-**Impact**: Every template file would need modification, or a compatibility layer.
+**Impact**: Fundamental incompatibility - cannot have single template directory for both tools.
 
-### 2. Template Directory Name
+### 2. Hook Files Are Jinja Templates
 
-The template directory is named `{{ cookiecutter.repo_name }}/`. Copier processes directory names with its own syntax.
+Cookiecutter's `hooks/post_gen_project.py` contains embedded Jinja2 variables (like `{{ cookiecutter.testing_framework }}`). Cookiecutter renders these before execution. Copier runs the raw Python file.
 
-**Impact**: Directory would need renaming or special handling.
+**Solution found**: Create separate `scripts/copier_post_gen.py` that reads configuration from environment variables passed via `_tasks`.
 
-### 3. Hooks vs Tasks
-
-Cookiecutter uses Python hooks in `hooks/post_gen_project.py`. Our hook handles:
-- File cleanup based on environment manager and dependency file
-- Conditional deletion of requirements.txt, requirements-dev.txt, environment.yml
-- License file selection
-- Test framework setup
-
-Copier uses `_tasks` defined in YAML with shell commands or Jinja templates.
-
-**Impact**: Hook logic would need to be rewritten as tasks.
-
-### 4. Nested Options (dataset_storage)
+### 3. Nested Options (dataset_storage)
 
 Our `dataset_storage` option uses nested dicts:
 ```json
 {"s3": {"bucket": "bucket-name", "aws_profile": "default"}}
 ```
 
-Copier handles this differently with conditional questions using `when:` clauses.
+Copier handles this differently with separate questions and `when:` clauses.
 
-### 5. Conditional Option Display (env_location, dependency_file)
-
-Our `pre_prompt.py` filters options based on previous answers:
-- `env_location` only shown for conda
-- `environment.yml` only available for conda
-
-Copier handles this natively with `when:` clauses - actually simpler.
+**Solution found**: Flatten to separate questions (s3_bucket, azure_container, etc.) with conditional display.
 
 ## Potential Solutions
 
-### Option 1: Copier Compatibility Mode (Low Effort)
+### Option 1: Separate Copier Template (Recommended)
 
-Copier has partial cookiecutter compatibility but struggles with the `cookiecutter.` namespace.
+Maintain a separate `copier/` directory with:
+- `copier.yml` configuration
+- Symlinks or copies of template files
+- Dedicated post-gen script
 
-**Verdict**: Insufficient for this template's complexity.
+**Pros**: Clean separation, both tools fully supported
+**Cons**: Duplication, maintenance burden
 
-### Option 2: Dual Config with Namespace Alias (Medium Effort)
-
-Add `copier.yml` alongside existing config. Define a computed `cookiecutter` dict:
-
-```yaml
-# copier.yml
-_subdirectory: template
-
-repo_name:
-  type: str
-  help: Repository name
-
-module_name:
-  type: str
-  default: "lib_{{ repo_name | replace('-', '_') }}"
-  help: Module name (lib_ prefix)
-
-environment_manager:
-  type: str
-  choices:
-    - uv
-    - conda
-    - virtualenv
-    - none
-  default: uv
-
-env_location:
-  type: str
-  choices:
-    - local
-    - global
-  default: local
-  when: "{{ environment_manager == 'conda' }}"
-
-env_encryption:
-  type: bool
-  default: true
-  help: Enable .env encryption (OpenSSL AES-256)
-
-# Create cookiecutter namespace as computed value
-cookiecutter:
-  type: json
-  default: |
-    {
-      "repo_name": "{{ repo_name }}",
-      "module_name": "{{ module_name }}",
-      "environment_manager": "{{ environment_manager }}",
-      "env_encryption": "{{ 'Yes' if env_encryption else 'No' }}"
-    }
-```
-
-**Pros**: Minimal template changes
-**Cons**: Requires maintaining parallel configs, directory name still problematic
-
-### Option 3: Jinja2 Extension (Medium Effort)
-
-Use Copier's `_jinja_extensions` to inject a `cookiecutter` namespace:
-
-```yaml
-_jinja_extensions:
-  - extensions/cookiecutter_compat.py:CookiecutterCompat
-```
-
-**Pros**: Clean separation, templates unchanged
-**Cons**: Additional complexity, needs custom extension code
-
-### Option 4: Build-Time Generation (Medium-High Effort)
+### Option 2: Build-Time Generation
 
 Maintain single source templates with a build script that generates both cookiecutter and Copier versions.
 
-**Pros**: Single source of truth, most maintainable long-term
+**Pros**: Single source of truth
 **Cons**: Build step required, more complex CI/CD
 
-### Option 5: Rename Directory + Computed Namespace (Recommended if Pursued)
+### Option 3: Copier-Only Migration
 
-1. Rename `{{ cookiecutter.repo_name }}/` to `template/` with `_subdirectory: template`
-2. Add `copier.yml` with all questions
-3. Define `cookiecutter` as computed dict in copier.yml
-4. Existing template syntax works unchanged
+Migrate entirely to Copier, abandoning cookiecutter support.
 
-**Pros**: Works for both tools with minimal changes
-**Cons**: May break existing cookiecutter workflows
+**Pros**: Simpler maintenance, template update support
+**Cons**: Breaking change for existing users, loss of ccds CLI benefits
 
 ## Copier Advantages
 
@@ -180,24 +114,34 @@ If we did support Copier:
 **Status**: Not implementing Copier support at this time.
 
 **Rationale**:
+- The `{{ cookiecutter.repo_name }}/` directory naming requirement is a fundamental blocker
 - Current cookiecutter setup works well with `ccds` CLI
 - Template is already standalone and doesn't require ccds package internals
-- Copier support would add maintenance burden without clear user demand
-- The `{{ cookiecutter.repo_name }}/` directory naming convention is deeply embedded
+- Copier support would require maintaining parallel template structures
 - All current features (env encryption, build versioning, etc.) work well with cookiecutter
+
+## Experimental Code
+
+The implementation attempt included:
+
+1. `copier.yml` with all questions and computed `cookiecutter` namespace
+2. `scripts/copier_post_gen.py` that reads env vars for cleanup
+3. `jinja2_time.TimeExtension` for `{% now %}` tag support
+
+This code worked for Copier but was removed due to the directory naming blocker that breaks cookiecutter compatibility.
 
 ## Future Considerations
 
 If Copier support becomes desired:
 
-1. Start with Option 5 (subdirectory + computed namespace)
-2. Convert pre_prompt.py conditionals to Copier `when:` clauses
-3. Convert post_gen_project.py to Copier `_tasks`
-4. Test thoroughly with both `ccds` and `copier` CLIs
-5. Maintain parallel test suites
+1. Create separate `copier/` directory with template copy
+2. Maintain `copier.yml` alongside `ccds.json`
+3. Use shared template files via symlinks where possible
+4. Implement parallel test suites
 
 ## References
 
 - [Copier Documentation](https://copier.readthedocs.io/)
 - [Copier Jinja2 Extensions](https://copier.readthedocs.io/en/stable/configuring/#jinja_extensions)
 - [Cookiecutter to Copier Migration](https://copier.readthedocs.io/en/stable/comparisons/)
+- [Cookiecutter find_template source](https://github.com/cookiecutter/cookiecutter/blob/main/cookiecutter/find.py)
