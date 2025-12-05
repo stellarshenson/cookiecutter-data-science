@@ -76,17 +76,20 @@ ccds gh:stellarshenson/cookiecutter-data-science
 Alternatively, use [Copier](https://copier.readthedocs.io/) which supports template updates:
 
 ```bash
+# From GitHub (recommended)
+copier copy --trust gh:stellarshenson/cookiecutter-data-science//copier my-project
+
+# With pre-filled answers (non-interactive)
+copier copy --trust gh:stellarshenson/cookiecutter-data-science//copier \
+  -d project_name="My Project" \
+  -d environment_manager="conda" \
+  my-project
+
 # From local clone
-copier copy --trust ./copier my-project
-
-# From GitHub
-copier copy --trust "https://github.com/stellarshenson/cookiecutter-data-science.git//copier" my-project
-
-# From specific branch
-copier copy --trust "https://github.com/stellarshenson/cookiecutter-data-science.git//copier" --vcs-ref feature/copier-template my-project
+copier copy --trust /path/to/cookiecutter-data-science/copier my-project
 ```
 
-See [COPIER_SUPPORT.md](COPIER_SUPPORT.md) for details on the Copier implementation.
+See [Copier Support](docs/docs/copier-support.md) for details on the implementation and template updates.
 
 Then follow the prompts, and once created:
 
