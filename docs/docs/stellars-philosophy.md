@@ -101,6 +101,7 @@ This avoids conflicts with common package names and makes project code immediate
 | virtualenv implementation | virtualenvwrapper | Standard venv |
 | .env encryption | No | Optional (OpenSSL AES-256) |
 | Build versioning | No | Auto-increment on `make build` |
+| Copier support | No | Yes (parallel template) |
 
 > [!CAUTION]
 > This fork intentionally removes support for pipenv, poetry, and pixi. These tools add complexity without proportional benefit for data science workflows. If you need them, use upstream ccds.

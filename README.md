@@ -27,6 +27,7 @@ This is **Stellars' fork** of Cookiecutter Data Science with enhanced features f
 | virtualenv implementation | virtualenvwrapper | Standard venv |
 | .env encryption | No | Optional (OpenSSL AES-256) |
 | Build versioning | No | Auto-increment on `make build` |
+| Copier support | No | Yes (parallel template) |
 
 **Key enhancements:**
 - **uv default** - Modern, fast Python package manager
@@ -38,6 +39,7 @@ This is **Stellars' fork** of Cookiecutter Data Science with enhanced features f
 - **Model sync** - `sync_models_up/down` targets for cloud storage
 - **.env encryption** - Optional AES-256 encryption for secrets (`make .env.enc`)
 - **Build versioning** - Auto-increment build number in pyproject.toml on `make build`
+- **Copier support** - Alternative to cookiecutter with template update support
 
 This data science project template makes use of [nb_venv_kernels Jupyter kernel manager](https://github.com/stellarshenson/nb_venv_kernels) to give you those environments as jupyter kernels
 
@@ -61,11 +63,30 @@ pip install cookiecutter-data-science
 
 ## Starting a new project
 
+### Using Cookiecutter (default)
+
 To start a new project with this fork:
 
 ```bash
 ccds gh:stellarshenson/cookiecutter-data-science
 ```
+
+### Using Copier
+
+Alternatively, use [Copier](https://copier.readthedocs.io/) which supports template updates:
+
+```bash
+# From local clone
+copier copy --trust ./copier my-project
+
+# From GitHub
+copier copy --trust "https://github.com/stellarshenson/cookiecutter-data-science.git//copier" my-project
+
+# From specific branch
+copier copy --trust "https://github.com/stellarshenson/cookiecutter-data-science.git//copier" --vcs-ref feature/copier-template my-project
+```
+
+See [COPIER_SUPPORT.md](COPIER_SUPPORT.md) for details on the Copier implementation.
 
 Then follow the prompts, and once created:
 
