@@ -15,7 +15,6 @@ from itertools import cycle, product
 from pathlib import Path
 
 import pytest
-
 from env_matrix import get_absent_files, get_expected_files
 
 CCDS_ROOT = Path(__file__).parents[1].resolve()
