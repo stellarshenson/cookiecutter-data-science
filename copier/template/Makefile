@@ -1,4 +1,4 @@
-.PHONY: clean data lint format requirements upgrade build sync_data_up sync_data_down sync_models_up sync_models_down test docs docs_build
+.PHONY: clean data lint format requirements upgrade build sync_data_up sync_data_down sync_models_up sync_models_down test docs docs_serve
 
 #################################################################################
 # GLOBALS                                                                       #
@@ -255,22 +255,22 @@ test:
 {%- endif %}
 
 {%- if docs == 'mkdocs' %}
-## Serve documentation locally
-docs:
-	@echo "$(MSG_PREFIX) serving documentation at http://127.0.0.1:8000"
-{%- if environment_manager == 'conda' %}
-	conda run $(CONDA_ENV_SELECTOR) $(CONDA_FLAGS) mkdocs serve
-{%- else %}
-	mkdocs serve
-{%- endif %}
-
 ## Build documentation
-docs_build:
+docs:
 	@echo "$(MSG_PREFIX) building documentation"
 {%- if environment_manager == 'conda' %}
-	conda run $(CONDA_ENV_SELECTOR) $(CONDA_FLAGS) mkdocs build
+	conda run $(CONDA_ENV_SELECTOR) $(CONDA_FLAGS) mkdocs build -f docs/mkdocs.yml
 {%- else %}
-	mkdocs build
+	mkdocs build -f docs/mkdocs.yml
+{%- endif %}
+
+## Serve documentation locally
+docs_serve:
+	@echo "$(MSG_PREFIX) serving documentation at http://127.0.0.1:8000"
+{%- if environment_manager == 'conda' %}
+	conda run $(CONDA_ENV_SELECTOR) $(CONDA_FLAGS) mkdocs serve -f docs/mkdocs.yml
+{%- else %}
+	mkdocs serve -f docs/mkdocs.yml
 {%- endif %}
 {%- endif %}
 

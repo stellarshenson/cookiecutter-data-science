@@ -102,10 +102,7 @@ env_location:
 
 dependency_file:
   type: str
-  choices:
-    - pyproject.toml
-    - requirements.txt
-    - environment.yml
+  choices: "{{ ['pyproject.toml', 'requirements.txt', 'environment.yml'] if environment_manager == 'conda' else ['pyproject.toml', 'requirements.txt'] }}"
   default: pyproject.toml
   help: "Primary dependency file format"
 
