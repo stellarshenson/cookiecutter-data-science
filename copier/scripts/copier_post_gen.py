@@ -232,6 +232,15 @@ def main():
     if checkpoints_path.exists():
         shutil.rmtree(checkpoints_path)
 
+    # Rename .copier-answers.yml.jinja to .copier-answers.yml
+    # (needed because _templates_suffix: "" doesn't strip .jinja suffix)
+    answers_jinja = Path(".copier-answers.yml.jinja")
+    answers_yml = Path(".copier-answers.yml")
+    if answers_jinja.exists():
+        if answers_yml.exists():
+            answers_yml.unlink()
+        answers_jinja.rename(answers_yml)
+
     print("Post-generation cleanup complete!")
 
 

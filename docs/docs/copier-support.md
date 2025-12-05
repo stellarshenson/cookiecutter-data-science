@@ -125,15 +125,63 @@ Copier uses flat questions with conditionals:
 
 ## Technical Notes
 
+### How Cookiecutter and Copier Work in Tandem
+
+Both template systems produce identical projects from a single source of truth - the cookiecutter template. The process works as follows:
+
+**Template Synchronization:**
+1. The cookiecutter template (`{{ cookiecutter.repo_name }}/`) is the authoritative source
+2. Running `build_copier_template.py` transforms it to copier format in `copier/template/`
+3. The build script handles syntax conversion (`{{ cookiecutter.var }}` -> `{{ var }}`), directory renaming, and variable flattening
+
+**File Generation Parity:**
+- Both templates use the same `env_matrix.py` for file expectations in tests
+- Generated projects contain identical files (except `.copier-answers.yml` for Copier)
+- Post-generation cleanup is equivalent - same files removed based on configuration choices
+
+**Testing Strategy:**
+- `tests/test_creation.py` - Tests cookiecutter template (24 configurations)
+- `tests/test_copier.py` - Tests copier template (25 configurations including answers file test)
+- Both test suites use `env_matrix.py` to verify correct file generation
+- Running both ensures changes don't break either template system
+
 ### Post-Generation Script
 
-Cookiecutter's hook is a Jinja template - variables like `{{ cookiecutter.testing_framework }}` are rendered before execution.
+Cookiecutter's hook (`hooks/post_gen_project.py`) is a Jinja template - variables like `{{ cookiecutter.testing_framework }}` are rendered before execution.
 
-Copier's tasks run static Python, so the post-gen script receives configuration via command-line arguments.
+Copier's tasks run static Python (`copier/scripts/copier_post_gen.py`), so the post-gen script receives configuration via command-line arguments passed from `copier.yml`:
+
+```yaml
+_tasks:
+  - >-
+    python3 "{{ _copier_conf.src_path }}/scripts/copier_post_gen.py"
+    --testing-framework "{{ testing_framework }}"
+    --linting-and-formatting "{{ linting_and_formatting }}"
+    # ... all other configuration arguments
+```
+
+Both scripts perform identical cleanup operations:
+- Remove files based on `linting_and_formatting` choice (e.g., `setup.cfg` for ruff)
+- Move selected testing framework files to `tests/`
+- Move selected docs framework files to `docs/`
+- Remove unused dependency files based on `dependency_file` choice
+- Write Python version to `pyproject.toml`
+- Apply custom config overlay if provided
 
 ### Template Suffix
 
-The `_templates_suffix: ""` setting processes all files as Jinja templates, matching Cookiecutter's behavior.
+The `_templates_suffix: ""` setting processes all files as Jinja templates, matching Cookiecutter's behavior. This means `.jinja` extensions are not stripped automatically - the post-gen script handles renaming `.copier-answers.yml.jinja` to `.copier-answers.yml`.
+
+### Answers File
+
+The `.copier-answers.yml` file is generated from a template (`copier/template/.copier-answers.yml.jinja`) that uses the special `_copier_answers` variable:
+
+```yaml+jinja
+# Changes here will be overwritten by Copier; NEVER EDIT MANUALLY
+{{ _copier_answers|to_nice_yaml -}}
+```
+
+This file enables `copier update` to recall user choices when updating projects to newer template versions.
 
 ### Jinja Extensions
 
