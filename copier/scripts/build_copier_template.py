@@ -59,19 +59,20 @@ def transform_cookiecutter_to_copier(content: str) -> str:
     # {%- if cookiecutter.dataset_storage.gcs %} -> {%- if dataset_storage == 'gcs' %}
     # {%- if cookiecutter.dataset_storage.none %} -> {%- if dataset_storage == 'none' %}
     # {%- if not cookiecutter.dataset_storage.none %} -> {%- if dataset_storage != 'none' %}
+    # Preserve the whitespace control character (-) if present
     content = re.sub(
-        r"\{%[-]?\s*if\s+not\s+cookiecutter\.dataset_storage\.none\s*%\}",
-        "{% if dataset_storage != 'none' %}",
+        r"\{%([-]?)\s*if\s+not\s+cookiecutter\.dataset_storage\.none\s*%\}",
+        r"{%\1 if dataset_storage != 'none' %}",
         content,
     )
     content = re.sub(
-        r"\{%[-]?\s*if\s+cookiecutter\.dataset_storage\.(s3|azure|gcs|none)\s*%\}",
-        r"{% if dataset_storage == '\1' %}",
+        r"\{%([-]?)\s*if\s+cookiecutter\.dataset_storage\.(s3|azure|gcs|none)\s*%\}",
+        r"{%\1 if dataset_storage == '\2' %}",
         content,
     )
     content = re.sub(
-        r"\{%[-]?\s*elif\s+cookiecutter\.dataset_storage\.(s3|azure|gcs|none)\s*%\}",
-        r"{% elif dataset_storage == '\1' %}",
+        r"\{%([-]?)\s*elif\s+cookiecutter\.dataset_storage\.(s3|azure|gcs|none)\s*%\}",
+        r"{%\1 elif dataset_storage == '\2' %}",
         content,
     )
 
@@ -79,8 +80,8 @@ def transform_cookiecutter_to_copier(content: str) -> str:
     # {%- if cookiecutter.dataset_storage.s3.aws_profile != 'default' %}
     # -> {%- if s3_aws_profile != 'default' %}
     content = re.sub(
-        r"\{%[-]?\s*if\s+cookiecutter\.dataset_storage\.s3\.aws_profile\s*!=\s*['\"]default['\"]\s*%\}",
-        "{% if s3_aws_profile != 'default' %}",
+        r"\{%([-]?)\s*if\s+cookiecutter\.dataset_storage\.s3\.aws_profile\s*!=\s*['\"]default['\"]\s*%\}",
+        r"{%\1 if s3_aws_profile != 'default' %}",
         content,
     )
 
@@ -88,11 +89,12 @@ def transform_cookiecutter_to_copier(content: str) -> str:
     content = re.sub(r"\{\{\s*cookiecutter\.(\w+)\s*\}\}", r"{{ \1 }}", content)
 
     # Step 3: Transform if/elif statements with cookiecutter.var
+    # Preserve the whitespace control character (-) if present
     content = re.sub(
-        r"\{%[-]?\s*if\s+cookiecutter\.(\w+)", r"{% if \1", content
+        r"\{%([-]?)\s*if\s+cookiecutter\.(\w+)", r"{%\1 if \2", content
     )
     content = re.sub(
-        r"\{%[-]?\s*elif\s+cookiecutter\.(\w+)", r"{% elif \1", content
+        r"\{%([-]?)\s*elif\s+cookiecutter\.(\w+)", r"{%\1 elif \2", content
     )
 
     # Step 4: Handle any remaining cookiecutter.var in expressions

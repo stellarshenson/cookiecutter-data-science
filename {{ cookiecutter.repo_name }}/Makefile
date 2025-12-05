@@ -1,4 +1,4 @@
-.PHONY: clean data lint format requirements upgrade build sync_data_up sync_data_down sync_models_up sync_models_down test
+.PHONY: clean data lint format requirements upgrade build sync_data_up sync_data_down sync_models_up sync_models_down test docs docs_build
 
 #################################################################################
 # GLOBALS                                                                       #
@@ -251,6 +251,26 @@ test:
 {%- elif cookiecutter.testing_framework == 'unittest' %}
 	python -m unittest discover -s tests
 {%- endif %}
+{%- endif %}
+{%- endif %}
+
+{%- if cookiecutter.docs == 'mkdocs' %}
+## Serve documentation locally
+docs:
+	@echo "$(MSG_PREFIX) serving documentation at http://127.0.0.1:8000"
+{%- if cookiecutter.environment_manager == 'conda' %}
+	conda run $(CONDA_ENV_SELECTOR) $(CONDA_FLAGS) mkdocs serve
+{%- else %}
+	mkdocs serve
+{%- endif %}
+
+## Build documentation
+docs_build:
+	@echo "$(MSG_PREFIX) building documentation"
+{%- if cookiecutter.environment_manager == 'conda' %}
+	conda run $(CONDA_ENV_SELECTOR) $(CONDA_FLAGS) mkdocs build
+{%- else %}
+	mkdocs build
 {%- endif %}
 {%- endif %}
 
