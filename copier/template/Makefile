@@ -194,6 +194,7 @@ clean:
 .env.enc: .env
 	@echo "$(MSG_PREFIX) encrypting .env"
 	@openssl enc -aes-256-cbc -pbkdf2 -in .env -out .env.enc
+	@echo ">>> .env.enc file successfully created"
 
 {% endif -%}
 {% if linting_and_formatting == 'ruff' -%}
