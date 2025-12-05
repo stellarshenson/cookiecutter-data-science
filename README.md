@@ -41,7 +41,7 @@ This is **Stellars' fork** of Cookiecutter Data Science with enhanced features f
 - **Build versioning** - Auto-increment build number in pyproject.toml on `make build`
 - **Copier support** - Alternative to cookiecutter with template update support
 
-This data science project template makes use of [nb_venv_kernels Jupyter kernel manager](https://github.com/stellarshenson/nb_venv_kernels) to give you those environments as jupyter kernels
+This template uses [nb_venv_kernels](https://github.com/stellarshenson/nb_venv_kernels) for automatic Jupyter kernel management - your project environments appear as kernels in JupyterLab without manual registration. For conda environments, [nb_conda_kernels](https://github.com/Anaconda-Platform/nb_conda_kernels) is used instead. Both provide automatic kernel discovery and cleanup when environments are removed.
 
 > [!NOTE]
 > This fork works with the standard `ccds` CLI from PyPI. Install it with `pipx install cookiecutter-data-science`.
