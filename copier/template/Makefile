@@ -92,6 +92,16 @@ VENV_PATH = $(PROJECT_DIR)/.venv
 # uv configuration
 VENV_PATH = $(PROJECT_DIR)/.venv
 {% endif %}
+{% if docker_support == 'Yes' -%}
+#################################################################################
+# DOCKER CONFIGURATION                                                          #
+#################################################################################
+
+DOCKER_REGISTRY = docker.io
+DOCKER_IMAGE_NAME = {{ repo_name }}
+DOCKER_TAG = latest
+
+{% endif -%}
 #################################################################################
 # COMMANDS                                                                      #
 #################################################################################
@@ -633,6 +643,25 @@ increment_build_number: check_conda
 	@conda run $(CONDA_ENV_SELECTOR) $(CONDA_FLAGS) python -c "import toml; data=toml.load('pyproject.toml'); ver=data['project']['version'].split('.'); ver[-1]=str(int(ver[-1])+1); data['project']['version']='.'.join(ver); f=open('pyproject.toml','w'); toml.dump(data,f); f.close(); print('New version:',data['project']['version'])"
 {%- endif %}
 
+{% if docker_support == 'Yes' -%}
+#################################################################################
+# DOCKER                                                                        #
+#################################################################################
+
+## Build Docker image
+docker_build:
+	@echo "$(MSG_PREFIX) building Docker image $(HIGHLIGHT_STYLE)$(DOCKER_IMAGE_NAME):$(DOCKER_TAG)$(NO_STYLE)"
+	docker build -t $(DOCKER_IMAGE_NAME):$(DOCKER_TAG) -f docker/Dockerfile .
+	@echo "$(OK_STYLE)>>> Docker image built successfully$(NO_STYLE)"
+
+## Push Docker image to registry
+docker_push:
+	@echo "$(MSG_PREFIX) pushing Docker image to $(HIGHLIGHT_STYLE)$(DOCKER_REGISTRY)/$(DOCKER_IMAGE_NAME):$(DOCKER_TAG)$(NO_STYLE)"
+	docker tag $(DOCKER_IMAGE_NAME):$(DOCKER_TAG) $(DOCKER_REGISTRY)/$(DOCKER_IMAGE_NAME):$(DOCKER_TAG)
+	docker push $(DOCKER_REGISTRY)/$(DOCKER_IMAGE_NAME):$(DOCKER_TAG)
+	@echo "$(OK_STYLE)>>> Docker image pushed successfully$(NO_STYLE)"
+
+{% endif -%}
 #################################################################################
 # Self Documenting Commands                                                     #
 #################################################################################

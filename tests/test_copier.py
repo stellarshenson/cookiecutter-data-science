@@ -306,6 +306,7 @@ def test_copier_answers_file_created(fast):
 
         content = answers_file.read_text()
         # Verify key configuration values are recorded
-        assert "project_name" in content
+        # Note: project_name has when: false, so it's auto-derived and not in answers
+        assert "repo_name" in content
         assert "environment_manager" in content
         assert "dependency_file" in content

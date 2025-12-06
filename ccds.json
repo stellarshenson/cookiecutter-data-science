@@ -45,5 +45,6 @@
     "include_code_scaffold": ["Yes", "No"],
     "jupyter_kernel_support": ["Yes", "No"],
     "env_encryption": ["Yes", "No"],
+    "docker_support": ["No", "Yes"],
     "custom_config": ""
 }

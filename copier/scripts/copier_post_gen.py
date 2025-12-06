@@ -118,6 +118,7 @@ def parse_args():
     parser.add_argument("--include-code-scaffold", required=True)
     parser.add_argument("--jupyter-kernel-support", required=True)
     parser.add_argument("--env-encryption", required=True)
+    parser.add_argument("--docker-support", default="No")
     parser.add_argument("--custom-config", default="")
     return parser.parse_args()
 
@@ -226,6 +227,12 @@ def main():
                 elif generated_path.name == "__init__.py":
                     # remove any content in __init__.py since it won't be available
                     generated_path.write_text("")
+
+    # Remove docker folder when docker support is not selected
+    if args.docker_support == "No":
+        docker_path = Path("docker")
+        if docker_path.exists():
+            shutil.rmtree(docker_path)
 
     # Remove .ipynb_checkpoints if present
     checkpoints_path = Path(".ipynb_checkpoints")

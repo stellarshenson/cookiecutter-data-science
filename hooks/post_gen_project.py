@@ -190,3 +190,10 @@ for generated_path in Path("{{ cookiecutter.module_name }}").iterdir():
         # remove any content in __init__.py since it won't be available
         generated_path.write_text("")
 # {% endif %}
+
+# {% if cookiecutter.docker_support == "No" %}
+# Remove docker folder when docker support is not selected
+docker_path = Path("docker")
+if docker_path.exists():
+    shutil.rmtree(docker_path)
+# {% endif %}

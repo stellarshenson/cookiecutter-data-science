@@ -172,6 +172,14 @@ env_encryption:
   default: "Yes"
   help: "Enable .env file encryption with OpenSSL AES-256"
 
+docker_support:
+  type: str
+  choices:
+    - "No"
+    - "Yes"
+  default: "No"
+  help: "Include Docker support with Dockerfile and Makefile targets"
+
 custom_config:
   type: str
   default: ""
@@ -218,6 +226,7 @@ _tasks:
     --include-code-scaffold "{{ include_code_scaffold }}"
     --jupyter-kernel-support "{{ jupyter_kernel_support }}"
     --env-encryption "{{ env_encryption }}"
+    --docker-support "{{ docker_support }}"
     --custom-config "{{ custom_config }}"
 
 # Answers file for template updates
