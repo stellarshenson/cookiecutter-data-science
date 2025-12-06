@@ -110,3 +110,9 @@ This journal tracks substantive work on documents, diagrams, and documentation c
 
 56. **Task - Docker tests for uv and pip, fix wheel dependencies**: Expanded `tests/test_docker.py` with separate tests for uv and pip package managers - `test_docker_build_and_run_with_uv` and `test_docker_build_and_run_with_pip`. Tests verify Dockerfile contains correct package manager commands and that container starts with colourful message. Fixed pyproject.toml to always include runtime dependencies in wheel: `python-dotenv` unconditionally, `loguru`/`tqdm`/`typer` when `include_code_scaffold == 'Yes'`. Previously these were only included when `dependency_file == pyproject.toml`, causing Docker builds to fail with missing module errors when using requirements.txt<br>
    **Result**: All 3 Docker tests pass (uv, pip, disabled). All 49 main tests pass. Wheels now include all runtime dependencies regardless of dependency_file choice
+
+57. **Task - Fix test_docker.py linting**: Fixed isort issue (removed blank line between third-party `pytest` and local `conftest` imports) and black formatting (split long assertion lines for 99-char line length compliance)<br>
+   **Result**: CI lint passes
+
+58. **Task - PEP 639 license format**: Updated pyproject.toml files to use PEP 639 SPDX license identifiers instead of deprecated `{ file = "LICENSE" }` table format. ccds tool uses `license = "MIT"`, template uses `license = "{{ cookiecutter.open_source_license }}"` which renders to SPDX identifiers (MIT, BSD-3-Clause) based on user selection<br>
+   **Result**: No more setuptools deprecation warning for license format
