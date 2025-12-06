@@ -649,13 +649,19 @@ increment_build_number: check_conda
 #################################################################################
 
 ## Build Docker image
-docker_build:
+docker_build: build
 	@echo "$(MSG_PREFIX) building Docker image $(HIGHLIGHT_STYLE)$(DOCKER_IMAGE_NAME):$(DOCKER_TAG)$(NO_STYLE)"
 	docker build -t $(DOCKER_IMAGE_NAME):$(DOCKER_TAG) -f docker/Dockerfile .
 	@echo "$(OK_STYLE)>>> Docker image built successfully$(NO_STYLE)"
 
+## Run Docker container
+docker_run: docker_build
+	@echo "$(MSG_PREFIX) running Docker container $(HIGHLIGHT_STYLE)$(DOCKER_IMAGE_NAME):$(DOCKER_TAG)$(NO_STYLE)"
+	docker run --rm $(DOCKER_IMAGE_NAME):$(DOCKER_TAG)
+	@echo "$(OK_STYLE)>>> Docker container finished$(NO_STYLE)"
+
 ## Push Docker image to registry
-docker_push:
+docker_push: docker_build
 	@echo "$(MSG_PREFIX) pushing Docker image to $(HIGHLIGHT_STYLE)$(DOCKER_REGISTRY)/$(DOCKER_IMAGE_NAME):$(DOCKER_TAG)$(NO_STYLE)"
 	docker tag $(DOCKER_IMAGE_NAME):$(DOCKER_TAG) $(DOCKER_REGISTRY)/$(DOCKER_IMAGE_NAME):$(DOCKER_TAG)
 	docker push $(DOCKER_REGISTRY)/$(DOCKER_IMAGE_NAME):$(DOCKER_TAG)
