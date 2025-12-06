@@ -89,3 +89,6 @@ This journal tracks substantive work on documents, diagrams, and documentation c
 
 49. **Task - Fix copier update compatibility**: Discovered `copier update` fails when old tags are deleted - it needs the original template version (`_commit` in `.copier-answers.yml`) to compute diffs. Updated `/release` command to preserve old tags instead of deleting them. Restored `v2.3.0+stellars47` tag at commit `30eee95` so existing projects can update<br>
    **Result**: Old tags preserved for copier update compatibility. `/release` command updated with IMPORTANT note
+
+50. **Task - Fix venv commands in Makefile**: For uv/virtualenv environments, `pytest`, `mkdocs` and `python` commands were called directly without using the venv path, causing "command not found" errors. Fixed `test` target to use `$(PROJECT_DIR)/.venv/bin/pytest` and `$(PROJECT_DIR)/.venv/bin/python`. Fixed `docs` and `docs_serve` targets to use `$(PROJECT_DIR)/.venv/bin/mkdocs`. Conda targets unchanged (use `conda run`). Changed default test assertions from `assert False` to `assert True` so `make test` passes by default for new projects<br>
+   **Result**: All Makefile targets now correctly use venv binaries. Default tests pass out of the box

@@ -252,15 +252,15 @@ test:
 {%- endif %}
 {%- else %}
 {%- if testing_framework == 'pytest' %}
-	@pytest --collect-only ./tests > /dev/null 2>&1; RESULT="$$?"; \
+	@$(PROJECT_DIR)/.venv/bin/pytest --collect-only ./tests > /dev/null 2>&1; RESULT="$$?"; \
 	if [ "$$RESULT" != "5" ]; then \
 		echo "$(MSG_PREFIX) executing python tests"; \
-		pytest --cov -v ./tests; \
+		$(PROJECT_DIR)/.venv/bin/pytest --cov -v ./tests; \
 	else \
 		echo "$(WARN_PREFIX) $(WARN_STYLE)WARNING: no tests present$(NO_STYLE)"; \
 	fi
 {%- elif testing_framework == 'unittest' %}
-	python -m unittest discover -s tests
+	$(PROJECT_DIR)/.venv/bin/python -m unittest discover -s tests
 {%- endif %}
 {%- endif %}
 {%- endif %}
@@ -272,7 +272,7 @@ docs:
 {%- if environment_manager == 'conda' %}
 	conda run $(CONDA_ENV_SELECTOR) $(CONDA_FLAGS) mkdocs build -f docs/mkdocs.yml
 {%- else %}
-	mkdocs build -f docs/mkdocs.yml
+	$(PROJECT_DIR)/.venv/bin/mkdocs build -f docs/mkdocs.yml
 {%- endif %}
 
 ## Serve documentation locally
@@ -281,7 +281,7 @@ docs_serve:
 {%- if environment_manager == 'conda' %}
 	conda run $(CONDA_ENV_SELECTOR) $(CONDA_FLAGS) mkdocs serve -f docs/mkdocs.yml
 {%- else %}
-	mkdocs serve -f docs/mkdocs.yml
+	$(PROJECT_DIR)/.venv/bin/mkdocs serve -f docs/mkdocs.yml
 {%- endif %}
 {%- endif %}
 
