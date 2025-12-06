@@ -31,7 +31,15 @@ def main():
     args = parser.parse_args()
 
     if args.command == "run":
-        print(f"Running {{ cookiecutter.project_name }} v{__version__}")
+        # ANSI color codes
+        CYAN = "\033[36m"
+        GREEN = "\033[32m"
+        YELLOW = "\033[33m"
+        RESET = "\033[0m"
+
+        print(f"{GREEN}🐳 Running inside Docker container{RESET}")
+        print(f"{CYAN}{{ cookiecutter.project_name }}{RESET} v{YELLOW}{__version__}{RESET}")
+        print()
         # Add your main execution logic here
     elif args.command == "train":
         train.main()
