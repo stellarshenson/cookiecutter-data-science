@@ -3,8 +3,9 @@
 
 import argparse
 import sys
+from importlib.metadata import version
 
-from {{ cookiecutter.module_name }} import __version__
+__version__ = version("{{ cookiecutter.project_name }}")
 
 
 def main():

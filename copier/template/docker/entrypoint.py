@@ -3,8 +3,9 @@
 
 import argparse
 import sys
+from importlib.metadata import version
 
-from {{ module_name }} import __version__
+__version__ = version("{{ project_name }}")
 
 
 def main():
