@@ -6,10 +6,11 @@ Release a new version of the cookiecutter-data-science template.
 
 1. Read the current journal to get the latest entry number from `.claude/JOURNAL.md`
 2. Update `pyproject.toml` version to `2.3.0+stellars<journal_number>`
-3. Delete the old tag if it exists (both local and remote)
-4. Commit the version change with message: `chore: bump version to 2.3.0+stellars<journal_number>`
-5. Create new tag `v2.3.0+stellars<journal_number>`
-6. Push commit and tag to origin
+3. Commit the version change with message: `chore: bump version to 2.3.0+stellars<journal_number>`
+4. Create new tag `v2.3.0+stellars<journal_number>`
+5. Push commit and tag to origin
+
+**IMPORTANT**: Do NOT delete old tags - they are needed for `copier update` to work on existing projects.
 
 ## Parameters
 

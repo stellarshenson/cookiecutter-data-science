@@ -86,3 +86,6 @@ This journal tracks substantive work on documents, diagrams, and documentation c
 
 48. **Task - Enhance Docker workflow**: Improved Docker targets with proper dependency chain. `docker_build` now depends on `build` target (ensures wheel is built first). `docker_push` depends on `docker_build`. Added `docker_run` target with `--rm` flag for auto-cleanup after container exits. Updated Dockerfile to install from wheel (`dist/*.whl`) instead of copying source code directly. Updated `/opt/utils/lab-utils.d/new-project.sh` to display template version (latest git tag) in cyan before prompting for project name<br>
    **Result**: Docker workflow: `docker_run` -> `docker_build` -> `build`. Container installs from wheel for production-like deployment
+
+49. **Task - Fix copier update compatibility**: Discovered `copier update` fails when old tags are deleted - it needs the original template version (`_commit` in `.copier-answers.yml`) to compute diffs. Updated `/release` command to preserve old tags instead of deleting them. Restored `v2.3.0+stellars47` tag at commit `30eee95` so existing projects can update<br>
+   **Result**: Old tags preserved for copier update compatibility. `/release` command updated with IMPORTANT note
