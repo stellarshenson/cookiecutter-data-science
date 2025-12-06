@@ -5,7 +5,7 @@ import argparse
 import sys
 from importlib.metadata import version
 
-__version__ = version("{{ project_name }}")
+__version__ = version("{{ module_name }}")
 
 
 def main():
