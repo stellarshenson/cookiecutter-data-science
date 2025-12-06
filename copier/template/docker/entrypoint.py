@@ -5,6 +5,9 @@ import argparse
 import sys
 from importlib.metadata import version
 
+import {{ module_name }}
+from {{ module_name }}.modeling import predict, train
+
 __version__ = version("{{ module_name }}")
 
 
@@ -31,11 +34,9 @@ def main():
         print(f"Running {{ project_name }} v{__version__}")
         # Add your main execution logic here
     elif args.command == "train":
-        from {{ module_name }}.modeling.train import main as train_main
-        train_main()
+        train.main()
     elif args.command == "predict":
-        from {{ module_name }}.modeling.predict import main as predict_main
-        predict_main()
+        predict.main()
 
     return 0
 
