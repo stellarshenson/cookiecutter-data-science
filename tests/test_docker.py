@@ -73,11 +73,19 @@ def run_docker_workflow(project_directory, package_manager):
     # Verify Dockerfile contains expected package manager
     dockerfile_content = dockerfile.read_text()
     if package_manager == "uv":
-        assert "ghcr.io/astral-sh/uv:latest" in dockerfile_content, "Dockerfile should use uv"
-        assert "uv pip install" in dockerfile_content, "Dockerfile should use uv pip install"
+        assert (
+            "ghcr.io/astral-sh/uv:latest" in dockerfile_content
+        ), "Dockerfile should use uv"
+        assert (
+            "uv pip install" in dockerfile_content
+        ), "Dockerfile should use uv pip install"
     else:
-        assert "pip install --no-cache-dir" in dockerfile_content, "Dockerfile should use pip"
-        assert "ghcr.io/astral-sh/uv" not in dockerfile_content, "Dockerfile should not use uv"
+        assert (
+            "pip install --no-cache-dir" in dockerfile_content
+        ), "Dockerfile should use pip"
+        assert (
+            "ghcr.io/astral-sh/uv" not in dockerfile_content
+        ), "Dockerfile should not use uv"
 
     # Run make docker_run (which depends on docker_build -> build)
     result = subprocess.run(
@@ -90,9 +98,13 @@ def run_docker_workflow(project_directory, package_manager):
     stdout = result.stdout.decode("utf-8")
     stderr = result.stderr.decode("utf-8")
 
-    print(f"\n======================= {package_manager.upper()} STDOUT ======================")
+    print(
+        f"\n======================= {package_manager.upper()} STDOUT ======================"
+    )
     print(stdout)
-    print(f"\n======================= {package_manager.upper()} STDERR ======================")
+    print(
+        f"\n======================= {package_manager.upper()} STDERR ======================"
+    )
     print(stderr)
 
     return result, stdout, stderr
@@ -116,7 +128,10 @@ class TestDockerWorkflow:
             )
 
             # Verify the container ran and printed the colourful message
-            assert "Running inside Docker container" in stdout or "Running inside Docker container" in stderr
+            assert (
+                "Running inside Docker container" in stdout
+                or "Running inside Docker container" in stderr
+            )
             assert "docker_test_project" in stdout or "docker_test_project" in stderr
 
     def test_docker_build_and_run_with_pip(self):
@@ -134,7 +149,10 @@ class TestDockerWorkflow:
             )
 
             # Verify the container ran and printed the colourful message
-            assert "Running inside Docker container" in stdout or "Running inside Docker container" in stderr
+            assert (
+                "Running inside Docker container" in stdout
+                or "Running inside Docker container" in stderr
+            )
             assert "docker_test_project" in stdout or "docker_test_project" in stderr
 
     def test_docker_files_not_present_when_disabled(self):
@@ -144,4 +162,6 @@ class TestDockerWorkflow:
 
         with bake_project(config) as project_directory:
             docker_dir = project_directory / "docker"
-            assert not docker_dir.exists(), "docker/ directory should not exist when docker_support=No"
+            assert (
+                not docker_dir.exists()
+            ), "docker/ directory should not exist when docker_support=No"
