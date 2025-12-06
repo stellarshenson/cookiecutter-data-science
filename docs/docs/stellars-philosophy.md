@@ -85,6 +85,20 @@ Modern practice is the opposite: one explicit .venv in the project root, tracked
 > [!TIP]
 > Commit `.env.enc` to git and share the password out-of-band. On `make install`, team members enter the password once to decrypt secrets.
 
+### 7. Docker Support
+
+**Upstream**: No Docker support.
+
+**This fork**: Optional `docker_support` feature:
+- `docker/Dockerfile` - Python slim image, installs from wheel
+- `docker/entrypoint.py` - CLI with run/train/predict commands
+- `make docker_build` - builds image (depends on `make build`)
+- `make docker_run` - runs container with `--rm` flag
+- `make docker_push` - tags and pushes to registry
+
+> [!NOTE]
+> Docker builds install from wheel (`dist/*.whl`) not source code, ensuring production-like deployment.
+
 ## Key Differences from Upstream
 
 | Feature | Upstream ccds | Stellars' Fork |
@@ -103,6 +117,7 @@ Modern practice is the opposite: one explicit .venv in the project root, tracked
 | virtualenv implementation | virtualenvwrapper | Standard venv |
 | .env encryption | No | Optional (OpenSSL AES-256) |
 | Build versioning | No | Auto-increment on `make build` |
+| Docker support | No | Optional (Dockerfile + Makefile targets) |
 | Copier support | No | Yes (parallel template) |
 
 > [!CAUTION]

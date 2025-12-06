@@ -91,6 +91,12 @@ def prompt_for_config(context, no_input=False):
                         if cookiecutter_dict.get("environment_manager") != "conda":
                             raw = [opt for opt in raw if opt != "environment.yml"]
 
+                    # Skip docker_package_manager if docker_support is No
+                    if key == "docker_package_manager":
+                        if cookiecutter_dict.get("docker_support") != "Yes":
+                            cookiecutter_dict[key] = raw[0]  # Use default (uv)
+                            continue
+
                     # We are dealing with a choice variable
                     val = prompt_choice_for_config(
                         cookiecutter_dict, env, key, raw, no_input

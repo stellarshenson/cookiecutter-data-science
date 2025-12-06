@@ -46,5 +46,6 @@
     "jupyter_kernel_support": ["Yes", "No"],
     "env_encryption": ["Yes", "No"],
     "docker_support": ["No", "Yes"],
+    "docker_package_manager": ["uv", "pip"],
     "custom_config": ""
 }

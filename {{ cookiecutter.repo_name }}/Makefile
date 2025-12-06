@@ -95,11 +95,13 @@ VENV_PATH = $(PROJECT_DIR)/.venv
 {% if cookiecutter.docker_support == 'Yes' -%}
 #################################################################################
 # DOCKER CONFIGURATION                                                          #
+# Override via environment variables: DOCKER_REGISTRY, DOCKER_IMAGE_NAME,       #
+# DOCKER_TAG (Python version uses PYTHON_VERSION from project config)           #
 #################################################################################
 
-DOCKER_REGISTRY = docker.io
-DOCKER_IMAGE_NAME = {{ cookiecutter.repo_name }}
-DOCKER_TAG = latest
+DOCKER_REGISTRY ?= docker.io
+DOCKER_IMAGE_NAME ?= {{ cookiecutter.repo_name }}
+DOCKER_TAG ?= latest
 
 {% endif -%}
 #################################################################################
@@ -650,8 +652,8 @@ increment_build_number: check_conda
 
 ## Build Docker image
 docker_build: build
-	@echo "$(MSG_PREFIX) building Docker image $(HIGHLIGHT_STYLE)$(DOCKER_IMAGE_NAME):$(DOCKER_TAG)$(NO_STYLE)"
-	docker build -t $(DOCKER_IMAGE_NAME):$(DOCKER_TAG) -f docker/Dockerfile .
+	@echo "$(MSG_PREFIX) building Docker image $(HIGHLIGHT_STYLE)$(DOCKER_IMAGE_NAME):$(DOCKER_TAG)$(NO_STYLE) (Python $(PYTHON_VERSION))"
+	docker build --build-arg PYTHON_VERSION=$(PYTHON_VERSION) -t $(DOCKER_IMAGE_NAME):$(DOCKER_TAG) -f docker/Dockerfile .
 	@echo "$(OK_STYLE)>>> Docker image built successfully$(NO_STYLE)"
 
 ## Run Docker container

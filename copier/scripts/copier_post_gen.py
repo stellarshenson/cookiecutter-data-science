@@ -119,6 +119,7 @@ def parse_args():
     parser.add_argument("--jupyter-kernel-support", required=True)
     parser.add_argument("--env-encryption", required=True)
     parser.add_argument("--docker-support", default="No")
+    parser.add_argument("--docker-package-manager", default="uv")
     parser.add_argument("--custom-config", default="")
     return parser.parse_args()
 

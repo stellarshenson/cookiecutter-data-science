@@ -180,6 +180,15 @@ docker_support:
   default: "No"
   help: "Include Docker support with Dockerfile and Makefile targets"
 
+docker_package_manager:
+  type: str
+  choices:
+    - "uv"
+    - "pip"
+  default: "uv"
+  help: "Package manager for Docker image"
+  when: "{{ docker_support == 'Yes' }}"
+
 custom_config:
   type: str
   default: ""
@@ -227,6 +236,7 @@ _tasks:
     --jupyter-kernel-support "{{ jupyter_kernel_support }}"
     --env-encryption "{{ env_encryption }}"
     --docker-support "{{ docker_support }}"
+    --docker-package-manager "{{ docker_package_manager | default('uv') }}"
     --custom-config "{{ custom_config }}"
 
 # Answers file for template updates

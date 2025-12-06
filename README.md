@@ -27,6 +27,7 @@ This is **Stellars' fork** of Cookiecutter Data Science with enhanced features f
 | virtualenv implementation | virtualenvwrapper | Standard venv |
 | .env encryption | No | Optional (OpenSSL AES-256) |
 | Build versioning | No | Auto-increment on `make build` |
+| Docker support | No | Optional (Dockerfile + Makefile targets) |
 | Copier support | No | Yes (parallel template) |
 
 **Key enhancements:**
@@ -39,6 +40,7 @@ This is **Stellars' fork** of Cookiecutter Data Science with enhanced features f
 - **Model sync** - `sync_models_up/down` targets for cloud storage
 - **.env encryption** - Optional AES-256 encryption for secrets (`make .env.enc`)
 - **Build versioning** - Auto-increment build number in pyproject.toml on `make build`
+- **Docker support** - Optional Dockerfile and Makefile targets (`docker_build`, `docker_run`, `docker_push`)
 - **Copier support** - Alternative to cookiecutter with template update support
 
 This template uses [nb_venv_kernels](https://github.com/stellarshenson/nb_venv_kernels) for automatic Jupyter kernel management - your project environments appear as kernels in JupyterLab without manual registration. For conda environments, [nb_conda_kernels](https://github.com/Anaconda-Platform/nb_conda_kernels) is used instead. Both provide automatic kernel discovery and cleanup when environments are removed.
