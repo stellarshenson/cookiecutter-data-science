@@ -12,7 +12,6 @@ import shutil
 import subprocess
 
 import pytest
-
 from conftest import bake_project
 
 # Check if Docker is available
