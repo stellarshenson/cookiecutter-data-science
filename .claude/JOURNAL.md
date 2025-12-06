@@ -107,3 +107,6 @@ This journal tracks substantive work on documents, diagrams, and documentation c
 
 55. **Task - Colourful Docker startup message**: Added colourful Docker entrypoint message showing "🐳 Running inside Docker container" (green) with project name (cyan) and version (yellow). Simple two-line output without frames<br>
    **Result**: Docker container startup clearly indicates execution context with coloured output
+
+56. **Task - Docker tests for uv and pip, fix wheel dependencies**: Expanded `tests/test_docker.py` with separate tests for uv and pip package managers - `test_docker_build_and_run_with_uv` and `test_docker_build_and_run_with_pip`. Tests verify Dockerfile contains correct package manager commands and that container starts with colourful message. Fixed pyproject.toml to always include runtime dependencies in wheel: `python-dotenv` unconditionally, `loguru`/`tqdm`/`typer` when `include_code_scaffold == 'Yes'`. Previously these were only included when `dependency_file == pyproject.toml`, causing Docker builds to fail with missing module errors when using requirements.txt<br>
+   **Result**: All 3 Docker tests pass (uv, pip, disabled). All 49 main tests pass. Wheels now include all runtime dependencies regardless of dependency_file choice

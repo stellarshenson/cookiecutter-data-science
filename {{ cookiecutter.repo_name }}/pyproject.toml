@@ -18,9 +18,15 @@ classifiers = [
     "Programming Language :: Python :: 3",
 {% if cookiecutter.open_source_license == 'MIT' %}    "License :: OSI Approved :: MIT License",{% elif cookiecutter.open_source_license == 'BSD-3-Clause' %}    "License :: OSI Approved :: BSD License",{% endif %}
 ]
-{%- if cookiecutter.dependency_file == 'pyproject.toml' or cookiecutter.dependency_file == 'environment.yml' %}
 
 dependencies = [
+{%- if cookiecutter.include_code_scaffold == 'Yes' %}
+    "loguru",
+    "tqdm",
+    "typer",
+{%- endif %}
+    "python-dotenv",
+{%- if cookiecutter.dependency_file == 'pyproject.toml' or cookiecutter.dependency_file == 'environment.yml' %}
 {%- if cookiecutter.dataset_storage.s3 %}
     "botocore",
 {%- elif cookiecutter.dataset_storage.azure %}
@@ -28,18 +34,13 @@ dependencies = [
 {%- elif cookiecutter.dataset_storage.gcs %}
     "google-cloud-storage",
 {%- endif %}
-{%- if cookiecutter.include_code_scaffold == 'Yes' %}
-    "loguru",
-    "tqdm",
-    "typer",
-{%- endif %}
 {%- if cookiecutter.pydata_packages == 'basic' %}
     "matplotlib",
     "numpy",
     "pandas",
     "scikit-learn",
 {%- endif %}
-    "python-dotenv",
+{%- endif %}
 ]
 {%- if cookiecutter.dependency_file == 'pyproject.toml' and cookiecutter.environment_manager != 'none' %}
 
@@ -73,7 +74,6 @@ dev = [
     "gsutil",
 {%- endif %}
 ]
-{%- endif %}
 {%- endif %}
 
 [tool.setuptools]

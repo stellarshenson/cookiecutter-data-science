@@ -3,14 +3,13 @@
 These tests verify that:
 - make docker_build creates a valid Docker image
 - make docker_run executes successfully
+- Both uv and pip package managers work in Docker
 
 Tests are skipped if Docker is not available or not running.
 """
 
-import os
 import shutil
 import subprocess
-from pathlib import Path
 
 import pytest
 
@@ -44,8 +43,8 @@ pytestmark = pytest.mark.skipif(
 )
 
 
-# Test configuration with docker_support enabled
-DOCKER_CONFIG = {
+# Base test configuration with docker_support enabled
+DOCKER_CONFIG_BASE = {
     "project_name": "docker_test_project",
     "repo_name": "docker_test_project",
     "module_name": "lib_docker_test_project",
@@ -64,48 +63,86 @@ DOCKER_CONFIG = {
 }
 
 
+def run_docker_workflow(project_directory, package_manager):
+    """Run the full Docker workflow and return results."""
+    # Verify docker files exist
+    dockerfile = project_directory / "docker" / "Dockerfile"
+    entrypoint = project_directory / "docker" / "entrypoint.py"
+    assert dockerfile.exists(), "Dockerfile should exist"
+    assert entrypoint.exists(), "entrypoint.py should exist"
+
+    # Verify Dockerfile contains expected package manager
+    dockerfile_content = dockerfile.read_text()
+    if package_manager == "uv":
+        assert "ghcr.io/astral-sh/uv:latest" in dockerfile_content, "Dockerfile should use uv"
+        assert "uv pip install" in dockerfile_content, "Dockerfile should use uv pip install"
+    else:
+        assert "pip install --no-cache-dir" in dockerfile_content, "Dockerfile should use pip"
+        assert "ghcr.io/astral-sh/uv" not in dockerfile_content, "Dockerfile should not use uv"
+
+    # Run make docker_run (which depends on docker_build -> build)
+    result = subprocess.run(
+        ["make", "docker_run"],
+        cwd=project_directory,
+        capture_output=True,
+        timeout=300,  # 5 minute timeout for build
+    )
+
+    stdout = result.stdout.decode("utf-8")
+    stderr = result.stderr.decode("utf-8")
+
+    print(f"\n======================= {package_manager.upper()} STDOUT ======================")
+    print(stdout)
+    print(f"\n======================= {package_manager.upper()} STDERR ======================")
+    print(stderr)
+
+    return result, stdout, stderr
+
+
 class TestDockerWorkflow:
     """Test Docker build and run workflow."""
 
-    def test_docker_build_and_run(self):
-        """Test that make docker_run succeeds (which runs docker_build first)."""
-        with bake_project(DOCKER_CONFIG) as project_directory:
-            # Verify docker files exist
-            dockerfile = project_directory / "docker" / "Dockerfile"
-            entrypoint = project_directory / "docker" / "entrypoint.py"
-            assert dockerfile.exists(), "Dockerfile should exist"
-            assert entrypoint.exists(), "entrypoint.py should exist"
+    def test_docker_build_and_run_with_uv(self):
+        """Test full Docker workflow with uv package manager."""
+        config = DOCKER_CONFIG_BASE.copy()
+        config["docker_package_manager"] = "uv"
 
-            # Run make docker_run (which depends on docker_build -> build)
-            result = subprocess.run(
-                ["make", "docker_run"],
-                cwd=project_directory,
-                capture_output=True,
-                timeout=300,  # 5 minute timeout for build
-            )
-
-            stdout = result.stdout.decode("utf-8")
-            stderr = result.stderr.decode("utf-8")
-
-            print("\n======================= STDOUT ======================")
-            print(stdout)
-            print("\n======================= STDERR ======================")
-            print(stderr)
+        with bake_project(config) as project_directory:
+            result, stdout, stderr = run_docker_workflow(project_directory, "uv")
 
             assert result.returncode == 0, (
-                f"make docker_run failed with code {result.returncode}\n"
+                f"make docker_run (uv) failed with code {result.returncode}\n"
                 f"stdout: {stdout}\n"
                 f"stderr: {stderr}"
             )
 
-            # Verify the container ran and printed version info
-            assert "Running docker_test_project" in stdout or "Running docker_test_project" in stderr
+            # Verify the container ran and printed the colourful message
+            assert "Running inside Docker container" in stdout or "Running inside Docker container" in stderr
+            assert "docker_test_project" in stdout or "docker_test_project" in stderr
+
+    def test_docker_build_and_run_with_pip(self):
+        """Test full Docker workflow with pip package manager."""
+        config = DOCKER_CONFIG_BASE.copy()
+        config["docker_package_manager"] = "pip"
+
+        with bake_project(config) as project_directory:
+            result, stdout, stderr = run_docker_workflow(project_directory, "pip")
+
+            assert result.returncode == 0, (
+                f"make docker_run (pip) failed with code {result.returncode}\n"
+                f"stdout: {stdout}\n"
+                f"stderr: {stderr}"
+            )
+
+            # Verify the container ran and printed the colourful message
+            assert "Running inside Docker container" in stdout or "Running inside Docker container" in stderr
+            assert "docker_test_project" in stdout or "docker_test_project" in stderr
 
     def test_docker_files_not_present_when_disabled(self):
         """Test that docker files are not created when docker_support is No."""
-        config_no_docker = DOCKER_CONFIG.copy()
-        config_no_docker["docker_support"] = "No"
+        config = DOCKER_CONFIG_BASE.copy()
+        config["docker_support"] = "No"
 
-        with bake_project(config_no_docker) as project_directory:
+        with bake_project(config) as project_directory:
             docker_dir = project_directory / "docker"
             assert not docker_dir.exists(), "docker/ directory should not exist when docker_support=No"
