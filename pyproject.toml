@@ -13,7 +13,7 @@ authors = [
   { name = "DrivenData", email = "info@drivendata.org" },
   { name = "Stellars Henson", email = "konrad.jelen@gmail.com" },
 ]
-license = { file = "LICENSE" }
+license = "MIT"
 readme = "README.md"
 classifiers = [
   "Development Status :: 5 - Production/Stable",

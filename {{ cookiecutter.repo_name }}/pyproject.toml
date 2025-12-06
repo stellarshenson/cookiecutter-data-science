@@ -10,7 +10,7 @@ authors = [
     { name = {{ cookiecutter.author_name|tojson }} },
 ]
 {% if cookiecutter.open_source_license != 'No license file' -%}
-license = { file = "LICENSE" }
+license = "{{ cookiecutter.open_source_license }}"
 {% endif -%}
 readme = "README.md"
 requires-python = ">={{ cookiecutter.python_version_number }}"

@@ -10,7 +10,7 @@ authors = [
     { name = {{ author_name|tojson }} },
 ]
 {% if open_source_license != 'No license file' -%}
-license = { file = "LICENSE" }
+license = "{{ open_source_license }}"
 {% endif -%}
 readme = "README.md"
 requires-python = ">={{ python_version_number }}"
