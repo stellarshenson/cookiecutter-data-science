@@ -49,7 +49,7 @@ This avoids conflicts with common package names and makes project code immediate
 
 **Upstream**: Conda environments always global. Virtualenv uses virtualenvwrapper.
 
-Modern practice is the opposite: one explicit .venv in the project root, tracked in gitignore and documented in 'pyproject.toml' or 'requirements.txt'. Easier for CI, Docker, editors, teammates.
+Modern practice is the opposite: one explicit .venv in the project root, tracked in gitignore and documented in `pyproject.toml` or `requirements.txt`. Easier for CI, Docker, editors, teammates.
 
 **This fork**:
 - Conda: local `.venv/<env_name>/` by default, global optional
