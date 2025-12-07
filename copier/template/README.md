@@ -34,6 +34,13 @@ make install
 {%- endif %}
 - `make help` - Show all available targets
 
+## Best Practices
+
+- **Notebooks**: Name with number prefix, initials, description - `1.0-jqp-data-exploration.ipynb`
+- **Data**: Keep `raw/` immutable, use `interim/` for transforms, `processed/` for final datasets
+- **Source code**: Refactor reusable notebook code into `{{ module_name }}/` modules
+- **Models**: Store trained models in `models/` with clear naming
+
 ## Project Organization
 
 ```
@@ -74,6 +81,3 @@ make install
     │   └── train.py   <- Model training
     └── plots.py       <- Visualization code
 ```
-
---------
-
