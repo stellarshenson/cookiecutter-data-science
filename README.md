@@ -131,6 +131,21 @@ This fork stands on the shoulders of [DrivenData's giants](https://github.com/dr
 
 Contributions welcome! Fork, make changes, and submit a PR.
 
+### Template Architecture
+
+This project maintains two template formats:
+
+- **`{{ cookiecutter.repo_name }}/`** - Master template (cookiecutter syntax)
+- **`copier/template/`** - Derived template (copier syntax, auto-generated)
+
+**Before pushing changes**, sync the copier template:
+
+```bash
+python copier/scripts/build_copier_template.py
+```
+
+This transforms cookiecutter syntax (`{{ cookiecutter.var }}`) to copier syntax (`{{ var }}`).
+
 ### Running the tests
 
 ```bash
