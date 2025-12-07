@@ -16,7 +16,6 @@ readme = "README.md"
 requires-python = ">={{ python_version_number }}"
 classifiers = [
     "Programming Language :: Python :: 3",
-{% if open_source_license == 'MIT' %}    "License :: OSI Approved :: MIT License",{% elif open_source_license == 'BSD-3-Clause' %}    "License :: OSI Approved :: BSD License",{% endif %}
 ]
 
 dependencies = [
