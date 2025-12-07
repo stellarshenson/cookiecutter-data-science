@@ -116,3 +116,6 @@ This journal tracks substantive work on documents, diagrams, and documentation c
 
 58. **Task - PEP 639 license format**: Updated pyproject.toml files to use PEP 639 SPDX license identifiers instead of deprecated `{ file = "LICENSE" }` table format. ccds tool uses `license = "MIT"`, template uses `license = "{{ cookiecutter.open_source_license }}"` which renders to SPDX identifiers (MIT, BSD-3-Clause) based on user selection. Removed `License :: OSI Approved ::` classifiers from both files as PEP 639 requires using either the `license` field OR the classifier, not both - flit_core enforces this strictly<br>
    **Result**: No more setuptools deprecation warning. flit_core build succeeds
+
+59. **Task - Update generated project README**: Simplified README.md template with concise Quick Start (`make install`), Makefile Targets reference list (conditional entries for docs, cloud storage, docker, env encryption), and streamlined Project Organization tree. Removed verbose table format in favour of bullet list<br>
+   **Result**: Generated projects have cleaner, more actionable README
