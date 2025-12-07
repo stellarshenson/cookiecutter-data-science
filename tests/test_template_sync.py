@@ -5,8 +5,6 @@ This test should run first to catch sync issues early.
 The cookiecutter template is the master, copier template is derived.
 """
 
-import filecmp
-import subprocess
 import tempfile
 from pathlib import Path
 
