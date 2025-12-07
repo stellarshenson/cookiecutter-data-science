@@ -6,55 +6,73 @@
 
 {{cookiecutter.description}}
 
+## Quick Start
+
+```bash
+make install
+```
+
+## Makefile Targets
+
+- `make install` - Create environment and install package
+- `make test` - Run tests
+- `make lint` / `make format` - Check / fix code style
+- `make build` - Build distributable wheel
+- `make clean` - Remove compiled files and caches
+{%- if cookiecutter.docs == 'mkdocs' %}
+- `make docs` / `make docs_serve` - Build / serve documentation
+{%- endif %}
+{%- if not cookiecutter.dataset_storage.none %}
+- `make sync_data_down` / `make sync_data_up` - Sync data with cloud storage
+- `make sync_models_down` / `make sync_models_up` - Sync models with cloud storage
+{%- endif %}
+{%- if cookiecutter.docker_support == 'Yes' %}
+- `make docker_build` / `make docker_run` - Build and run Docker container
+{%- endif %}
+{%- if cookiecutter.env_encryption == 'Yes' %}
+- `make .env` / `make .env.enc` - Decrypt / encrypt environment secrets
+{%- endif %}
+- `make help` - Show all available targets
+
 ## Project Organization
 
 ```
-├── LICENSE            <- Open-source license if one is chosen
-├── Makefile           <- Makefile with convenience commands like `make data` or `make train`
-├── README.md          <- The top-level README for developers using this project.
+├── Makefile           <- Makefile with convenience commands
+├── README.md          <- The top-level README for developers
 ├── data
-│   ├── external       <- Data from third party sources.
-│   ├── interim        <- Intermediate data that has been transformed.
-│   ├── processed      <- The final, canonical data sets for modeling.
-│   └── raw            <- The original, immutable data dump.
+│   ├── external       <- Data from third party sources
+│   ├── interim        <- Intermediate data that has been transformed
+│   ├── processed      <- The final, canonical data sets for modeling
+│   └── raw            <- The original, immutable data dump
 │
-├── docs               <- A default mkdocs project; see www.mkdocs.org for details
-│
-├── models             <- Trained and serialized models, model predictions, or model summaries
-│
-├── notebooks          <- Jupyter notebooks. Naming convention is a number (for ordering),
-│                         the creator's initials, and a short `-` delimited description, e.g.
-│                         `1.0-jqp-initial-data-exploration`.
-│
-├── pyproject.toml     <- Project configuration file with package metadata for 
-│                         {{ cookiecutter.module_name }} and configuration for tools like black
-│
-├── references         <- Data dictionaries, manuals, and all other explanatory materials.
-│
+{%- if cookiecutter.docs != 'none' %}
+├── docs               <- Documentation ({{ cookiecutter.docs }})
+{%- endif %}
+{%- if cookiecutter.docker_support == 'Yes' %}
+├── docker             <- Docker configuration
+{%- endif %}
+├── models             <- Trained and serialized models
+├── notebooks          <- Jupyter notebooks
+├── pyproject.toml     <- Project configuration and dependencies
+├── references         <- Data dictionaries, manuals, explanatory materials
 ├── reports            <- Generated analysis as HTML, PDF, LaTeX, etc.
-│   └── figures        <- Generated graphics and figures to be used in reporting
-│
-├── requirements.txt   <- The requirements file for reproducing the analysis environment, e.g.
-│                         generated with `pip freeze > requirements.txt`
-│
-├── setup.cfg          <- Configuration file for flake8
-│
-└── {{ cookiecutter.module_name }}   <- Source code for use in this project.
-    │
-    ├── __init__.py             <- Makes {{ cookiecutter.module_name }} a Python module
-    │
-    ├── config.py               <- Store useful variables and configuration
-    │
-    ├── dataset.py              <- Scripts to download or generate data
-    │
-    ├── features.py             <- Code to create features for modeling
-    │
-    ├── modeling                
-    │   ├── __init__.py 
-    │   ├── predict.py          <- Code to run model inference with trained models          
-    │   └── train.py            <- Code to train models
-    │
-    └── plots.py                <- Code to create visualizations
+│   └── figures        <- Generated graphics and figures
+{%- if cookiecutter.dependency_file == 'requirements.txt' %}
+├── requirements.txt   <- Runtime dependencies
+├── requirements-dev.txt <- Development dependencies
+{%- elif cookiecutter.dependency_file == 'environment.yml' %}
+├── environment.yml    <- Conda environment with all dependencies
+{%- endif %}
+├── tests              <- Test files
+└── {{ cookiecutter.module_name }}   <- Source code for this project
+    ├── __init__.py
+    ├── config.py      <- Configuration variables
+    ├── dataset.py     <- Data download/generation scripts
+    ├── features.py    <- Feature engineering code
+    ├── modeling
+    │   ├── predict.py <- Model inference
+    │   └── train.py   <- Model training
+    └── plots.py       <- Visualization code
 ```
 
 --------
