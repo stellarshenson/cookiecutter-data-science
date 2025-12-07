@@ -37,8 +37,8 @@ def main():
         YELLOW = "\033[33m"
         RESET = "\033[0m"
 
-        print(f"{GREEN}🐳 Running inside Docker container{RESET}")
-        print(f"{CYAN}{{ project_name }}{RESET} v{YELLOW}{__version__}{RESET}")
+        print(f"{GREEN}🐳  Running inside Docker container{RESET}")
+        print(f"{CYAN}{{ project_name }}{RESET} {YELLOW}v{__version__}{RESET}")
         print()
         # Add your main execution logic here
     elif args.command == "train":
